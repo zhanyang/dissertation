@@ -1,0 +1,99 @@
+File/Dir Clones:
+[1]
+B-trees, shadowing, and clones.
+Rodeh, O.
+ACM Transactions on Storage 3, 4 (2008), 2:1–2:27.
+
+[2]
+Btrfs: The linux b-tree filesystem.
+Rodeh, O., Bacik, J., and Mason, C.
+Transactions on Storage 9, 3 (2013), 9:1–9:32.
+
+[3]
+The episode file system.
+Chutani, S., Anderson, O. T., Kazar, M. L., Leverett, B. W., Mason, W. A., Sidebotham
+In Proceedings of the USENIX Winter 1992 Technical Conference (1992), pp. 43–60.
+
+[4]
+Ext3cow: A time-shifting file system for regulatory compliance.
+Peterson, Z., and Burns, R.
+Transactions on Storage 1, 2 (2005), 190–212.
+
+File System Snapshots:
+[5]
+File system design for an nfs file server appliance.
+Hitz, D., Lau, J., and Malcolm, M.
+In Proceedings of the USENIX Winter 1994 Technical Conference (1994), pp. 19–19.
+
+[6]
+Flexvol: Flexible, efficient file volume virtualization in wafl.
+Edwards, J. K., Ellard, D., Everhart, C., Fair, R., Hamilton, E., Kahn, A., Kanevsky, A., Lentini, J., Prakash, A., Smith, K. A., and Zayas, E.
+In Proceedings of the 2008 USENIX Annual Technical Conference (2008), pp. 129–142.
+
+[7]
+Soft updates: A technique for eliminating most synchronous writes in the fast filesystem.
+McKusick, M. K., and Ganger, G. R.
+In Proceedings of the 1999 USENIX Annual Technical Conference (1999), pp. 24–24.
+
+[8]
+Gctrees: Garbage collecting snapshots.
+Dragga, C., and Santry, D. J.
+Transactions on Storage 12, 1 (2016), 4:1–4:32.
+
+[9]
+The linux implementation of a log-structured file system.
+Konishi, R., Amagai, Y., Sato, K., Hifumi, H., Kihara, S., and Moriai, S.
+SIGOPS Operating Systems Review 40, 3 (2006), 102–107.
+
+[10]
+Zfs: The last word in file systems.
+Bonwick, J., and Moore, B.
+
+[11]
+Nova-fortis: A fault-tolerant non-volatile main memory file system.
+Xu, J., Zhang, L., Memaripour, A., Gangadharaiah, A., Borase, A., Da Silva, T. B., Swanson, S., and Rudoff, A.
+In Proceedings of the 26th Symposium on Operating Systems Principles (2017), pp. 478–496.
+
+Versioning File Systems:
+[12]
+Santry, D. S., Feeley, M. J., Hutchinson, N. C., Veitch, A. C., Carton, R. W., and Ofir, J.
+Deciding when to forget in the elephant file system.
+In Proceedings of the 17th ACM Symposium on Operating Systems Principles (1999), pp. 110–123.
+
+[13]
+Metadata efficiency in versioning file systems.
+Soules, C. A. N., Goodson, G. R., Strunk, J. D., and Ganger, G. R.
+In Proceedings of the 2nd USENIX Conference on File and Storage Technologies (2003), pp. 43–58.
+
+[14]
+A versatile and user-oriented versioning file system.
+Muniswamy-Reddy, K.-K., Wright, C. P., Himmer, A., and Zadok, E.
+In Proceedings of the 3rd USENIX Conference on File and Storage Technologies (2004), pp. 115–128.
+
+Write-Optimized File Systems:
+[15]
+The tokufs streaming file system.
+Esmet, J., Bender, M. A., Farach-Colton, M., and Kuszmaul, B. C.
+In Proceedings of the 4th USENIX Workshop on Hot Topics in Storage and File Systems (2012).
+
+[16]
+Building workload-independent storage with vt-trees.
+Shetty, P., Spillane, R. P., Malpani, R., Andrews, B., Seyster, J., and Zadok, E.
+In Proceedings of the 11th USENIX Conference on File and Storage Technologies (2013), pp. 17–30.
+
+[17]
+Tablefs: Enhancing metadata efficiency in the local file system.
+Ren, K., and Gibson, G. A.
+In Proceedings of the 2013 USENIX Annual Technical Conference (2013), pp. 145–156.
+
+File System Fragmentation:
+[18]
+File system aging – increasing the relevance of file system benchmarks
+SMITH, K. A., AND SELTZER, M.
+In Proceedings of the ACM SIGMETRICS International Conference on Measurement and Modeling of Computer Systems (1997), pp. 203–213.
+
+[19]
+Geriatrix: Aging what you see and what you don’t see. A file system aging approach for modern storage systems
+Kadekodi, S. and Nagarajan, V. and Ganger, G.
+In Proceedings of the 2018 USENIX Annual Technical Conference (2018), pp. 691–703
+

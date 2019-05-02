@@ -1,0 +1,67 @@
+\section{Introduction}
+\label{sec:intro}
+
+Inode-based file systems assign an inode number to a file or directory upon
+creation and index the metadata and data of the file or directory using the
+inode number.
+Inodes add a level of indirection so that file systems can change the data of
+one file or directory without affecting other files or directories.
+However, this schema doesn't impose any constraint on the placement of metadata
+and data under one directory.
+Thus, in the worst case, the metadata and data can end up scattered over the
+disk.
+
+On the other hand, \betrfs uses full-path indexing on top of \bets.
+Metadata and data are stored as key/value pairs whose keys are the full-paths of
+the associated files and directories.
+Therefore, metadata and data under one directory are contiguous in the keyspace.
+Because of the large physical node size in \bets, most logically related
+metadata and data are stored close to each other on disk.
+
+However, namespace operations are the longstanding problem of full-path-indexed
+file systems.
+For example, a rename must update all the keys of key/value pairs being renamed.
+A naive rename implementation would read all the old key/value pairs, insert
+them with new keys and delete them.
+When the size of the related key/value pairs is huge, such rename implementation
+is very expensive.
+
+In the preliminary work~\cite{betrfs4}, we introduce a new operation to \bets,
+\rr, that accomplishes the work of file system renames with bounded IO cost.
+A \rr slices out a source subtree from the \bet and moves the subtree to the
+destination.
+Unlike other write operations in \bets, \rr is not write-optimized and the
+idea can be applied to other tree structures.
+
+The idea of \rr can be extended to other namespace operations, like file clones.
+A file clone creates a target file whose data are identical to the source file.
+To clone a file, \betrfs can slice out the subtree as in \rr but share
+the subtree between the source and the destination.
+
+Many modern file systems are starting to support file clones.
+Recently, Linux assigns a specific \texttt{ioctl} number for file clones
+(FICLONE) and detects file clones in the virtual file system (VFS) layer for all
+file systems.
+Also, the reflink copy (\texttt{cp --reflink}) in Linux tries to invoke file
+clones directly.
+
+However, existing file clones struggle to deal with locality.
+When one block of a cloned file is overwritten, the file system has to either
+allocate an unused disk block, making the locality worse, or copy the whole
+cloned extent to another place, resulting in large write amplification.
+
+In contrast, the full-path indexing in \betrfs ensures locality and the
+write-optimized \bets in \betrfs batch small overwrites to reduce write
+amplification.
+
+The thesis of this dissertation is: a full-path-indexed write-optimized file
+system can have both good locality and efficient namespace operations by
+implementing namespace operations as dictionary-internal operations.
+We will demonstrate this thesis in the context of the \betrfs.
+
+In the remainder of this proposal, Section~\ref{sec:bg} talks about the
+background of \betrfs.
+Section~\ref{sec:rename} shows how the rename problem was solved.
+Section~\ref{sec:clone} proposes our solution to cloning.
+Related works are shown in Section~\ref{sec:related}.
+Section~\ref{sec:plan} presents the plan of milestones.

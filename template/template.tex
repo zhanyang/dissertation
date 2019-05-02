@@ -1,0 +1,111 @@
+\documentclass[timestamp,letterpaper,12pt,twoside]{uncthesis}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required thesis information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% When indicating your degree in the second bracketed space, use the full
+% degree name (i.e., Doctor of Philosophy, not Ph.D. or PHD; Master of Public
+% Health, not M.P.H. or MPH; Master of Social Work, not M.S.W. or MSW).
+\uncdegreename{Master of Wizardry}
+
+% List your department, school, or curriculum rather than your subject area or
+% specialty discipline in the third bracketed space. You may include your
+% subject area or specialty discipline in parentheses (i.e., Department of
+% Romance Languages (French); School of Pharmacy (Molecular Pharmaceutics);
+% School of Education (School Psychology); or similar official area).
+% If you wish to include both your department and school names, list the school
+% at the end of the statement (i.e., Department of Pharmacology in the School
+% of Medicine).
+% \uncthesisdepartment{Department of Pharmacology in the School of Medicine}
+\uncthesisdepartment{House of Gryffindor}
+
+% Type can be dissertation or thesis
+\uncthesistype{thesis}
+
+% Title
+\uncthesistitle{Example Thesis}
+
+% Name
+\uncthesisauthor{Harry Potter}
+
+% University Name
+%\uncthesisuniversity{University of North Carolina at Chapel Hill}
+\uncthesisuniversity{Hogwarts School of Witchcraft and Wizardry}
+
+% The year in which your committee approves the completed thesis or
+% dissertation. This need not be the year you graduate.
+\uncthesisyear{1997}
+
+% Thesis advisor. Appears on the abstract page.
+\uncthesisadvisor{Albus Dumbledore}
+
+% Thesis committee. Appears on the title page.  Do not include titles such as
+% Professor, Doctor, Dr., PhD, or any identifiers such as “chair” or “advisor”
+% before or after any names.  Put a new line after each name to render
+% correctly on title page.
+\uncthesiscommittee{Albus Dumbledore\\
+Minerva McGonagall\\
+Severus Snape\\
+Remus Lupin\\
+Rubeus Hagrid
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Font selection
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Font, if using PDFLaTeX
+\usepackage{times}
+% Font, if using XeLaTeX
+%\usepackage{fontspec}
+%\setmainfont{Times New Roman}
+
+% Prevent awkward hyphenations.
+\hyphenation{Raj-kumar}
+
+\begin{document}
+% The following order of the contents is REQUIRED
+\pagenumbering{roman}
+
+% 1. Title Page
+\input{frontmatter/1_titlepage}
+
+% 2. Copyright Page (optional)
+\input{frontmatter/2_copyright}
+
+% 3. Abstract
+\input{frontmatter/3_abstract}
+
+% 4. Dedication, Acknowledgement(s), Preface (each optional)
+\input{frontmatter/4_1_dedication}
+\input{frontmatter/4_2_acknowledgements}
+\input{frontmatter/4_3_preface}
+
+% 5. Table of Contents, with page references
+\input{frontmatter/5_toc}
+
+% 6. List of Tables, with titles and page references (if applicable). And list
+% of Figures or Illustrations, with titles and page references (if applicable)
+\input{frontmatter/6_lot}
+\input{frontmatter/6_lof}
+
+% 7. List of Abbreviations (if applicable)
+\input{frontmatter/7_abbreviations}
+
+% 8. List of Symbols (if applicable)
+\input{frontmatter/8_symbols}
+
+\pagenumbering{arabic}
+
+\input{mainmatter/chapter1}
+\input{mainmatter/chapter2}
+
+% The graduate school Format Guide put endnotes before appendixes But the
+% provided sample pages put appendixes before endnotes It's unclear which one
+% is correct. Recommend to use footnotes instead of endnotes.
+\appendix
+\input{backmatter/appendix1}
+\input{backmatter/endnotes}
+
+\input{backmatter/references}
+\end{document}

@@ -1,0 +1,15 @@
+\begin{abstract}
+
+In full-path-indexed file systems, logically related data and metadata
+are grouped together in the keyspace.
+Therefore, full-path-indexed file systems have much better locality than
+traditional inode-based file systems.
+On the other hand, in full-path-indexed file systems, a rename must update all
+related keys, which can be very expensive.
+However, a full-path-indexed file system implemented on write-optimized
+dictionaries can have efficient namespace operations by transferring them into
+dictionary-internal operations.
+We demonstrate this with two case studies: renaming (preliminary work) and
+cloning (proposed work).
+
+\end{abstract}
