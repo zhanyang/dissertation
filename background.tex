@@ -1,4 +1,12 @@
 \chapter{Background}
 \label{chap:bg}
 
-This chapter gives the necessary backgorund of Betrfs.
+This chapter gives the background of \betrfs.
+\betrfs is a full-path-indexed file system based on write-optimized \bets.
+The benefit of write-optimized \bets is random write performance,
+while the benefit of full-path-indexing is spatial locality, even in an aged
+file system.
+This chapter introduces \bets and then the full-path-indexing schema of \betrfs.
+
+\section{\bets}
+\label{sec:bet}

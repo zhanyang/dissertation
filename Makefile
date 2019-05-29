@@ -1,6 +1,7 @@
 MAIN = dissertation
 TEX = \
 	$(MAIN)    \
+	defines    \
 	intro      \
 	background \
 	renaming   \
