@@ -86,6 +86,7 @@ doesn't change the IO costs of queries.
 On the other hand, updating an old value becomes as fast as an insert.
 
 \section{\betrfs}
+\label{sec:betrfs}
 
 \begin{figure}
     \centering
@@ -99,7 +100,7 @@ key/value interface similar to BerkelyDB.
 The architecture of \betrfs is shown in Figure~\ref{fig:betrfs}.
 \betrfs interacts with \fti through point operations, such as \texttt{put},
 \texttt{get} and \texttt{del}, as well as range queries with cursors
-(\texttt{c\_getf\_set\_range} and \texttt{c\_getf\_next}).
+(\texttt{c\_get} with DB\_SET\_RANGE and DB\_NEXT).
 \betrfs also uses the transaction interface of \fti to execute multiple
 operations atomically.
 A redo log and periodic checkpoints (every 60 seconds) in \fti ensure that
@@ -111,3 +112,39 @@ We built a shim layer called \texttt{klibc} which implements all functions \fti
 requires.
 By implementing those functions in \texttt{klibc} instead of directly modifying
 \fti, we are able to migrate \fti into the kernel module intact.
+
+\betrfs uses two key/value indexes to store the metadata and data in the file
+system.
+One \texttt{meta\_db} maps full-paths to \texttt{struct stat} structures.
+Another \texttt{data\_db} maps (full-path plus block number) to 4KB blocks.
+When the VFS (Virtual File System) needs metadata, \betrfs queries
+the \texttt{meta\_db} with the full-path and constructs the corresponding inode
+from the \texttt{struct stat}.
+Likewise, when a dirty inode needs to be written, the \texttt{struct stat} is
+assembled from the inode and written to the \texttt{meta\_db} with the
+full-path key.
+Blocks of a file are fetched and written by the full-path and the indexes of
+blocks.
+Although other block granularity is possible, 4KB is the natural block size
+because it is the same as the page size in the Linux page cache.
+
+Full-path indexing ensures locality even with file system aging~\citep{betrfs3}.
+After \betrfs fetches one block of a file from the disk, all nodes along the
+root-to-leaf path are present in memory.
+And with full-path indexing, all keys under one directory are contiguous in the
+keyspace, which means a subsequent fetch of some other block in the same file or
+anbother file under than same directory is likely to be resolved in memory,
+which significantly increases performance and IO efficiency.
+
+\betrfs can write to a block without fetching the old block to memory, avoiding
+expensive read-before-write described in Section~\ref{sec:bet}.
+Conventional file systems must read the old block from the disk to the page
+cache before writing to that block (a complete overwrite can be done without
+fetching the old block, but it is not implemented in any file system).
+However, \bets have asymmetric read and write costs, so read-before-write should
+be avoided.
+If the corresponding block is not in memory, \betrfs injects a upsert message
+describing the offset and the length of this write to the \bet.
+When this message is flushed to the leaf, the change is applied to the old
+block.
+
