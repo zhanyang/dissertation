@@ -70,4 +70,19 @@ become $O(log_{B}{N})$ and $O(log_{B}{N} + k/B)$, which is the same as a \btree,
 but the insert cost becomes $O(log_{B}{N}/{\sqrt{B}})$, which is faster by a
 factor of $\sqrt{B}$.
 
+One important change in \bets is that the IO costs for point queries and inserts
+are asymmetric.
+If an application want to update the old value associated with a key,
+it must perform a point query to get the old value before inserting.
+This read-before-write behavior degrades the updating performance to point query
+performacne.
+
+\bets support ``upserts'' to avoid read-before-write.
+An upsert inject a message with the key and a delta.
+When the upsert message is flushed to the leaf, it updates the value associated
+with the key with a user-specified function and the delta in the message.
+With upsert messages, queries need to compute value on the fly, however, this
+doesn't change the IO costs of queries.
+On the other hand, updating an old value becomes as fast as an insert.
+
 \section{\betrfs}
