@@ -34,7 +34,7 @@ Besides checking key/value pairs in the leaves, point and range queries in a
         \bet ($\varepsilon=0.5$) & $O(log_{B}{N}/{\sqrt{B}})$ & $O(log_{B}{N})$ & $O(log_{B}{N} + k/B)$ \\
         \hline
     \end{tabular}
-    \caption{\label{tab:betbtree} The asymptotic IO costs of \btrees and \bets}
+    \caption{\label{tab:betbtree} The asymptotic IO costs of \btrees and \bets.}
 \end{table}
 
 \bets are asymptotically faster than \btrees, as shown in
@@ -86,3 +86,28 @@ doesn't change the IO costs of queries.
 On the other hand, updating an old value becomes as fast as an insert.
 
 \section{\betrfs}
+
+\begin{figure}
+    \centering
+    \includegraphics{proposal/fig/betrfs}
+    \caption{\label{fig:betrfs} The \betrfs architecture.}
+\end{figure}
+
+\betrfs~\citep{betrfs1,betrfs1tos} is a Linux in-kernel file
+system built upon \fti~\citep{fti}, which implements \bets and exposes a
+key/value interface similar to BerkelyDB.
+The architecture of \betrfs is shown in Figure~\ref{fig:betrfs}.
+\betrfs interacts with \fti through point operations, such as \texttt{put},
+\texttt{get} and \texttt{del}, as well as range queries with cursors
+(\texttt{c\_getf\_set\_range} and \texttt{c\_getf\_next}).
+\betrfs also uses the transaction interface of \fti to execute multiple
+operations atomically.
+A redo log and periodic checkpoints (every 60 seconds) in \fti ensure that
+changes can be made persistent on the underlying storage media.
+
+\Fti cannot be integrated into a Linux kernel module easily because
+it is a userspace library that assumes libc functions and system calls.
+We built a shim layer called \texttt{klibc} which implements all functions \fti
+requires.
+By implementing those functions in \texttt{klibc} instead of directly modifying
+\fti, we are able to migrate \fti into the kernel module intact.
