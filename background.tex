@@ -10,3 +10,64 @@ This chapter introduces \bets and then the full-path-indexing schema of \betrfs.
 
 \section{\bets}
 \label{sec:bet}
+
+\bets~\citep{bet,betlogin} are \btrees, augmented with buffers in non-leaf
+nodes.
+New writes are injected as messages into the buffer of the root node of a \bet.
+When a node's buffer becomes full, messages are flushed from that node's buffer
+to one of its children's buffers.
+The leaves of the \bet store key/value pairs, as in a \btree.
+Besides checking key/value pairs in the leaves, point and range queries in a
+\bet must check related messages in the buffers on the root-to-leaf path.
+
+\begin{table}[t]
+    \centering
+    \begin{tabular}{c | c c c}
+        \hline
+        Data Structure & Insert & Point Query & Range Query \\
+        \hline
+        \hline
+        \btree & $O(log_{B}{N})$ & $O(log_{B}{N})$ & $O(log_{B}{N} + k/B)$\\
+        \hline
+        \bet & $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$ & $O({log_{B}{N}}/{\varepsilon})$ & $O({log_{B}{N}}/{\varepsilon} + k/B)$ \\
+        \hline
+        \bet ($\varepsilon=0.5$) & $O(log_{B}{N}/{\sqrt{B}})$ & $O(log_{B}{N})$ & $O(log_{B}{N} + k/B)$ \\
+        \hline
+    \end{tabular}
+    \caption{\label{tab:betbtree} The asymptotic IO costs of \btrees and \bets}
+\end{table}
+
+\bets are asymptotically faster than \btrees, as shown in
+Table~\ref{tab:betbtree}.
+Consider a \btree with $N$ key/value pairs and each node can hold $B$ keys.
+The tree has fanout $B$, so its height is $O(log_{B}{N})$.
+Inserts and point queries need to fetch all nodes along the root-to-leaf path,
+resulting in $O(log_{B}{N})$ IOs.
+A range query for $k$ key/value pairs requires $O(log_{B}{N} + k/B)$ IOs.
+
+For comparison, a \bet with node size $B$ has fanout $B^{\varepsilon}$, where
+$0 < \varepsilon \leq 1$.
+Therefore, pivot keys in a non-leaf node consume $B^{\varepsilon}$ space and
+the remaining $(B - B^{\varepsilon})$ space is used for buffers.
+The \bet has height $O(log_{B}{N}/\varepsilon)$, because the fanout is
+$B^{\varepsilon}$.
+A point query fetches all nodes along the root-to-leaf path with
+$O(log_{B}{N}/\varepsilon)$ IOs and a range query for $k$ key/value pairs
+requires $O({log_{B}{N}}/{\varepsilon} + k/B)$ IOs.
+However, the cost of an insert consists of injecting to the root node and
+flushing down at each level.
+When flushing, \bets has $O(B - B^{\varepsilon})$ messages and $B^{\varepsilon}$
+children.
+At leave one child can receive at least
+$O((B - B^{\varepsilon})/B^{\varepsilon}) = O(B^{1 - \varepsilon})$ messages.
+Therefore, the amortized cost of an insert in one flush is
+$O(1/B^{1 - \varepsilon})$.
+As an insert must be flushed $O(log_{B}{N}/\varepsilon)$ times, the amortized
+cost of an insert is $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
+A \bet with $\varepsilon = 1$ is equivalent to a \btree.
+And if we pick $\varepsilon = 1/2$, the point and range query costs of the \bet
+become $O(log_{B}{N})$ and $O(log_{B}{N} + k/B)$, which is the same as a \btree,
+but the insert cost becomes $O(log_{B}{N}/{\sqrt{B}})$, which is faster by a
+factor of $\sqrt{B}$.
+
+\section{\betrfs}
