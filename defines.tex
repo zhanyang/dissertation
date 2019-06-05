@@ -1,7 +1,58 @@
+\usepackage{pgfplots}
+\usepackage{tikz}
+
 \newcommand{\betrfs}{BetrFS\xspace}
+\newcommand{\betrfsOne}{BetrFS 0.1\xspace}
+\newcommand{\betrfsTwo}{BetrFS 0.2\xspace}
+\newcommand{\betrfsThree}{BetrFS 0.3\xspace}
 \newcommand{\bet}{B$^{\varepsilon}$-tree\xspace}
 \newcommand{\bets}{B$^{\varepsilon}$-trees\xspace}
 \newcommand{\btree}{B-tree\xspace}
 \newcommand{\btrees}{B-trees\xspace}
 \newcommand{\fti}{\textit{ft-index}\xspace}
 \newcommand{\Fti}{\textit{Ft-index}\xspace}
+
+\pgfkeys{
+    /fs-names/ext4/.initial=ext4,
+    /fs-names/btrfs/.initial=Btrfs,
+    /fs-names/btrfs-svol/.initial=Btrfs-svol,
+    /fs-names/xfs/.initial=XFS,
+    /fs-names/zfs/.initial=ZFS,
+    /fs-names/nilfs2/.initial=NILFS2,
+    /fs-names/betrfs3/.initial=\betrfsThree,
+}
+
+\pgfkeys{
+    /fs-colors/ext4/.initial=blue,
+    /fs-colors/btrfs/.initial=red,
+    /fs-colors/btrfs-svol/.initial=cyan,
+    /fs-colors/xfs/.initial=green,
+    /fs-colors/zfs/.initial=purple,
+    /fs-colors/nilfs2/.initial=cyan,
+    /fs-colors/betrfs3/.initial=orange,
+}
+
+\pgfkeys{
+    /fs-marks/ext4/.initial=triangle*,
+    /fs-marks/btrfs/.initial=pentagon*,
+    /fs-marks/btrfs-svol/.initial=oplus,
+    /fs-marks/xfs/.initial=square*,
+    /fs-marks/zfs/.initial=diamond*,
+    /fs-marks/nilfs2/.initial=o,
+    /fs-marks/betrfs3/.initial=oplus,
+}
+
+\newcommand{\addTokubenchPlot}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/toku/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
