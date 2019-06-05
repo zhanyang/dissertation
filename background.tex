@@ -2,11 +2,12 @@
 \label{chap:bg}
 
 This chapter gives the background of \betrfs.
-\betrfs is a full-path-indexed file system based on write-optimized \bets.
-The benefit of write-optimized \bets is random write performance,
-while the benefit of full-path-indexing is spatial locality, even in an aged
-file system.
-This chapter introduces \bets and then the full-path-indexing schema of \betrfs.
+\betrfs is a file system based on write-optimized \bets, which offers good
+random write performance by cascading writes in batches.
+Alsp, \betrfs adopts full-path-indexing or relative-path-indexing for spatial
+locality.
+This chapter first introduces \bets and then the full-path-indexing or
+relative-path-indexing schema of \betrfs.
 
 \section{\bets}
 \label{sec:bet}
@@ -18,7 +19,7 @@ When a node's buffer becomes full, messages are flushed from that node's buffer
 to one of its children's buffers.
 The leaves of the \bet store key/value pairs, as in a \btree.
 Besides checking key/value pairs in the leaves, point and range queries in a
-\bet must check related messages in the buffers on the root-to-leaf path.
+\bet must check related messages in the buffers along the root-to-leaf path.
 
 \begin{table}[t]
     \centering
@@ -54,11 +55,11 @@ $B^{\varepsilon}$.
 A point query fetches all nodes along the root-to-leaf path with
 $O(log_{B}{N}/\varepsilon)$ IOs and a range query for $k$ key/value pairs
 requires $O({log_{B}{N}}/{\varepsilon} + k/B)$ IOs.
-However, the cost of an insert consists of injecting to the root node and
-flushing down at each level.
+On the other hand, the cost of an insert consists of injecting the message into
+the root node and flushing the message down at each level.
 When flushing, \bets has $O(B - B^{\varepsilon})$ messages and $B^{\varepsilon}$
 children.
-At leave one child can receive at least
+Thus, at leave one child can receive at least
 $O((B - B^{\varepsilon})/B^{\varepsilon}) = O(B^{1 - \varepsilon})$ messages.
 Therefore, the amortized cost of an insert in one flush is
 $O(1/B^{1 - \varepsilon})$.
@@ -72,20 +73,21 @@ factor of $\sqrt{B}$.
 
 One important change in \bets is that the IO costs for point queries and inserts
 are asymmetric.
-If an application want to update the old value associated with a key,
-it must perform a point query to get the old value before inserting.
-This read-before-write behavior degrades the updating performance to point query
-performacne.
+In \btrees, if an application want to update the old value associated with a
+key, it must perform a point query to get the old value before inserting.
+However, in \bets, this read-before-write behavior degrades update
+performance to point query performacne.
 
 \bets support ``upserts'' to avoid read-before-write.
-An upsert inject a message with the key and a delta.
+An upsert injects a message with the key and a delta into the buffer of the root
+node.
 When the upsert message is flushed to the leaf, it updates the value associated
 with the key with a user-specified function and the delta in the message.
 With upsert messages, queries need to compute value on the fly, however, this
 doesn't change the IO costs of queries.
 On the other hand, updating an old value becomes as fast as an insert.
 
-\section{\betrfs}
+\section{\betrfs with full-path-indexing}
 \label{sec:betrfs}
 
 \begin{figure}
@@ -133,7 +135,7 @@ After \betrfs fetches one block of a file from the disk, all nodes along the
 root-to-leaf path are present in memory.
 And with full-path indexing, all keys under one directory are contiguous in the
 keyspace, which means a subsequent fetch of some other block in the same file or
-anbother file under than same directory is likely to be resolved in memory,
+another file under than same directory is likely to be resolved in memory,
 which significantly increases performance and IO efficiency.
 
 \betrfs can write to a block without fetching the old block to memory, avoiding
@@ -143,8 +145,11 @@ cache before writing to that block (a complete overwrite can be done without
 fetching the old block, but it is not implemented in any file system).
 However, \bets have asymmetric read and write costs, so read-before-write should
 be avoided.
-If the corresponding block is not in memory, \betrfs injects a upsert message
-describing the offset and the length of this write to the \bet.
+In \betrfs, if the corresponding block is not in memory, an upsert message,
+which describes the offset and the length of this write, is injected into the
+\bet.
 When this message is flushed to the leaf, the change is applied to the old
 block.
+
+\section{\betrfs with relative-path-indexing}
 
