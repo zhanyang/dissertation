@@ -262,7 +262,14 @@ Such a pathological worst case is not possible with full-path indexing in a
 \bet, and an important design goal for \betrfs is keeping a reasonable bound on
 the worst cases.
 
-Finally, zones break the clean mapping of directory subtrees onto contiguous
-ranges of the key space, preventing us from using range-messages to implement
-bulk operations on entire subtrees of the directory hierarchy.
+\section{Summary}
+
+\betrfs is a general file system designed for all operations, with a particular
+focus on random writes and localtiy.
+The underlying data strucutre, \bets, performs random writes faster than \btrees
+by casading writes in batches.
+The full-path indexing schema of \betrfsOne ensures good locality, while making
+renaming slow.
+The relative-path indexing schema of \betrfsTwo enables fast renames,
+but imposes additional costs on other operations.
 
