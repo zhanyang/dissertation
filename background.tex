@@ -5,10 +5,10 @@ This chapter gives the background of \betrfs.
 \betrfs is a file system based on write-optimized \bets.
 Also, \betrfs adopts full-path indexing or relative-path indexing for spatial
 locality.
-This chapter first introduces \bets and full-path-indexed \betrfs, showing the
-difficulty to perform namespace operations efficiently on the file system level
-with full-path indexing.
-Then, this chapter discribes relative-path-indexed \betrfs, which has good
+This chapter first introduces \bets and full-path-indexed \betrfs,
+showing the difficulty to perform renames efficiently on the file system level
+with full-path indexing,
+followed by the description of relative-path-indexed \betrfs, which has good
 rename performance but taxes other operations.
 
 \section{\bets}
@@ -20,8 +20,8 @@ New writes are injected as messages into the buffer of the root node of a \bet.
 When a node's buffer becomes full, messages are flushed from that node's buffer
 to one of its children's buffers.
 The leaves of the \bet store key/value pairs, as in a \btree.
-Besides checking key/value pairs in the leaves, point and range queries in a
-\bet must check related messages in the buffers along the root-to-leaf path.
+Point and range queries on a \bet must check related messages in the buffers
+along the root-to-leaf path, as well as key/value pairs in the leaves.
 
 \begin{table}[t]
     \centering
@@ -41,9 +41,12 @@ Besides checking key/value pairs in the leaves, point and range queries in a
         The asymptotic IO costs of \btrees and \bets.}
 \end{table}
 
-\bets are asymptotically faster than \btrees, as shown in
+\bets are asymptotically faster than \btrees, as summarized in
 Table~\ref{tab:betbtree}.
-Consider a \btree with $N$ key/value pairs and each node can hold $B$ keys.
+Consider a \btree with $N$ key/value pairs and in which each node can hold
+$B$ keys
+(for simplicity, assume keys have constant size and that the value associated
+with each key has negligible size).
 The tree has fanout $B$, so its height is $O(log_{B}{N})$.
 Inserts and point queries need to fetch all nodes along the root-to-leaf path,
 resulting in $O(log_{B}{N})$ IOs.
@@ -53,8 +56,7 @@ For comparison, a \bet with node size $B$ has fanout $B^{\varepsilon}$, where
 $0 < \varepsilon \leq 1$.
 Therefore, pivot keys in a non-leaf node consume $B^{\varepsilon}$ space and
 the remaining $(B - B^{\varepsilon})$ space is used for buffers.
-The \bet has height $O(log_{B}{N}/\varepsilon)$, because the fanout is
-$B^{\varepsilon}$.
+As a result, the \bet has height $O(log_{B}{N}/\varepsilon)$.
 A point query fetches all nodes along the root-to-leaf path with
 $O(log_{B}{N}/\varepsilon)$ IOs and a range query for $k$ key/value pairs
 requires $O({log_{B}{N}}/{\varepsilon} + k/B)$ IOs.
@@ -66,31 +68,32 @@ Thus, at leave one child can receive at least
 $O((B - B^{\varepsilon})/B^{\varepsilon}) = O(B^{1 - \varepsilon})$ messages.
 Therefore, the amortized cost of an insert in one flush is
 $O(1/B^{1 - \varepsilon})$.
-As an insert must be flushed $O(log_{B}{N}/\varepsilon)$ times, the amortized
-cost of an insert is $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
+As the insert must be flushed $O(log_{B}{N}/\varepsilon)$ times, the amortized
+cost of the insert is $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
 A \bet with $\varepsilon = 1$ is equivalent to a \btree.
-And if we pick $\varepsilon = 1/2$, the point and range query costs of the \bet
+And if $\varepsilon = 1/2$, the point and range query costs of the \bet
 become $O(log_{B}{N})$ and $O(log_{B}{N} + k/B)$, which is the same as a \btree,
 but the insert cost becomes $O(log_{B}{N}/{\sqrt{B}})$, which is faster by a
 factor of $\sqrt{B}$.
 
-One important change in \bets from \btrees is that the IO costs for point
-queries and inserts are asymmetric.
+One important change in \bets from \btrees is the asymmetric IO costs for
+point queries and inserts.
 In \btrees, if an application wants to update the old value associated with a
 key, it performs a point query to get the old value and then issues an insert
 with the updated value.
-Because both operations take $O(log_{B}{N})$ IOs, the total asymptotic
-cost remains $O(log_{B}{N})$.
-However, in \bets, the query takes $O(log_{B}{N}/\varepsilon)$ IOs while the
-insert takes $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$ IOs.
-Performing a query before an insert degrades the insert cost to
+Because both operations take $O(log_{B}{N})$ IOs, the total cost remains
+$O(log_{B}{N})$.
+However, in \bets, the query cost is $O(log_{B}{N}/\varepsilon)$ IOs while the
+insert cost is $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
+Performing a query before an insert degrades the total cost to
 $O(log_{B}{N}/\varepsilon)$ IOs.
 
-\bets support ``upserts'' to avoid read-before-write.
+To avoid this read-before-write problem, \bets support ``upsert'' operations.
 An upsert injects a message with the key and a delta into the buffer of the root
 node.
-When the upsert message is flushed to the leaf, it updates the value associated
-with the key with a user-specified function and the delta in the message.
+When the upsert message is flushed to the leaf, it updates the old value
+associated with the key with a user-specified function and the delta in the
+message.
 With upsert messages, queries need to compute value on the fly.
 However, this doesn't change the IO costs of queries.
 On the other hand, updating an old value becomes as fast as an insert.
