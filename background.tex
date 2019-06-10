@@ -2,12 +2,14 @@
 \label{chap:bg}
 
 This chapter gives the background of \betrfs.
-\betrfs is a file system based on write-optimized \bets, which offers good
-random write performance by cascading writes in batches.
-Alsp, \betrfs adopts full-path indexing or relative-path indexing for spatial
+\betrfs is a file system based on write-optimized \bets.
+Also, \betrfs adopts full-path indexing or relative-path indexing for spatial
 locality.
-This chapter first introduces \bets and then the full-path-indexed or
-relative-path-indexed schema of \betrfs.
+This chapter first introduces \bets and full-path-indexed \betrfs, showing the
+difficulty to perform namespace operations efficiently on the file system level
+with full-path indexing.
+Then, this chapter discribes relative-path-indexed \betrfs, which has good
+rename performance but taxes other operations.
 
 \section{\bets}
 \label{sec:bet}
@@ -57,8 +59,8 @@ A point query fetches all nodes along the root-to-leaf path with
 $O(log_{B}{N}/\varepsilon)$ IOs and a range query for $k$ key/value pairs
 requires $O({log_{B}{N}}/{\varepsilon} + k/B)$ IOs.
 On the other hand, the cost of an insert consists of injecting the message into
-the root node and flushing the message down at each level.
-When flushing, \bets has $O(B - B^{\varepsilon})$ messages and $B^{\varepsilon}$
+the root node with $O(1)$ IO and flushing the message down at each level.
+In each flush, \bets has $O(B - B^{\varepsilon})$ messages and $B^{\varepsilon}$
 children.
 Thus, at leave one child can receive at least
 $O((B - B^{\varepsilon})/B^{\varepsilon}) = O(B^{1 - \varepsilon})$ messages.
@@ -72,28 +74,33 @@ become $O(log_{B}{N})$ and $O(log_{B}{N} + k/B)$, which is the same as a \btree,
 but the insert cost becomes $O(log_{B}{N}/{\sqrt{B}})$, which is faster by a
 factor of $\sqrt{B}$.
 
-One important change in \bets is that the IO costs for point queries and inserts
-are asymmetric.
-In \btrees, if an application want to update the old value associated with a
-key, it must perform a point query to get the old value before inserting.
-However, in \bets, this read-before-write behavior degrades update
-performance to point query performacne.
+One important change in \bets from \btrees is that the IO costs for point
+queries and inserts are asymmetric.
+In \btrees, if an application wants to update the old value associated with a
+key, it performs a point query to get the old value and then issues an insert
+with the updated value.
+Because both operations take $O(log_{B}{N})$ IOs, the total asymptotic
+cost remains $O(log_{B}{N})$.
+However, in \bets, the query takes $O(log_{B}{N}/\varepsilon)$ IOs while the
+insert takes $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$ IOs.
+Performing a query before an insert degrades the insert cost to
+$O(log_{B}{N}/\varepsilon)$ IOs.
 
 \bets support ``upserts'' to avoid read-before-write.
 An upsert injects a message with the key and a delta into the buffer of the root
 node.
 When the upsert message is flushed to the leaf, it updates the value associated
 with the key with a user-specified function and the delta in the message.
-With upsert messages, queries need to compute value on the fly, however, this
-doesn't change the IO costs of queries.
+With upsert messages, queries need to compute value on the fly.
+However, this doesn't change the IO costs of queries.
 On the other hand, updating an old value becomes as fast as an insert.
 
-\section{\betrfs with full-path indexing}
+\section{Full-path-indexed \betrfs}
 \label{sec:fpi}
 
 \begin{figure}
     \centering
-    \includegraphics{proposal/fig/betrfs}
+    \includegraphics{fig/betrfs}
     \caption[The \betrfs architecture]{\label{fig:betrfs}
         The \betrfs architecture.}
 \end{figure}
@@ -108,19 +115,19 @@ The architecture of \betrfs is shown in Figure~\ref{fig:betrfs}.
 \betrfs also uses the transaction interface of \fti to execute multiple
 operations atomically.
 A redo log and periodic checkpoints (every 60 seconds) in \fti ensure that
-changes can be made persistent on the underlying storage media.
+changes can be made persistent on disk.
 
 \Fti cannot be integrated into a Linux kernel module easily because
 it is a userspace library that assumes libc functions and system calls.
-We built a shim layer called \texttt{klibc} which implements all functions \fti
+\betrfs has a shim layer called \klibc that implements all functions \fti
 requires.
-By implementing those functions in \texttt{klibc} instead of directly modifying
-\fti, we are able to migrate \fti into the kernel module intact.
+Through this way, \betrfs can incorporate \fti into the kernel module without
+modifying code in \fti.
 
 \betrfs uses two key/value indexes to store the metadata and data in the file
 system.
 One \texttt{meta\_db} maps full-paths to \texttt{struct stat} structures.
-Another \texttt{data\_db} maps (full-path plus block number) to 4KB blocks.
+Another \texttt{data\_db} maps (full-path and block number) to 4KB blocks.
 When the VFS (Virtual File System) needs metadata, \betrfs queries
 the \texttt{meta\_db} with the full-path and constructs the corresponding inode
 from the \texttt{struct stat}.
@@ -131,14 +138,6 @@ Blocks of a file are fetched and written by the full-path and the indexes of
 blocks.
 Although other block granularity is possible, 4KB is the natural block size
 because it is the same as the page size in the Linux page cache.
-
-Full-path indexing ensures locality even with file system aging~\citep{betrfs3}.
-After \betrfs fetches one block of a file from the disk, all nodes along the
-root-to-leaf path are present in memory.
-And with full-path indexing, all keys under one directory are contiguous in the
-keyspace, which means a subsequent fetch of some other block in the same file or
-another file under than same directory is likely to be resolved in memory,
-which significantly increases performance and IO efficiency.
 
 \betrfs can write to a block without fetching the old block to memory, avoiding
 expensive read-before-write described in Section~\ref{sec:bet}.
@@ -153,20 +152,29 @@ the \bet.
 When this message is flushed to the leaf, the change is applied to the old
 block.
 
-The full-path-index \betrfs (\betrfsOne) has great random write performance
-and locality.
-Recursive greps run 3.8x faster than in the best standard file system.
-File creation runs 2.6x faster.
-Small, random writes to a file run 68.2x faster.
+Full-path indexing ensures locality even with file system aging~\citep{betrfs3}.
+After \betrfs fetches one block of a file from the disk, all nodes along the
+root-to-leaf path are present in memory.
+And with full-path indexing, all keys under one directory are contiguous in the
+keyspace, which means a subsequent fetch of some other block in the same file or
+another file under than same directory is likely to be resolved in memory,
+which significantly increases performance and IO efficiency.
 
-However, range operations have predictably miserable performance.
-Deleting a Linux source directory takes 46 seconds and renaming it takes
-21 seconds in \betrfsOne, both because the file system has to perform one
+The first implementation of \betrfs (\betrfsOne) shows great random write
+performance.
+Recursive greps run 3.77x faster than in the best standard file system.
+File creation runs 12.54x faster.
+Small, random writes to a file run 68.24x faster~\citep{betrfs1tos}.
+
+However, namespace operations have predictably miserable performance in
+\betrfsOne.
+Deleting and renaming a Linux source directory takes 46.14 and 21.17 seconds,
+resepctively, both because the file system has to call the key/value store
 operation for each key.
-We solved the deleting problem with a range-delete message that nullifies all
-messages within a range, but the renaming remains a diffcult problem.
+The deleting problem is fixed by a range-delete message that nullifies all
+messages within a range, but the renaming problem remains diffcult.
 
-\section{\betrfs with relative-path indexing}
+\section{Relative-path-indexed \betrfs}
 \label{sec:rpi}
 
 \begin{figure}
@@ -187,8 +195,8 @@ messages within a range, but the renaming remains a diffcult problem.
 \betrfsTwo~\citep{betrfs2,betrfs2tos} backed away from full-path indexing and
 introduced relative-path indexing, which is also called zoning.
 Relative-path indexing partitions the directory hierarchy into zones.
-Each zone has a zone ID (analogous to an inode number and the root zone is
-always 0) and a single root file or directory.
+Each zone has a zone ID (the root zone has zone ID 0), which is analogous to an
+inode number, and a single root file or directory.
 All file or directory in a zone is indexed relative to the zone root.
 If the file or directory is the root of another zone, the entry contains that
 zone ID to redirect queries.
@@ -227,7 +235,8 @@ Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
             height=.5\linewidth,
             width=.8\linewidth,
         ]
-        \addTokubenchPlot{betrfs3};
+        \addTokubenchZonePlot{betrfs3};
+        \addTokubenchZonePlot{betrfs3-max};
         \end{axis}
     \end{tikzpicture}
     \caption[Zone maintainance cost in TokuBench]{Cumulative file creation
@@ -243,7 +252,7 @@ within the zone, while smaller zones impose a lower bound on renaming latency
 because no rename needs to mutate more key/value pairs than a zone.
 
 Relative-path indexing made renames on \betrfsTwo almost as fast as inode-based
-file system and recursive-directory trawversals almost as fast as \betrfsOne.
+file system and recursive-directory traversals almost as fast as \betrfsOne.
 
 However, relative-path indexing also imposes zone maintainance costs on other
 file system operations.

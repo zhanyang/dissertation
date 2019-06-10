@@ -14,5 +14,5 @@ all: $(TEX:=.tex)
 	rubber -d -Wref -Wmisc $(MAIN).tex
 
 clean:
-	rm -f *.out *.aux *.log *.bbl *.blg *.toc $(MAIN:=.pdf)
+	rm -f *.out *.aux *.log *.bbl *.blg *.toc *.lof *.lot $(MAIN:=.pdf)
 
