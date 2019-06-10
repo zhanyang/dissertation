@@ -1,9 +1,25 @@
-\chapter{Renaming}
+\chapter{Range-Rename}
 \label{chap:rename}
 
-Renaming
+This chapter discribes the \bet operation, range-rename, that makes efficient
+renames possible on full-path-indexed \betrfs.
+To perform a rename, \betrfs simply calls the range-rename operation,
+which updates all related keys in the underlying \bets efficiently.
+This chapter starts by describing the range-rename interface,
+then explains how the range-rename operation updates a large amount of keys
+efficiently through two techniques, tree surgery and key lifting.
 
-\section{Tree surgery}
+\section{Range-rename interface}
+
+range-rename(old\_prefix, new\_prefix)
+
+key ordering
+
+\section{The \bet range-rename operation}
+
+tree surgery + key lifting
+
+\subsection{Tree surgery}
 
 This section describes our approach to renaming a directory or large file via
 changes within the \bet, such that most of the data physically moved (or even
@@ -255,7 +271,7 @@ fanout.
 In the worst case, $O(\frac{\log_B{N}}{\varepsilon})$ (tree height)
 I/Os will be performed  during a rename as a result of this design.
 
-\section{Batched Key Updates}
+\subsection{Key lifting}
 
 After tree surgery completes, there will be a subtree where the keys
 are not coherent with the new location in the tree.  As part of a
@@ -371,7 +387,7 @@ An end-to-end example of renaming is illustrated in Figure~\ref{fig:e2e}.
 In this example, each slicing step lifts the old-prefix /red. By the time the slice reaches the LCA,
 the old-prefix /red is lifted out of the entire subtree.
 
-\section{Put them together}
+\subsection{Put them together}
 
 \textbf{Figures Here}
 

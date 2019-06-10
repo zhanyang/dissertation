@@ -2,10 +2,11 @@ MAIN = dissertation
 TEX = \
 	$(MAIN)    \
 	defines    \
+	acks       \
 	intro      \
 	background \
-	renaming   \
-	cloning    \
+	rename     \
+	clone      \
 	eval       \
 	related    \
 
