@@ -172,8 +172,8 @@ Small, random writes to a file run 68.24x faster~\citep{betrfs1tos}.
 However, namespace operations have predictably miserable performance in
 \betrfsOne.
 Deleting and renaming a Linux source directory takes 46.14 and 21.17 seconds,
-resepctively, both because the file system has to call the key/value store
-operation for each key.
+resepctively, because the file system has to call one or more key/value store
+operations for each key.
 The deleting problem is fixed by a range-delete message that nullifies all
 messages within a range, but the renaming problem remains diffcult.
 
