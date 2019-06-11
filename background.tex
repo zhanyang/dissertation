@@ -129,13 +129,13 @@ modifying code in \fti.
 
 \betrfs uses two key/value indexes to store the metadata and data in the file
 system.
-One \texttt{meta\_db} maps full-paths to \texttt{struct stat} structures.
-Another \texttt{data\_db} maps (full-path and block number) to 4KB blocks.
+One \mdb maps full-paths to \texttt{struct stat} structures.
+Another \ddb maps (full-path and block number) to 4KB blocks.
 When the VFS (Virtual File System) needs metadata, \betrfs queries
-the \texttt{meta\_db} with the full-path and constructs the corresponding inode
+the \mdb with the full-path and constructs the corresponding inode
 from the \texttt{struct stat}.
 Likewise, when a dirty inode needs to be written, the \texttt{struct stat} is
-assembled from the inode and written to the \texttt{meta\_db} with the
+assembled from the inode and written to the \mdb with the
 full-path key.
 Blocks of a file are fetched and written by the full-path and the indexes of
 blocks.
