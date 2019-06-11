@@ -53,43 +53,23 @@ range-renames.
 Therefore, efficient renames are possible in full-path-index \betrfs if
 \fti can perform range-renames efficiently on the underlying \bets.
 
-\section{The \bet range-rename operation}
+\section{Range-rename on \bets}
 
-tree surgery + key lifting
+This section describes the approach to accomplish a range-renames on the \bet
+with a bounded number of IOs.
+The efficient range-rename requires lexicographic key order so that keys with
+the same prefix are contiguous in the key space.
+With contiguous keys, it is possible to have an isolated subtree that contains
+and only contains all key/value pairs of a certain preifx.
+The range-rename performs \textbf{tree surgery} to create such an isolated
+subtree.
+Then, the range-rename moves the subtree to another location on the \bet and
+updates the prefixes of keys in the subtree through \textbf{key lifting}.
+
+This section first describes tree surgery and key lifting, and then shows how
+range-rename can be done with these two techiniques.
 
 \subsection{Tree surgery}
-
-This section describes our approach to renaming a directory or large file via
-changes within the \bet, such that most of the data physically moved (or even
-accessed) on disk.
-Files that are smaller than 4 MiB reside in at most two leaves.
-We therefore move them by copying.
-We reserve tree surgery only for larger files and, for simplicity of the
-prototype, directories of any size.
-
-For the sake of discussion, we assume that a rename is moving a source file over
-an existing destination file;
-the process would work similarly (but avoid some work) in the case where the
-destination file does not exist.
-Our implementation respects Portable Operating System Interface (POSIX)
-restrictions for directories
-(i.e., you cannot rename over a non-empty destination directory),
-but our technique could easily support different directory rename semantics.
-In the case of renaming over a file, where a rename implicitly deletes the
-destination file, we use transactions in the \bet to insert both a range delete
-of the destination and a range rename of the source;
-these messages are applied atomically.
-
-This section also operates primarily at the \bet level, not the directory
-namespace.  Unless otherwise noted, pointers are pointers within the \bet.
-
-A \bet node covers a key $k$ if and only if the node is on $k$'s search
-path. Note that a node covers $k$, even if $k$ is not a key in the
-tree.  Each \bet node thus covers a range of keys defined by a max
-and min key.  For most nodes, the max and min are the
-pivots bracketing the pointer from the parent to the child.  But for
-some nodes, such as the first or last child of a parent, the range
-will be defined by a pivot at the parent and a pivot at a more distant ancestor.
 
 In renaming a file, the goal is to capture a range of contiguous keys and
 logically move these key/value pairs to a different point in the tree.
