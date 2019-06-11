@@ -71,6 +71,36 @@ range-rename can be done with these two techiniques.
 
 \subsection{Tree surgery}
 
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/slice-1}
+        \caption{\label{subfig:slice-1} The \bet before tree surgery.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/slice-2}
+        \caption{\label{subfig:slice-2} Tree surgery splits leaf nodes.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/slice-3}
+        \caption{\label{subfig:slice-3} Tree surgery splits the LCA.}
+    \end{subfigure}
+    \caption[Tree surgery example]{\label{fig:slice}
+        Tree surgery slices out an isolated subtree of prefix ``/red''.}
+\end{figure}
+
+The goal of tree surgery is to create an isolated subtree of a certain
+prefix $p$ on the \bet.
+In the \bet, each node covers a certain key range, bounded by the key range of
+its parent and pivots in the parent.
+For a certain key range $(p_{min}, p_{max})$ ($p_{min}$ and $p_{max}$ are the
+minimum and maximum keys with prefix $p$, respectively), there are three types
+of nodes: nodes whose range are completely out of the key range, nodes whose
+range are completely in the key range, and nodes whose range partly overlapped
+with the key range (called fringe nodes).
+
 In renaming a file, the goal is to capture a range of contiguous keys and
 logically move these key/value pairs to a different point in the tree.
 For anything large enough to warrant using this rename approach,
@@ -104,8 +134,6 @@ target node size and fanout.
 However, these are performance, not correctness, constraints, so we can let
 queries continue concurrently, and we restore these invariants before completing
 the rename.
-
-\textbf{Figures Here.}
 
 Our implementation requires that the source and destination LCA be at the same
 height for the next step.
