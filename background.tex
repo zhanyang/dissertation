@@ -172,10 +172,10 @@ Small, random writes to a file run 68.24x faster~\citep{betrfs1tos}.
 However, namespace operations have predictably miserable performance in
 \betrfsOne.
 Deleting and renaming a Linux source directory takes 46.14 and 21.17 seconds,
-resepctively, because the file system has to call one or more key/value store
+respectively, because the file system has to call one or more key/value store
 operations for each key.
 The deleting problem is fixed by a range-delete message that nullifies all
-messages within a range, but the renaming problem remains diffcult.
+messages within a range, but the renaming problem remains difficult.
 
 \section{Relative-path-indexed \betrfs}
 \label{sec:rpi}
@@ -261,7 +261,7 @@ because no rename needs to mutate more key/value pairs than in a zone.
 Relative-path indexing made renames on \betrfsTwo almost as fast as inode-based
 file system and recursive-directory traversals almost as fast as \betrfsOne.
 
-However, relative-path indexing also imposes zone maintainance costs on other
+However, relative-path indexing also imposes zone maintenance costs on other
 file system operations.
 For instance, in Figure~\ref{fig:tokuzone},
 two-thirds of the way through the TokuBench benchmark,
@@ -283,9 +283,9 @@ the worst cases.
 \section{Summary}
 
 \betrfs is a general file system designed for all operations, with a particular
-focus on random writes and localtiy.
-The underlying data strucutre, \bets, performs random writes faster than \btrees
-by casading writes in batches.
+focus on random writes and locality.
+The underlying data structure, \bets, performs random writes faster than \btrees
+by cascading writes in batches.
 The full-path indexing schema of \betrfsOne ensures good locality, while making
 renames slow.
 The relative-path indexing schema of \betrfsTwo enables fast renames,
