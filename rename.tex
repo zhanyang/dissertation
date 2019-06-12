@@ -94,41 +94,46 @@ range-rename can be done with these two techniques.
         \caption{\label{subfig:slice-3} Tree surgery splits the LCA.}
     \end{subfigure}
     \caption[Tree surgery example]{\label{fig:slice}
-        Tree surgery slices out an isolated subtree of prefix ``/red''.}
+        Tree surgery slices out an isolated subtree of prefix ``/red/''.}
 \end{figure}
 
 The goal of tree surgery is to create an isolated subtree of a certain
 prefix $p$ on the \bet.
-In the \bet, each node covers a certain key range, bounded by the key range of
-its parent and pivots in the parent.
+In the \bet, each node covers a certain key range, bounded by the key range and
+pivots of its parent.
 For a certain key range $(p_{min}, p_{max})$ ($p_{min}$ and $p_{max}$ are the
 minimum and maximum keys with prefix $p$, respectively), there are three types
 of nodes: nodes whose range are completely out of the key range, nodes whose
 range are completely in the key range, and nodes whose range partly overlapped
-with the key range (called fringe nodes).
+with the key range (called \textbf{fringe nodes}).
 
-In renaming a file, the goal is to capture a range of contiguous keys and
-logically move these key/value pairs to a different point in the tree.
-For anything large enough to warrant using this rename approach,
-some \bet nodes will exclusively store messages or key/value pairs
-for the source or destination.
-Some nodes may also include unrelated messages or key/value pairs
-before and after this key range in sort order;
-within the \bet these nodes will be along the left and right side of the nodes
-that store only the messages or key/value pairs of interest.
+Figure~\ref{subfig:slice-1} shows an example of a \bet.
+Node A, B and C are non-leaf nodes with buffers and pivots.
+Node D, E, F, G and H are leaf nodes that only store key/value pairs.
+Parent-to-leaf pointers in the figure link all nodes into a tree.
+Consider prefix ``/red/'',
+Node B, D and E are completely out of the key range $(/red/_{min}, /red/_{max})$,
+Node G is completely in the key range, and other nodes are fringe nodes.
 
-An important abstraction for tree surgery is the \textbf{LCA}
+\paragraph{Identifying fringe nodes.}
+The first step of tree surgery is to identify all fringe nodes.
+This is done by performing root-to-leaf traversals with two keys,
+$p_{min}$ and $p_{max}$.
+because a fringe node must have one of the two keys in its range.
+
+An important fringe node for tree surgery is the \textbf{LCA}
 (Lowest Common Ancestor) of two keys: the LCA is the \bet node lowest in the
 tree on the search path for both keys (and hence including all keys in between).
-During a range rename, the source and destination key ranges will each have an
-LCA, and their LCAs may be the same node.
+In Figure~\ref{subfig:slice-1}, Node C is the LCA.
+The subtree rooted at the LCA is the lowest subtree in the \bet that covers
+the whole range $(p_{min}, p_{max})$.
+And tree surgery uses this subtree to create its isolated subtree by splitting
+nodes.
+While traversing the \bet, tree also flushes messages in the fringe node from
+parent to child to ensure that no message stays above the subtree.
 
-The first step in tree surgery is to find the source LCA and destination LCA.
-In the process of identifying the LCAs, we also flush any pending messages for
-the source or destination key range, so that they are buffered at or below the
-corresponding LCAs.
-
-\paragraph{Slicing}  The second step is to slice out the source and destination
+\paragraph{Slicing.}
+The second step is to slice out the source and destination
 key ranges from any shared nodes.
 The goal of slicing is to separate unrelated key-value pairs that are not being
 moved but are packed into the same \bet node as the key ranges to be move.
