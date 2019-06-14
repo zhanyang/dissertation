@@ -94,7 +94,7 @@ range-rename can be done with these two techniques.
         \caption{\label{subfig:slice-3} Tree surgery splits the LCA.}
     \end{subfigure}
     \caption[Tree surgery example]{\label{fig:slice}
-        Tree surgery slices out an isolated subtree of prefix ``/red/''.}
+        Tree surgery slices out an isolated subtree of prefix ``/R/''.}
 \end{figure}
 
 The goal of tree surgery is to create an isolated subtree of a certain
@@ -111,8 +111,8 @@ Figure~\ref{subfig:slice-1} shows an example of a \bet.
 Node A, B and C are non-leaf nodes with buffers and pivots.
 Node D, E, F, G and H are leaf nodes that only store key/value pairs.
 Parent-to-leaf pointers in the figure link all nodes into a tree.
-Consider prefix ``/red/'',
-Node B, D and E are completely out of the key range $(/red/_{min}, /red/_{max})$,
+Consider prefix ``/R/'',
+Node B, D and E are completely out of the key range $(/R/_{min}, /R/_{max})$,
 Node G is completely in the key range, and other nodes are fringe nodes.
 
 \paragraph{Identifying fringe nodes.}
@@ -142,16 +142,16 @@ divides the node at the slicing key, which is $p_{min}$ or $p_{max}$ rather than
 picking a key in the middle of the node.
 
 In Figure~\ref{subfig:slice-2}, tree surgery splits Node F with key
-$/red/_{min}$, generating new Node F that only contains keys with prefix
-``/red/'' and another Node F$'$ that doesn't contain another key with prefix
-``/red/''.
+$/R/_{min}$, generating new Node F that only contains keys with prefix
+``/R/'' and another Node F$'$ that doesn't contain another key with prefix
+``/R/''.
 Likewise, tree surgery splits Node H into new Node H and Node H$'$ with key
-$/red/_{max}$.
+$/R/_{max}$.
 At last, in Figure~\ref{subfig:slice-3}, tree surgery splits the LCA, Node C,
-into new Node C, Node C$'$ and Node C$''$ with both keys, $/red/_{min}$ and
-$/red/_{max}$.
+into new Node C, Node C$'$ and Node C$''$ with both keys, $/R/_{min}$ and
+$/R/_{max}$.
 The subtree rooted at the new Node C is the isolated subtree that contains and
-only contains all keys with prefix ``/red/''.
+only contains all keys with prefix ``/R/''.
 
 \subsection{Key lifting}
 
@@ -231,7 +231,28 @@ full-path keys.
 
 \subsection{Put them together}
 
-\textbf{Figures Here}
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.7\linewidth]{fig/rr-1}
+        \caption{\label{subfig:rr-1} The \bet before the range-rename.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.7\linewidth]{fig/rr-2}
+        \caption{\label{subfig:rr-2} The range-rename performs tree surgery
+            to slices out two subtrees.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.7\linewidth]{fig/rr-3}
+        \caption{\label{subfig:rr-3} The range-rename swaps the subtree and
+            injects a range-delete.}
+    \end{subfigure}
+    \caption[A range-rename example]{\label{fig:rr}
+        An example of range-rename(``/R/'', ``/B/'').}
+\end{figure}
+
 
 
 \paragraph{Healing}  Our \bet implementation maintains the
