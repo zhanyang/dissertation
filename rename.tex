@@ -153,10 +153,6 @@ $/red/_{max}$.
 The subtree rooted at the new Node C is the isolated subtree that contains and
 only contains all keys with prefix ``/red/''.
 
-Range-rename can perform tree surgery to create a subtree of \spre and move the
-subtree to the location of \dpre in the \bet.
-The next goal of range-rename is to update prefixes of keys in the subtree.
-
 \subsection{Key lifting}
 
 \begin{figure}
@@ -178,85 +174,60 @@ The next goal of range-rename is to update prefixes of keys in the subtree.
         changes.}
 \end{figure}
 
-After tree surgery completes, there will be a subtree where the keys
-are not coherent with the new location in the tree.  As part of a
-rename, the prefixes of all keys in this subtree need to be updated.
-For example, suppose we execute \texttt{`mv /foo /bar'}.  After surgery,
-any messages and
-key/value pairs for file \texttt{/foo/file} will still have a key that
-starts with \texttt{/foo}.  These keys need to be changed to begin
-with \texttt{/bar}.  The particularly concerning case is when {\tt
-  /foo} is a very large subtree and has interior nodes that would
-otherwise be untouched by the tree surgery step; our goal is to leave
-these nodes untouched as part of rename, and thus reduce the cost of
-key changes from the size of the rename tree to the height of the
-rename tree.
+Tree surgery slices out a subtree of a certain prefix, which can be moved to
+another location in the \bet.
+However, the keys in the subtree will not be coherent with the new location in
+the tree.
+As part of a range-rename, the prefixes of all keys in this subtree need to be
+updated.
+The particularly concerning case is when the subtree is a very large.
+Updating the prefixes by traversing the subtree costs a lot of IOs, touching
+nodes that would otherwise be untouched by the tree surgery.
 
-We note that full-path keys in our tree are highly redundant.
-Our solution
-reduces the work of changing keys by reducing the redundancy of how
-keys are encoded in the tree.
-Consider the prefix encoding for a sequence
-of strings.  In this compression method, if two strings share a
-substantial longest common prefix (lcp), then that lcp is only stored
-once.  We apply this idea to \bets. % by changing the way that nodes store keys.
-The lcp of all keys in a subtree is removed from the keys and stored in the
-subtree's parent node.
-We call this approach \textbf{key lifting} or
-simply \textbf{lifting} for short~\ref{fig:lift}.
+Key lifting eliminates the need to update prefixes in the subtree by
+transferring \bets to lifted \bets.
+The idea of key lifting comes from the observation that with the lexicographic
+order, all keys in the range of two pivots must have the same prefix that is
+the \textbf{LCP} (Longest Common Prefix) of the pivots.
+Therefore, this LCP is redundant information in the subtree of the two pivots
+and can be removed from the subtree.
 
-At a high level, each parent in a lifted \bet stores
-each child's common, lifted key prefix alongside the pointer to the child.
+At a high level, each parent in a lifted \bet stores each child's common,
+lifted key prefix alongside the pointer to the child.
 Child nodes only store differing key suffixes.
-This approach encodes the complete key in the path taken to reach a given node.
+This approach encodes the complete key in the path taken to reach a given node
+and one can then modify the prefix for a lifted subtree by only modifying the
+parent node, eliminating the need to change key and pivot prefixes in all nodes
+of a subtree.
 
-This solution leaves nodes interior to the subtree to be unmodified as part of a range rename.
-Specifically, part of finding an LCA during tree surgery ensures that the prefix to be renamed
-is lifted into the parent.
+For example, in Figure~\ref{subfig:lift-1}, the subtree rooted at Node B is
+bounded by ``/red/$_{min}$'' and ``/red/$_{max}$'' in Node A.
+Therefore, all keys in the subtree must have prefix ``/red/'' and key lifting
+removes this prefix from the subtree (marked as strike-through in keys).
+Likewise, Node D is bounded by ``m/a'' and ``m/z'' in Node B
+(note ``/red/'' is already lifted from the sutbree rooted at Node B),
+so key lifting removes the prefix ``m/'' from Node D.
+In Figure~\ref{subfig:lift-2}, the same subtree, which contains exactly the
+same key/value pairs, is moved to a different location, bounded by
+``/blue/$_{min}$'' and ``/blue/$_{max}$'' in Node A.
+Because the prefix encoded in the parent-to-child pointer in Node A' becomes
+``/blue/'', all keys in the subtree have ``/blue/'' prefixes instead.
 
-One can then modify the prefix for a lifted subtree by only modifying the
-parent node.
-This solution
-eliminates the need to change key and pivot prefixes in all nodes of a subtree.
+Key lifting doesn't introduce additional IOs to reads and writes on lifted
+\bets.
+Queries need to reconstruct the full key by concatenating prefixes during a
+root-to-leaf traversal.
+When flushing, the lifted prefix must be removed from messages being flushed
+to the child.
+A node split adds a pivot to the parent, changing the lifted prefix in the
+parent-to-child pointer, so it needs to update keys in the resulting children.
+However, this doesn't incur additional IO.
+Similarly, no additional IO is required in node merges.
 
-
-Lifting requires a schema-level invariant that keys with a common prefix are adjacent
-in the sort order.  As a simple example, if one uses {\tt memcmp} to compare keys (as \betrfs does),
-then lifting will be correct.  This invariant ensures that, if there is a common prefix between any two pivot keys,
-all keys in that child will have the same prefix, which can be safely lifted.
-More formally:
-\begin{invariant}
-Let $T'$ be a subtree in a \bet with full-path indexing.  Let $p$ and
-$q$ be the pivots that enclose $T'$.  That is, if $T'$ is not the first
-or last child of its parent, then $p$ and $q$ are the enclosing pivots
-in the parent of $T'$.  If $T'$ is the first child of its parent, then
-$q$ is the first pivot and $p$ is the left enclosing pivot of the parent of $T'$.
-
-Let $s$ be the longest common prefix of $p$ and $q$.  Then all keys
-in $T'$ begin with $s$.
-\end{invariant}
-
-Reads can reconstruct the full key by concatenating prefixes during a
-root-to-leaf traversal.  In principle, one need not store the lifted prefix ($s$)
-in the tree, as it can be computed from the pivot keys.
-In our implementation, we do memorize the lifted prefix for efficiency.
-
-As messages are flushed to a child, they
-are modified to remove the common prefix.
-Similarly, node splits and merges ensure that
-any common prefix between the pivot keys is lifted out.
-It is possible for all of the keys in $T'$ to
-share a common prefix that is longer than $s$,  but we only lift
-$s$ because maintaining this amount of lifting hits a sweet spot: \textit{it
-is enough to guarantee fast key updates during renames, but it
-requires only local information at a parent and child  
-during splits, merges, and insertions.}
-
-Lifting  is completely transparent to the file system.
-From the file system's perspective, it is still indexing data with a
-key/value store that is keyed by full-path; the only difference from the file
-system's perspective is that the key/value store completes some
-operations faster.
+Key lifting is completely transparent to the application using the key/value
+store.
+From the file system's perspective, it is still storing key/value pairs with
+full-path keys.
 
 \subsection{Put them together}
 
