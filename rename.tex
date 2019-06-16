@@ -165,7 +165,7 @@ only contains all keys with prefix ``/R/''.
     \begin{subfigure}{\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{fig/lift-2}
-        \caption{\label{subfig:slice-2} The same subtree bounded by pivots
+        \caption{\label{subfig:lift-2} The same subtree bounded by pivots
             $/blue/_{min}$ and $/blue/_{max}$ in the parent}
     \end{subfigure}
     \caption[Key lifting example]{\label{fig:lift}
@@ -253,121 +253,82 @@ full-path keys.
         An example of range-rename(``/R/'', ``/B/'').}
 \end{figure}
 
+\paragraph{Tree Surgery.}
+A range-rename first slices out two isolated subtrees on lifted \bets
+simultaneously, one of \spre and the other of \dpre.
+The range-rename requires the source and destination subtrees to be at the same
+height.
+Therefore, for a subtree with a lower LCA, the range-rename keeps slicing its
+ancestors by adding nodes with only one child.
 
+Then, the range-rename swaps these two subtrees and injects a range-delete
+message for source keys, which leverages the builtin garbage collection
+mechanism in \fti to reclaim the destination subtree.
 
-\paragraph{Healing}  Our \bet implementation maintains the
-invariant that all internal nodes have between 4 and 16 children,
-which bounds the height of the tree.  After the transplant completes,
-however, there may be a number of in-memory \bet nodes at the fringe
-around the source and destination that have fewer than 4 children.
+\paragraph{Transplant.}
+An example of range-rename(``/R/'', ``/B/'') is shown in Figure~\ref{fig:rr}.
+Figure~\ref{subfig:rr-1} shows the lifted \bet before the range-rename.
+In Figure~\ref{subfig:rr-2}, the source (rooted at Node B) and destination
+subtrees (rooted at Node C) are sliced out by tree surgery.
+Note ``/R/'' is lifted from the source subtree and ``/B/'' is lifted from the
+destination subtree.
+Figure~\ref{subfig:rr-3} shows the lifted \bet after swap the source and
+destination subtree, with a range-delete message for keys with ``/R/'' prefix.
 
-We handle this situation by triggering a rebalancing within the tree.
+\paragraph{Healing.}
+The \fti implementation maintains the invariant that all non-leaf nodes have
+between 4 and 16 children, which bounds the height of the tree.
+However, tree surgery splits nodes with its own keys, which might break the
+constraint.
+
+This situation is handled by triggering a rebalancing within the tree after
+the range-rename.
 Specifically, if a node has only one child, the slicing process will merge
 it after completing the work of the rename.
-After the transplant completes, there may be a number
-of \bet nodes in memory at the fringe around the
-source and destination that have fewer children than desired.
+After the transplant completes, there may be a number of \bet nodes in memory at
+the fringe around the source and destination that have fewer children than
+desired.
 The healing process merges these smaller nodes back together,
-using the same approach as a typical \bet merge.  At this point, it is also
-possible that this could trigger a rebalancing within the tree.
+using the same approach as a typical \bet merge.
+At this point, it is also possible that this could trigger a rebalancing within
+the tree.
 
-One very important optimization we found as part of healing was to
-agressively merge {\em stalks}, or new descendants of an LCA with
-only a single child.
-When the source and destination LCA are at different height, slicing
-will creates some nodes with a single child.
-Traversing these stalks undermines the logarithmic search time one would
-expect from a tree, and created significant performance overheads.
-After healing, we immediately merge nodes at the fringe
-to a normal fanout in \bet.
+\paragraph{Complexity.}
+At most 4 root-to-leaf paths are traversed, dirtying all nodes along the paths.
+These nodes will need to be read, if not in cache, and written back to disk as
+part of the check-pointing process.
+Therefore the number of I/Os is at most proportional to the height of the \bet,
+which is logarithmic in the size of the tree.
 
-\paragraph{Crash Consistency} \betrfs relies on three on-disk data structures to
-ensure crash consistency: the trees, a block table indicating the disk blocks
-used by the trees, and a write-ahead redo log. In general, \betrfs ensures crash
-consistency by appending pending messages to the redo log and then applying
-messages to the tree in a copy-on-write manner.
-At periodic intervals (by default every 60 seconds), \betrfs ensures that there
-is a consistent, sharp checkpoint of the tree on disk.
-After a crash, \betrfs reads the last checkpointed tree and replays the redo log
-after the checkpoint.
-Range rename works within this framework.
+During tree surgery, there is lifting work along all nodes that are sliced or
+merged.
+However, the number of such nodes is at most proportional to the height of the
+tree.
+Thus, the number of nodes that must be lifted during a range-rename is no more
+than the nodes that must be sliced during tree surgery, and proportional to
+the height of the tree.
 
-A range rename is {\em logically applied} to the tree as soon as
-(1) the range-rename message is added to the redo log and
-(2) tree surgery locks the root of the tree.
+In summary, the IO cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
+
+\paragraph{Crash Consistency.}
+In general, \fti ensures crash consistency by keeping a redo log of pending
+messages and applying messages to nodes copy-on-write.
+At periodic intervals, \fti ensures that there is a consistent checkpoint
+of the tree on disk.
+Crash recovery simply replays the redo log since the last checkpoint.
+Range-rename works within this framework.
+
+A range-rename is {\em logically applied} as soon as the
+range-rename and its corresponding transaction commit entries are inserted into
+the redo log.
 The range rename is durable as soon as the redo log entry is written to disk.
 If the system crashes after a range rename is logged, the recovery will see a
-prefix of the message history that includes the range-rename message, and the
-tree surgery will be redone in response to the range-rename message.
-After both the tree surgery and the subsequent checkpoint of the tree complete,
-there is no need to repeat the tree surgery after a crash.
+prefix of the message history that includes the range rename,
+and performs the corresponding range-rename on the \bet.
 
-We note that the current implementation does tree surgery immediately after the
-message is placed in the redo log.
-It is possible to batch range rename messages and apply them lazily,
-but we leave this for future work.
-As a result of this choice, however, there are fewer cases to reason about
-in understanding crash consistency.
-
-Tree surgery walks down the tree and locks the nodes along the path
-hand-over-hand until either the source LCA or the destination LCA is reached.
-Then, until tree surgery completes, all fringe nodes, the LCAs, and the parents
-of LCAs are locked in memory and dirtied.
-Upon tree surgery completion, these nodes will be unlocked.
-Because the checkpoint process must grab the locks of all involved node before
-writing them to disk,
-no intermediate state of slicing will be exposed to a checkpoint.
-Dirty nodes may be written back to disk, copy-on-write, before checkpointing
-under memory pressure.
-However, because the recovery process always starts from the last checkpoint and
-the last block table in which these newly allocated nodes is not reachable,
-these nodes with uncheckpointed state will be marked as free during crash
-recovery.
-
-If the system crashes after tree surgery begins but before surgery completes,
-the recovery code will see a consistent checkpoint of the tree as it was
-before the tree surgery.
-The same is true if the system crashes after tree surgery but before dirty nodes
-are written back to disk.
-Because a checkpoint flushes all dirty nodes, if the system crashes after a
-checkpoint, all nodes affected by tree surgery will be on disk.
-We checked this functionality with crash recovery unit tests.
-We ran the system in QEMU and crashed the system both before a rename completed
-and before the rename log had been flushed;
-we ensured that \betrfs restored the tree to the state before the tree surgery.
-
-Tree surgery maintains the transactional properties of \betrfs.
-It is performed at the commit stage of a range-rename transaction,
-and thus aborting a range-rename transaction leaves no trace on the tree.
-In the case of a crash, the tree surgery, which is encoded as a range-rename
-message in the redo log, will be redone when the recovery process replays the
-redo log.
-The key to maintaining failure-atomicity of surgery is that all the involved
-nodes must be locked in memory in the same batch to ensure the checkpoint has
-a consistent snapshot of the tree at a point in time before or after,
-but not during, the tree surgery.
-
-At the file system level, \betrfs has similar crash consistency semantics to
-metadata-only journaling in ext4.
-The \bet implementation itself implements full data journaling, but \betrfs
-allows file writes to be buffered in the VFS, weakening this guarantee
-end-to-end.
-Specifically, file writes may be buffered in the VFS caches, and are only logged
-in the recovery journal once the VFS writes back a dirty page (e.g., upon an
-{\tt fsync} or after a configurable period).
-Changes to the directory tree structure, such as a {\tt rename} or {\tt mkdir}
-are persisted to the log immediately.
-Thus, in the common pattern of writing to a temporary file and then renaming it,
-it is possible for the rename to appear in the log before the writes.
-In this situation and in the absence of a crash, the writes will eventually be
-logged with the correct, renamed key, as the in-memory inode will be up-to-date
-with the correct \bet key.
-If the system crashes, these writes can be lost; as with a metadata-journaled
-file system, the developer must issue an {\tt fsync} before the {\tt rename} to
-ensure the data is on disk.
-
-\paragraph{Latency} A rename returns to the user once a log entry is in the
-journal and the root node of the \bet is locked.
+\paragraph{Latency.}
+A rename returns to the user once a log entry is in the journal and the root
+node of the \bet is locked.
 At this point, the rename has been applied in the VFS to in-memory metadata,
 and as soon as the log is fsynced, the rename is durable.
 
@@ -378,28 +339,25 @@ since we believe that concurrent renames are relatively infrequent.
 The challenge in adding a rename work queue is ensuring consistency between the
 work queue and the state of the tree.
 
-\paragraph{Atomicity and Transactions}
-The \bet in \betrfs implements multi-version concurrency control by augmenting
-messages with a logical timestamp.
+\paragraph{Atomicity and Transactions.}
+The \fti in \betrfs implements \bets multi-version concurrency control by
+augmenting messages with a logical timestamp.
 Messages updating a given key range are always applied in logical order.
 Multiple messages can share a timestamp, giving them transactional semantics.
 
 To ensure atomicity for a range rename, we create an MVCC ``hazard'':
 read transactions ``before'' the rename must complete before the surgery
 can proceed.
-Tree nodes in \betrfs  are locked with reader-writer locks.
+Tree nodes in the \bet are locked with reader-writer locks.
 We write-lock tree nodes hand-over-hand, and left-to-right to identify
-the LCAs.  Once the LCAs are locked, this serializes any new read or write
-transactions until the rename completes.  The lock at the LCA creates
-a ``barrier''---operations can complete ``above'' or ``below'' this lock
-in the tree, although the slicing will wait for concurrent
-transactions to complete before write-locking that node. Once the transplant
-completes, the write-locks on the parents above LCAs are released.
-
-In practice, \betrfs has a reader-writer lock in each in-memory inode to prevent
-concurrent transactions from happening during a rename,
-but this would be a concern in applying this technique to a general-purpose
-key-value store or database that uses MVCC.
+the LCAs.
+Once the LCAs are locked, this serializes any new read or write
+transactions until the rename completes.
+The lock at the LCA creates a ``barrier''---operations can complete ``above'' or
+``below'' this lock in the tree, although the slicing will wait for concurrent
+transactions to complete before write-locking that node.
+Once the transplant completes, the write-locks on the parents above LCAs are
+released.
 
 For simplicity, before the range rename is applied, we ensure that all messages
 representing changes in the affected key range(s) that logically occurred before
@@ -409,57 +367,14 @@ the tree to the destination or source.
 This strategy ensures that, when each message is flushed and applied, it sees a
 point-in-time consistent view of the subtree.
 
-\paragraph{Complexity} In the worst case, at most 4 slices are performed.
-Slices go from the parent of the LCA to the leaf,
-and nodes along this path are dirtied.
-If the root of the tree is the LCA, a new root is inserted above the current
-root for slicing.
-These nodes will need to be read, if not in cache,
-and written back to disk as part of the checkpointing process.
-Therefore the number of IOs is at most proportional to the height of the \bet,
-which is logarithmic in the size of the tree.
-
-Let $N$ be the number of entries in a \bet, i.e., the number of files plus
-directories in the metadata tree and the number of data blocks in the data tree.
-Let $B$ be the size of a node.
-And let $\varepsilon\in(0,1]$ be a design-time tuning parameter that adjusts the
-fanout.
-In the worst case, $O(\frac{\log_B{N}}{\varepsilon})$ (tree height)
-I/Os will be performed  during a rename as a result of this design.
-
-
-\paragraph{Lifting and Renames}
-In the case of renames, lifting dramatically reduces the work to update
-keys.  During a rename from $a$ to $b$, we slice out a sub-tree
-containing exactly those keys that have $a$ as a prefix.  By the
-lifting invariant, the prefix $a$ will be lifted out of the sub-tree,
-and the parent of the sub-tree will bound it between two pivots whose
-common prefix is $a$ (or at least includes $a$---the pivots may have
-an even longer common prefix).  After we perform the pointer swing,
-the sub-tree will be bounded in its new parent by pivots that have $b$
-as a common prefix.  Thus, by the lifting invariant, all future queries
-will interpret all the keys in the sub-tree has having $b$ as a prefix.
-Thus, with lifting, the pointer swing implicitly performs the batch key-prefix
-replacement, completing the rename.
-
-\paragraph{Complexity} During tree surgery, there is lifting work
-along all nodes that are sliced or merged.  However, the number of
-such nodes is at most proportional to the height of the tree.
-Thus, the number of nodes that must be lifted after a rename is no more than
-the nodes that must be sliced during tree surgery, and proportional to the height
-of the tree.
-
-After slicing out the subtree containing all the source keys involved in the rename,
-the two source slicing keys become the two pivots bounding the source subtree in the
-parent.
-Because the common prefix of the two source slicing keys is the old prefix,
-the old prefix is lifted from the source subtree.
-Then, by inserting the subtree
-to the new location that is bounded by two destination slicing keys with the new prefix,
-all the keys in the subtree are updated immediately.
-An end-to-end example of renaming is illustrated in Figure~\ref{fig:e2e}.
-In this example, each slicing step lifts the old-prefix /red. By the time the slice reaches the LCA,
-the old-prefix /red is lifted out of the entire subtree.
-
 \section{Summary}
+
+This chapter presents a new key/value store operation, range-rename.
+Renames on full-path-indexed \betrfs can be done with an insert, a delete and
+one or two range-renames.
+And on lifted \bets, a range-rename can be done efficiently with tree surgery.
+
+\betrfs with range-rename demonstrates the possibility of consolidating
+efficient renames into full-path-indexed file systems, showing the possibility
+of building file systems that are good at locality and namespace operations.
 
