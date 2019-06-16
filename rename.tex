@@ -367,6 +367,32 @@ the tree to the destination or source.
 This strategy ensures that, when each message is flushed and applied, it sees a
 point-in-time consistent view of the subtree.
 
+\section{\betrfs key ordering}
+
+Before range-rename, there is only one readdir constraint on \betrfs key
+ordering.
+In \betrfs, a readdir uses range-queries to fetch all child entries under the
+directory.
+Therefore, all files and directories immediately under one directory should be
+contiguous in keyspace.
+The \texttt{memcmp} key ordering fails this constraint.
+Consider entries ``/bar/dir'', ``/bar/dir/file'' and ``/bar/file'' in the that
+order, a readir for directory ``/bar'' needs to skip ``/bar/dir/file''.
+In the worst case, a readdir might need to skip all keys in the key/value store.
+
+The lifted \bet imposes the lexicographic constraints because key lifting only
+works properly with lexicographic key ordering.
+The old \betrfs key ordering, which sorts full-paths first by the number of
+slashes and then by memcmp, doesn't satisfy this constraint.
+
+In order to adopt range-rename, \betrfs tweaks its full-path keys by adding one
+additional slash alongside the last slash.
+Now, ``/foo'' and ``/foo/bar'' become ``//foo'' and ``/foo//bar'', respectively
+(for correct ordering, `\textbackslash x01' is used as a slash).
+With the new full-path keys, \betrfs can use \texttt{memcmp} as the key
+comparison function while satisfying the readdir constraint.
+
+
 \section{Summary}
 
 This chapter presents a new key/value store operation, range-rename.
