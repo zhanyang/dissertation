@@ -248,7 +248,7 @@ Because the prefix lifted through the parent-to-child pointer in Node $A'$
 becomes ``/B/'', all keys in the subtree have ``/B/'' prefixes instead.
 
 Key lifting doesn't introduce additional IOs to operations on \bets.
-In a lifted \bet, a query needs to memorize lifted prefixes during the
+A query on a lifted \bet needs to memorize lifted prefixes during the
 root-to-leaf traversal and reconstruct the full key by concatenating these
 prefixes and the suffix in the leaf.
 Lifted \bets must remove the lifted prefix from a message before flushing the
@@ -261,10 +261,10 @@ Similarly, no additional IO is required in node merges.
 
 Key lifting is completely transparent to the application using the key/value
 store.
-From the file system's perspective, it is still storing key/value pairs with
-full-path keys.
+From \betrfs's perspective, it is still storing key/value pairs with
+full-path keys, just with a slightly different data structure.
 
-\subsection{Put them together}
+\subsection{Range-rename on lifted \bets}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -276,39 +276,46 @@ full-path keys.
         \centering
         \includegraphics[width=.7\linewidth]{fig/rr-2}
         \caption{\label{subfig:rr-2} The range-rename performs tree surgery
-            to slices out two subtrees.}
+            to slices out the source and destination subtrees.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
         \includegraphics[width=.7\linewidth]{fig/rr-3}
-        \caption{\label{subfig:rr-3} The range-rename swaps the subtree and
-            injects a range-delete.}
+        \caption{\label{subfig:rr-3} The range-rename swaps the subtrees and
+            injects a range-delete message for source keys.}
     \end{subfigure}
     \caption[A range-rename example]{\label{fig:rr}
         An example of range-rename(``/R/'', ``/B/'').}
 \end{figure}
 
+On lifted \bets, range-rename(\spre, \dpre) can be done with two steps:
+
 \paragraph{Tree Surgery.}
-A range-rename first slices out two isolated subtrees on lifted \bets
+The range-rename first slices out two isolated subtrees in the lifted \bet
 simultaneously, one of \spre and the other of \dpre.
 The range-rename requires the source and destination subtrees to be at the same
 height.
-Therefore, for a subtree with a lower LCA, the range-rename keeps slicing its
+Therefore, for the subtree with a lower LCA, the range-rename keeps slicing its
 ancestors by adding nodes with only one child.
 
-Then, the range-rename swaps these two subtrees and injects a range-delete
-message for source keys, which leverages the builtin garbage collection
-mechanism in \fti to reclaim the destination subtree.
-
 \paragraph{Transplant.}
+Then, the range-rename swaps these two subtrees and injects a range-delete
+message for source key.
+Because the source and destination subtree are at the same height, the swap
+doesn't violate the \bet invariant that all leaves should be at the same depth.
+The range-delete message leverages the existing garbage collection mechanism
+to reclaim the destination subtree.
+
 An example of range-rename(``/R/'', ``/B/'') is shown in Figure~\ref{fig:rr}.
 Figure~\ref{subfig:rr-1} shows the lifted \bet before the range-rename.
-In Figure~\ref{subfig:rr-2}, the source (rooted at Node B) and destination
-subtrees (rooted at Node C) are sliced out by tree surgery.
-Note ``/R/'' is lifted from the source subtree and ``/B/'' is lifted from the
-destination subtree.
-Figure~\ref{subfig:rr-3} shows the lifted \bet after swap the source and
-destination subtree, with a range-delete message for keys with ``/R/'' prefix.
+In Figure~\ref{subfig:rr-2}, tree surgery slices out the source subtree, rooted
+at Node $C'$, and the destination subtree, root at Node $B'$.
+Note though the destination LCA is Node $D$, tree surgery still splits Node $B$
+to keep the source and destination subtrees at the same height.
+Also, prefix ``/R/'' is lifted from the source subtree and prefix ``/B/''
+is lifted from the destination subtree.
+Figure~\ref{subfig:rr-3} shows the lifted \bet after swapping the source and
+destination subtrees, with a range-delete message for ``/R/'' keys in Node $A$.
 
 \paragraph{Healing.}
 The \fti implementation maintains the invariant that all non-leaf nodes have
