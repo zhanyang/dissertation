@@ -318,10 +318,10 @@ Figure~\ref{subfig:rr-3} shows the lifted \bet after swapping the source and
 destination subtrees, with a range-delete message for ``/R/'' keys in Node $A$.
 
 \paragraph{Healing.}
-The \fti implementation maintains the invariant that all non-leaf nodes have
-between 4 and 16 children, which bounds the height of the tree.
-However, tree surgery splits nodes with its own keys, which might break the
-constraint.
+The \fti implementation of \bets maintains the invariant that all non-leaf nodes
+have between 4 and 16 children, which bounds the height of the tree.
+However, tree surgery might break the constraint because it splits nodes with
+its own keys.
 
 This situation is handled by triggering a rebalancing within the tree after
 the range-rename.
@@ -336,14 +336,15 @@ At this point, it is also possible that this could trigger a rebalancing within
 the tree.
 
 \paragraph{Complexity.}
-At most 4 root-to-leaf paths are traversed, dirtying all nodes along the paths.
+During tree surgery, at most 4 root-to-leaf paths are traversed, dirtying all
+nodes along the paths.
 These nodes will need to be read, if not in cache, and written back to disk as
-part of the check-pointing process.
-Therefore the number of I/Os is at most proportional to the height of the \bet,
-which is logarithmic in the size of the tree.
+part of the checkpointing process.
+Therefore, the number of I/Os required in tree surgery is at most proportional
+to the height of the \bet, which is logarithmic in the size of the tree.
 
-During tree surgery, there is lifting work along all nodes that are sliced or
-merged.
+There is also lifting work along all nodes that are sliced in tree surgery or
+merged in healing.
 However, the number of such nodes is at most proportional to the height of the
 tree.
 Thus, the number of nodes that must be lifted during a range-rename is no more
@@ -351,6 +352,34 @@ than the nodes that must be sliced during tree surgery, and proportional to
 the height of the tree.
 
 In summary, the IO cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
+
+\paragraph{Atomicity and Transactions.}
+The \fti in \betrfs implements \bets with multi-version concurrency control by
+augmenting messages with a logical timestamp.
+Messages updating a given key range are always applied in logical order.
+Multiple messages can share a timestamp, giving them transactional semantics.
+
+To ensure atomicity for a range-rename,
+read transactions ``before'' the range-rename must complete before the surgery
+can proceed.
+Each \bet node has a reader-writer lock.
+The range-rename write-locks tree nodes hand-over-hand, and left-to-right to
+identify the LCAs.
+Once the LCAs are locked, this serializes any new read or write transactions
+until the range-rename completes.
+The lock at the LCA creates a ``barrier''---operations can complete ``above'' or
+``below'' this lock in the tree, although the slicing will wait for concurrent
+transactions to complete before write-locking that node.
+Once the transplant completes, the write-locks on the parents above LCAs are
+released.
+
+Briefly speaking, the range-rename ensures all messages representing changes in
+the affected key range(s) that logically occurred before the range-rename are
+flushed at least to the LCAs.
+All messages that logically occur after the range-rename must stay above the
+parents of the LCAs.
+This strategy ensures that, when each message is flushed and applied, it sees a
+point-in-time consistent view of the subtree.
 
 \paragraph{Crash Consistency.}
 In general, \fti ensures crash consistency by keeping a redo log of pending
@@ -369,71 +398,45 @@ prefix of the message history that includes the range rename,
 and performs the corresponding range-rename on the \bet.
 
 \paragraph{Latency.}
-A rename returns to the user once a log entry is in the journal and the root
-node of the \bet is locked.
-At this point, the rename has been applied in the VFS to in-memory metadata,
-and as soon as the log is fsynced, the rename is durable.
+The range-rename returns to the user once a log entry is in the journal and the
+root node of the \bet is write-locked.
+No other operation on the \bet can proceed before the range-rename releases the
+root lock.
+The rest of the range-rename work is handed off to background threads, which
+performing slicing, transplanting and healing.
 
-We then hand off the rest of the rename work to two background threads
-to do the cutting and healing.
-The prototype in this paper only allows a backlog of one pending, large rename,
-since we believe that concurrent renames are relatively infrequent.
-The challenge in adding a rename work queue is ensuring consistency between the
-work queue and the state of the tree.
+\section{\betrfs key order}
 
-\paragraph{Atomicity and Transactions.}
-The \fti in \betrfs implements \bets multi-version concurrency control by
-augmenting messages with a logical timestamp.
-Messages updating a given key range are always applied in logical order.
-Multiple messages can share a timestamp, giving them transactional semantics.
+There are 2 constraint on the key order of full-path-index \betrfs with
+range-renames:
 
-To ensure atomicity for a range rename, we create an MVCC ``hazard'':
-read transactions ``before'' the rename must complete before the surgery
-can proceed.
-Tree nodes in the \bet are locked with reader-writer locks.
-We write-lock tree nodes hand-over-hand, and left-to-right to identify
-the LCAs.
-Once the LCAs are locked, this serializes any new read or write
-transactions until the rename completes.
-The lock at the LCA creates a ``barrier''---operations can complete ``above'' or
-``below'' this lock in the tree, although the slicing will wait for concurrent
-transactions to complete before write-locking that node.
-Once the transplant completes, the write-locks on the parents above LCAs are
-released.
+\begin{itemize}
+\item the readdir constraint. Because \betrfs uses range-queries to fetch all
+child entries for readdirs, all files and directories immediately under one
+directory must be contiguous in keyspace.
+\item the lexicographic constraint. Key lifting only works properly with
+lexicographic key order. In order to use range-rename, \betrfs must use
+lexicographic key order.
+\end{itemize}
 
-For simplicity, before the range rename is applied, we ensure that all messages
-representing changes in the affected key range(s) that logically occurred before
-the range rename are flushed below the LCA.
-All messages that logically occur after the rename follow the new path through
-the tree to the destination or source.
-This strategy ensures that, when each message is flushed and applied, it sees a
-point-in-time consistent view of the subtree.
-
-\section{\betrfs key ordering}
-
-Before range-rename, there is only one readdir constraint on \betrfs key
-ordering.
-In \betrfs, a readdir uses range-queries to fetch all child entries under the
-directory.
-Therefore, all files and directories immediately under one directory should be
-contiguous in keyspace.
-The \texttt{memcmp} key ordering fails this constraint.
+Simple \texttt{memcmp} key order fails the readdir constraint.
 Consider entries ``/bar/dir'', ``/bar/dir/file'' and ``/bar/file'' in the that
-order, a readir for directory ``/bar'' needs to skip ``/bar/dir/file''.
-In the worst case, a readdir might need to skip all keys in the key/value store.
+order, a readdir for directory ``/bar'' needs to skip ``/bar/dir/file'' in
+its range queries.
+In the worst case, a readdir might need to skip almost all keys in the key/value
+store.
 
-The lifted \bet imposes the lexicographic constraints because key lifting only
-works properly with lexicographic key ordering.
-The old \betrfs key ordering, which sorts full-paths first by the number of
-slashes and then by memcmp, doesn't satisfy this constraint.
+The old \betrfs key order sorts full-path keys first by the number of slashes
+and then by a \texttt{memcmp}.
+This key order satisfies the readdir constraint but fails the lexicographic
+constraint, so \betrfs needs a new key order for range-rename.
 
 In order to adopt range-rename, \betrfs tweaks its full-path keys by adding one
 additional slash alongside the last slash.
 Now, ``/foo'' and ``/foo/bar'' become ``//foo'' and ``/foo//bar'', respectively
-(for correct ordering, `\textbackslash x01' is used as a slash).
+(for correct ordering, `\textbackslash x01' is used as slashes).
 With the new full-path keys, \betrfs can use \texttt{memcmp} as the key
 comparison function while satisfying the readdir constraint.
-
 
 \section{Summary}
 
