@@ -28,7 +28,7 @@ where $k$ is the concatenation of \spre and some suffix $s$ and $k'$ is the
 concatenation of \dpre and the same suffix $s$;
 \item at last, it deletes all source key/value pairs from the key/value store.
 \end{itemize}
-In other words, a range-rename deletes all destination key/value pairs and
+In other words, the range-rename deletes all destination key/value pairs and
 updates all source key/value pairs to have \dpre.
 
 To see how range-rename accomplishes file system renames in full-path-indexed
@@ -67,8 +67,8 @@ to have prefix ``/qux/'', which is done by range-rename(``/baz/'', ``/qux/'')
         \hline
         Directory Rename & \mdb$\rightarrow$put(\textit{dst}); \\
                          & \mdb$\rightarrow$del(\textit{src}); \\
-                         & \mdb$\rightarrow$range-rename(\textit{src}/, \textit{dst}/); \\
-                         & \ddb$\rightarrow$range-rename(\textit{src}/, \textit{dst}/); \\
+                         & \mdb$\rightarrow$range-rename(\textit{src/}, \textit{dst/}); \\
+                         & \ddb$\rightarrow$range-rename(\textit{src/}, \textit{dst/}); \\
         \hline
     \end{tabular}
     \caption[File system renames in \betrfs with range-renames]{\label{tab:fsrr}
@@ -81,24 +81,24 @@ Briefly speaking, full-path-indexed \betrfs can finish a file rename by calling
 three functions of \fti: an insert, a delete and a range-rename.
 And a directory rename can be done with an insert, a delete and two
 range-renames.
-Therefore, efficient renames are possible in full-path-index \betrfs if
+Therefore, efficient renames are possible in full-path-indexed \betrfs if
 \fti can perform range-renames efficiently on the underlying \bet.
 
 \section{Range-rename on \bets}
 
-This section describes the approach to do a range-renames on the \bet
+This section describes the approach to do range-rename on the \bet
 with a bounded number of IOs.
 The efficient range-rename requires lexicographic key order so that keys with
 the same prefix are contiguous in the key space.
 With contiguous keys, it is possible to have an isolated subtree that contains
-and only contains all key/value pairs of a certain prefix.
-The range-rename performs \textbf{tree surgery} to create such an isolated
-subtree.
-Then, the range-rename moves the subtree to another location on the \bet and
-updates the prefixes of keys in the subtree through \textbf{key lifting}.
+and only contains all keys of a certain prefix.
+The range-rename performs \textbf{tree surgery} to slice out such isolated
+subtrees, which are then moved to other locations on the \bet.
+The prefixes of keys in the subtrees are updated automatically through
+\textbf{key lifting}, which transforms \bets to lifted \bets.
 
 This section first describes tree surgery and key lifting, and then shows how
-range-rename can be done with these two techniques.
+range-rename can be done efficiently with these two techniques.
 
 \subsection{Tree surgery}
 
@@ -122,61 +122,65 @@ range-rename can be done with these two techniques.
         Tree surgery slices out an isolated subtree of prefix ``/R/''.}
 \end{figure}
 
-The goal of tree surgery is to create an isolated subtree of a certain
+The goal of tree surgery is to slice out an isolated subtree of a certain
 prefix $p$ on the \bet.
 In the \bet, each node covers a certain key range, bounded by the key range and
 pivots of its parent.
 For a certain key range $(p_{min}, p_{max})$ ($p_{min}$ and $p_{max}$ are the
 minimum and maximum keys with prefix $p$, respectively), there are three types
-of nodes: nodes whose range are completely out of the key range, nodes whose
-range are completely in the key range, and nodes whose range partly overlapped
-with the key range (called \textbf{fringe nodes}).
+of nodes in the \bet:
+nodes whose key ranges are completely out of the key range (exterior nodes),
+nodes whose key ranges are completely in the key range (interior nodes),
+and nodes whose key ranges partly overlap with the key range (fringe nodes).
 
 Figure~\ref{subfig:slice-1} shows an example of a \bet.
-Node A, B and C are non-leaf nodes with buffers and pivots.
-Node D, E, F, G and H are leaf nodes that only store key/value pairs.
-Parent-to-leaf pointers in the figure link all nodes into a tree.
+Node $A$, $B$ and $C$ are non-leaf nodes with buffers and pivots, while
+Node $D$, $E$, $F$, $G$ and $H$ are leaf nodes that only store key/value pairs.
+Parent-to-leaf pointers link all nodes into a tree.
 Consider prefix ``/R/'',
-Node B, D and E are completely out of the key range $(/R/_{min}, /R/_{max})$,
-Node G is completely in the key range, and other nodes are fringe nodes.
+Node $B$, $D$ and $E$ are exterior nodes, Node $G$ is an interior node,
+and the others are fringe nodes.
 
 \paragraph{Identifying fringe nodes.}
 The first step of tree surgery is to identify all fringe nodes.
 This is done by performing root-to-leaf traversals with two keys,
-$p_{min}$ and $p_{max}$.
-because a fringe node must have one of the two keys in its range.
+$p_{min}$ and $p_{max}$,
+because a fringe node must have one of the two keys in its key range.
 
 An important fringe node for tree surgery is the \textbf{LCA}
-(Lowest Common Ancestor) of two keys: the LCA is the \bet node lowest in the
-tree on the search path for both keys (and hence including all keys in between).
-In Figure~\ref{subfig:slice-1}, Node C is the LCA.
+(Lowest Common Ancestor) of the two traversal keys: the lowest \bet node
+whose key range includes both search keys.
+For exmaple, in Figure~\ref{subfig:slice-1}, Node C is the LCA of prefix ``/R/''.
 The subtree rooted at the LCA is the lowest subtree in the \bet that covers
 the whole range $(p_{min}, p_{max})$.
-And tree surgery uses this subtree to create its isolated subtree by splitting
-nodes.
-While traversing the \bet, tree also flushes messages in the fringe node from
-parent to child to ensure that no message stays above the subtree.
+And tree surgery uses this subtree to slice out its targeted subtree
+by performing node splits.
+In order to push all messages to the subtree, before reaching the LCA,
+the traversals also performs parent-to-child flushes for fringe nodes.
 
 \paragraph{Slicing.}
 The second step is to slice out the isolated subtree by splitting fringe nodes
 from bottom up.
-The goal of slicing to separated unrelated key/value pairs in the fringe nodes
-from key/values in the range.
+The goal of slicing to separate unrelated key/value pairs in the fringe nodes
+from key/values in the range (thus with prefix $p$).
 Slicing uses the same code used for standard \bet node splits, but slicing
 divides the node at the slicing key, which is $p_{min}$ or $p_{max}$ rather than
 picking a key in the middle of the node.
 
-In Figure~\ref{subfig:slice-2}, tree surgery splits Node F with key
-$/R/_{min}$, generating new Node F that only contains keys with prefix
-``/R/'' and another Node F$'$ that doesn't contain another key with prefix
+In Figure~\ref{subfig:slice-2}, tree surgery splits Node $F$ with key
+``/R/$_{min}$'', generating Node $F'$ that only contains keys with the prefix
+``/R/'' and another Node $F''$ that doesn't contain any key with prefix
 ``/R/''.
-Likewise, tree surgery splits Node H into new Node H and Node H$'$ with key
-$/R/_{max}$.
-At last, in Figure~\ref{subfig:slice-3}, tree surgery splits the LCA, Node C,
-into new Node C, Node C$'$ and Node C$''$ with both keys, $/R/_{min}$ and
-$/R/_{max}$.
-The subtree rooted at the new Node C is the isolated subtree that contains and
-only contains all keys with prefix ``/R/''.
+Likewise, tree surgery splits Node $H$ into Node $H'$ and Node $H'$ with key
+``/R/$_{max}$''.
+At last, in Figure~\ref{subfig:slice-3}, tree surgery splits the LCA, Node $C$,
+into Node $C'$, $C''$ and $C'''$ with both keys, ``/R/$_{min}$'' and
+``/R/$_{max}$''.
+The subtree rooted at Node $C'$ is the isolated subtree that contains and
+only contains all keys with the prefix ``/R/''.
+
+When the LCA is the root of the \bet, tree surgery creates a new root as the
+parent of the old root before slicing.
 
 \subsection{Key lifting}
 
