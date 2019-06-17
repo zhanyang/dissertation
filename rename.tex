@@ -1,15 +1,17 @@
 \chapter{Range-Rename}
 \label{chap:rename}
 
-This chapter describes the \bet operation, range-rename, that makes efficient
-renames possible on full-path-indexed \betrfs.
-To perform a rename, \betrfs simply calls the range-rename function of \fti,
-which updates all related key/value pairs in the underlying \bets efficiently.
+This chapter describes the new \bet operation, range-rename, that makes
+efficient renames possible on full-path-indexed \betrfs.
+To perform a file system rename, \betrfs calls the range-rename function of
+\fti,
+which updates related key/value pairs in the underlying \bet in an IO-efficient
+way.
 This chapter starts by describing the range-rename interface,
-followed by two key techniques that make efficient range-rename operation
-possible on \bets, \textbf{tree surgery} and \textbf{key lifting}.
-At last, this chapter discusses the changes that \betrfs makes to adopt
-range-renames.
+followed by two key techniques that enable efficient range-renames
+on \bets, \textbf{tree surgery} and \textbf{key lifting}.
+At last, this chapter discusses the new \betrfs key order because of the
+constraint range-rename imposes.
 
 \section{The range-rename interface}
 
@@ -29,8 +31,8 @@ concatenation of \dpre and the same suffix $s$;
 In other words, a range-rename deletes all destination key/value pairs and
 updates all source key/value pairs to have \dpre.
 
-To see how range-rename accomplishes renames in full-path-indexed \betrfs,
-consider renaming file ``/foo'' to ``/bar''.
+To see how range-rename accomplishes file system renames in full-path-indexed
+\betrfs, consider renaming file ``/foo'' to ``/bar''.
 In \mdb, \betrfs needs to insert the destination key ``/bar''
 (this insert overwrites the old value of ``/bar'', if it exists)
 and delete the source key ``/foo'', resulting in two function calls to \fti.
@@ -38,7 +40,7 @@ On the other hand, in \ddb, \betrfs needs to delete all data keys of ``/bar''
 (POSIX allows file renames to overwrite the destination file) and update all
 data keys of ``/foo'' to be data keys of ``/bar''.
 The whole work in \ddb can be done by calling range-rename(``/foo'',``/bar'')
-(data keys are the concatenation of the full-path and an 8-byte block number).
+(a data key is the concatenation of the full-path and an 8-byte block number).
 
 Similarly, consider renaming directory ``/baz'' to ``/qux''.
 In \mdb, \betrfs also needs to insert the destination key ``/qux'' and deletes
@@ -48,16 +50,39 @@ prefix ``/qux/''
 (POSIX only allows directory renames to overwrite an empty directory, which
 means there cannot be any key with prefix ``/qux/''),
 which is covered in range-rename(``/baz/'', ``/qux/'').
-Likewise, in \ddb, \betrfs also needs to update all keys with prefix ``/baz/''
-to have prefix ``/qux/'', which is done in range-rename(``/baz/'', ``/qux/'')
+Likewise, in \ddb, \betrfs needs to update all keys with prefix ``/baz/''
+to have prefix ``/qux/'', which is done by range-rename(``/baz/'', ``/qux/'')
 (directory doesn't have any data key).
 
-In summary, full-path-indexed \betrfs can finish a file rename by calling three
-functions of \fti: an insert, a delete and a range-rename.
+\begin{table}[t]
+    \centering
+    \begin{tabular}{c | l}
+        \hline
+        Type of Rename & Key/Value Store Operations \\
+        \hline
+        \hline
+        File Rename & \mdb$\rightarrow$put(\textit{dst}); \\
+                    & \mdb$\rightarrow$del(\textit{src}); \\
+                    & \ddb$\rightarrow$range-rename(\textit{src}, \textit{dst}); \\
+        \hline
+        Directory Rename & \mdb$\rightarrow$put(\textit{dst}); \\
+                         & \mdb$\rightarrow$del(\textit{src}); \\
+                         & \mdb$\rightarrow$range-rename(\textit{src}/, \textit{dst}/); \\
+                         & \ddb$\rightarrow$range-rename(\textit{src}/, \textit{dst}/); \\
+        \hline
+    \end{tabular}
+    \caption[File system renames in \betrfs with range-renames]{\label{tab:fsrr}
+        \betrfs renames \textit{src} to \textit{dst} by calling range-renames.}
+\end{table}
+
+Table~\ref{tab:fsrr} summarizes how file system renames can be done with
+range-renames in full-path-index \betrfs.
+Briefly speaking, full-path-indexed \betrfs can finish a file rename by calling
+three functions of \fti: an insert, a delete and a range-rename.
 And a directory rename can be done with an insert, a delete and two
 range-renames.
 Therefore, efficient renames are possible in full-path-index \betrfs if
-\fti can perform range-renames efficiently on the underlying \bets.
+\fti can perform range-renames efficiently on the underlying \bet.
 
 \section{Range-rename on \bets}
 
