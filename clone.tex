@@ -71,39 +71,16 @@ Because deleting source key/value pairs can be done by injecting a range-delete
 message into the root node,
 \delold is set to false in the section.
 
-This section first describes a simple range-clone implementation based on the
-range-rename implementation,
-followed by the technique to finish tree surgery work in flushes.
-At last, this section introduces \goto messages that further write-optimizes
-the range-clone operation.
+This section first shows all the changes needed if performing all operations
+at the time of the range-clone, that is, all operations are on the critical
+path, and mutual exclusion on the tree.
+Then, this section shows how to enhance the design to minimize the critical
+path, reduce locking, and move as much work as possible to the background.
+Moving work to the background also reduce the total amount of CPU and IO work,
+since \bets are designed to buffer changes and to schedule them IO-efficiently.
 
-\subsection{A range-clone based on range-rename}
+\subsection{Range-clone, on the critical path}
 
-\begin{figure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \includegraphics[width=.7\linewidth]{fig/rr-1}
-        \caption{\label{subfig:rc1-1} The \bet before the range-clone.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \includegraphics[width=.7\linewidth]{fig/rr-2}
-        \caption{\label{subfig:rc1-2} The range-clones performs tree surgery
-            to slices out the source and destination subtrees.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \includegraphics[width=.7\linewidth]{fig/rc1-3}
-        \caption{\label{subfig:rc1-3} The range-clone discards the destination
-            subtree and shares the source subtree.}
-    \end{subfigure}
-    \caption[A range-clone example using range-rename code]{\label{fig:rc1}
-        An example of range-clone(``/R/'', ``/B/''), implemented with
-        range-rename operations.}
-\end{figure}
-
-\subsection{Write-optimized tree surgery}
-
-\subsection{\goto messages}
+Range-clone turns a lifted \bet in to a lifted \bedag 
 
 \section{Preferential splitting}
