@@ -1,4 +1,21 @@
 \chapter{Range-clone}
 \label{chap:clone}
 
-cloning
+This chapter describes another \bet operation, range-clone, which can be used
+to implement file or directory clones and renames on full-path-indexed \betrfs.
+Unlikely a range-rename, which completes all its work at once, a range-clone
+injects a new type of message, \goto messages, to the \bet.
+The \bet then flushes \goto messages with other messages in batches, gradually
+finishing the range-clone works.
+Therefore, range-clone fits into the write-optimized framework of \bets.
+
+This chapter first describes the range-clone interface,
+followed by how range-clones are implemented on \bets.
+At last, this chapter describes a new technique, preferential splitting, which
+makes range-clones more efficient.
+
+\section{The range-clone interface}
+
+\section {Range-clone on \bets}
+
+\section{Preferential splitting}
