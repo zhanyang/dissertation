@@ -4,7 +4,7 @@
 This chapter describes another \bet operation, range-clone, which can be used
 to implement file or directory clones and renames on full-path-indexed \betrfs.
 Unlikely a range-rename, which completes all its work at once, a range-clone
-injects a new type of message, \goto messages, to the \bet.
+injects a new type of message, the \goto messages, to the \bet.
 The \bet then flushes \goto messages with other messages in batches, gradually
 finishing the range-clone works.
 Therefore, range-clone fits into the write-optimized framework of \bets.
@@ -15,6 +15,67 @@ At last, this chapter describes a new technique, preferential splitting, which
 makes range-clones more efficient.
 
 \section{The range-clone interface}
+
+\begin{table}[t]
+    \centering
+    \begin{tabular}{c | l}
+        \hline
+        Type of File System Operation & Key/Value Store Operations \\
+        \hline
+        \hline
+        File Rename & \mdb$\rightarrow$put(\textit{dst}); \\
+                    & \mdb$\rightarrow$del(\textit{src}); \\
+                    & \ddb$\rightarrow$range-clone(\textit{src}, \textit{dst}, true); \\
+        \hline
+        Directory Rename & \mdb$\rightarrow$put(\textit{dst}); \\
+                         & \mdb$\rightarrow$del(\textit{src}); \\
+                         & \mdb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}, true); \\
+                         & \ddb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}, true); \\
+        \hline
+        File Clone  & \mdb$\rightarrow$put(\textit{dst}); \\
+                    & \mdb$\rightarrow$del(\textit{src}); \\
+                    & \ddb$\rightarrow$range-clone(\textit{src}, \textit{dst}, false); \\
+        \hline
+        Directory Clone  & \mdb$\rightarrow$put(\textit{dst}); \\
+                         & \mdb$\rightarrow$del(\textit{src}); \\
+                         & \mdb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}, false); \\
+                         & \ddb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}, false); \\
+        \hline
+    \end{tabular}
+    \caption[File system renames and clones in \betrfs with range-clones]{\label{tab:fsrc}
+        \betrfs renames or clones \textit{src} to \textit{dst} by calling range-clones.}
+\end{table}
+
+Simliar to range-rename, range-clone is defined as:
+range-clone(\spre, \dpre, \delold), where \delold is a boolean.
+It does the following things:
+\begin{itemize}
+\item it deletes all destination key/value pairs from the key/value store;
+\item then, for any source key/value pair $(k,v)$ in the key/value store,
+it inserts a key/value pair $(k',v)$ to the key/value store,
+where $k$ is the concatenation of \spre and some suffix $s$ and $k'$ is the
+concatenation of \dpre and the same suffix $s$;
+\item if \delold is true, it deletes all source key/value pairs from the
+key/value store.
+\end{itemize}
+If \delold is true, range-clone is equivalent to range-rename;
+otherwise, range-clone is range-rename without deleting source key/value pairs.
+Therefore, as summarized in Table~\ref{tab:fsrc},
+file or directory renames on full-path-indexed \betrfs can be done
+with range-clones just as they are done with range-renames.
+And clones on full-path-index \betrfs are done in the same way with \delold set
+to false.
+
+One implementation of range-clone can utilize the range-rename code,
+while making both the parents of LCAs have the source LCA as a child and
+discarding the destination subtree,
+instead of swapping and injecting a range-delete message.
+This implementation also requires background garbage collection for discarded
+subtrees and reference counting of nodes.
+
+However, another goal of range-clone is to fit the operation into the
+write-optimized framework of \bets.
+Therefore, range-rename introduces a new type of messages, the \goto messages.
 
 \section {Range-clone on \bets}
 
