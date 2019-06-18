@@ -68,20 +68,21 @@ set to false.
 
 This section shows the implementation of range-clone operations.
 Because deleting source key/value pairs can be done by injecting a range-delete
-message into the root of the tree,
+message into the root node,
 \delold is set to false in the section.
 
-One simple implementation of range-clone can utilize the range-rename code,
-while making both the parents of LCAs have the source LCA as a child and
-discarding the destination subtree.
-This implementation turns the lifted a \bet to a lifted \bedag.
+This section first describes a simple range-clone implementation based on the
+range-rename implementation,
+followed by the technique to finish tree surgery work in flushes.
+At last, this section introduces \goto messages that further write-optimizes
+the range-clone operation.
 
-However, another goal of range-clone is to fit the operation into the
-write-optimized framework of \bets.
-Therefore, range-rename introduces a new type of messages, the \goto messages.
+\subsection{A range-clone based on range-rename}
 
-\subsection{From a \bet to a \bedag}
+Ideally,
 
-Ideally, 
+\subsection{Write-optimized tree surgery}
+
+\subsection{\goto messages}
 
 \section{Preferential splitting}
