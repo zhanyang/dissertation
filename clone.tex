@@ -33,11 +33,9 @@ makes range-clones more efficient.
                          & \ddb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}, true); \\
         \hline
         File Clone  & \mdb$\rightarrow$put(\textit{dst}); \\
-                    & \mdb$\rightarrow$del(\textit{src}); \\
                     & \ddb$\rightarrow$range-clone(\textit{src}, \textit{dst}, false); \\
         \hline
         Directory Clone  & \mdb$\rightarrow$put(\textit{dst}); \\
-                         & \mdb$\rightarrow$del(\textit{src}); \\
                          & \mdb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}, false); \\
                          & \ddb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}, false); \\
         \hline
@@ -63,8 +61,8 @@ otherwise, range-clone is range-rename without deleting source key/value pairs.
 Therefore, as summarized in Table~\ref{tab:fsrc},
 file or directory renames on full-path-indexed \betrfs can be done
 with range-clones just as they are done with range-renames.
-And clones on full-path-index \betrfs are done in the same way with \delold set
-to false.
+And clones on full-path-index \betrfs are done in the similar ways with \delold
+set to false.
 
 One implementation of range-clone can utilize the range-rename code,
 while making both the parents of LCAs have the source LCA as a child and
