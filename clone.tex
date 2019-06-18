@@ -79,7 +79,28 @@ the range-clone operation.
 
 \subsection{A range-clone based on range-rename}
 
-Ideally,
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.7\linewidth]{fig/rr-1}
+        \caption{\label{subfig:rc1-1} The \bet before the range-clone.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.7\linewidth]{fig/rr-2}
+        \caption{\label{subfig:rc1-2} The range-clones performs tree surgery
+            to slices out the source and destination subtrees.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.7\linewidth]{fig/rc1-3}
+        \caption{\label{subfig:rc1-3} The range-clone discards the destination
+            subtree and shares the source subtree.}
+    \end{subfigure}
+    \caption[A range-clone example using range-rename code]{\label{fig:rc1}
+        An example of range-clone(``/R/'', ``/B/''), implemented with
+        range-rename operations.}
+\end{figure}
 
 \subsection{Write-optimized tree surgery}
 
