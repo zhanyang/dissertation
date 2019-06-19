@@ -69,7 +69,7 @@ set to false.
 This section shows the implementation of range-clone operations.
 Because deleting source key/value pairs can be done by injecting a range-delete
 message into the root node,
-\delold is set to false in the section.
+\delold is set to false throughout the section.
 
 This section first shows all the changes needed if performing all operations
 at the time of the range-clone, that is, all operations are on the critical
@@ -81,6 +81,43 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
 
 \subsection{Range-clone, on the critical path}
 
-Range-clone turns a lifted \bet in to a lifted \bedag 
+The range-clone work can be done by slightly modifying the range-rename
+operation.
+In particular, after slicing out the source and destination subtrees with tree
+surgery, range-rename swaps the two subtrees and injects a range-delete message
+for source keys.
+Instead, range-clone can discard the destination subtree and share the source
+subtree in destination.
+
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.7\linewidth]{fig/rr-1}
+        \caption{\label{subfig:rc-1} The \bet before the range-clone.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.7\linewidth]{fig/rr-2}
+        \caption{\label{subfig:rc-2} The range-clone slices out the source and
+            destination subtrees.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.65\linewidth]{fig/rc-3}
+        \caption{\label{subfig:rc-3} The range-clone discards the destination
+            subtree and shares the source subtree.}
+    \end{subfigure}
+    \caption[All operations in range-clone]{\label{fig:rc}
+        All operations needed in range-clone(``/R/'', ``/B/'').}
+\end{figure}
+
+Figure~\ref{fig:rc} shows the work of range-clone(``/R/'', ``/B/'') in the
+lifted \bet in Figure~\ref{subfig:rc-1}.
+Figure~\ref{subfig:rc-2} shows the lifted \bet after tree surgery, which slices
+out the source and destination subtree.
+The tree surgery here is identical to that in range-rename.
+In Figure~\ref{subfig:rc-3}, the lifted \bet discards the destination subtree
+rooted at Node $B'$, and set the parent-to-child pointer between ``/B/$_{min}$''
+and ``/B/$_{max}$'' to Node $C'$, which is the root of the source subtree.
 
 \section{Preferential splitting}
