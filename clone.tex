@@ -81,14 +81,6 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
 
 \subsection{Range-clone, on the critical path}
 
-The range-clone work can be done by slightly modifying the range-rename
-operation.
-In particular, after slicing out the source and destination subtrees with tree
-surgery, range-rename swaps the two subtrees and injects a range-delete message
-for source keys.
-Instead, range-clone can discard the destination subtree and share the source
-subtree in destination.
-
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -110,6 +102,14 @@ subtree in destination.
     \caption[All operations in range-clone]{\label{fig:rc}
         All operations needed in range-clone(``/R/'', ``/B/'').}
 \end{figure}
+
+The range-clone work can be done by slightly modifying the range-rename
+operation.
+In particular, after slicing out the source and destination subtrees with tree
+surgery, range-rename swaps the two subtrees and injects a range-delete message
+for source keys.
+Instead, range-clone can share the source subtree in destination and send the
+destination subtree to a background garbage collection thread.
 
 Figure~\ref{fig:rc} shows the work of range-clone(``/R/'', ``/B/'') in the
 lifted \bet in Figure~\ref{subfig:rc-1}.
@@ -133,7 +133,35 @@ reaching the same leaf node, fetching the same key/value pair.
 However, because key lifting requires queries to reconstruct the full key by
 concatenating lifted prefixes, different queries are able to see different keys.
 
-The \bedag breaks the sharing of a node using Copy-on-Write.
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/rc-3}
+        \caption{\label{subfig:cow-1} Node $C'$ is a shared by two
+            parent-to-child pointers in Node $A$.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/cow-2}
+        \caption{\label{subfig:cow-2} Before Node $A$ flushes ``/B/'' messages,
+            it breaks the sharing creating Node $C''$, which is a clone of Node
+            $C'$.}
+    \end{subfigure}
+    \caption[\bedags break node sharing with CoW]{\label{fig:cow}
+        When the parent accumulates enough messages to flush to a shared node,
+        it breaks the sharing with Cow.}
+\end{figure}
+
+Any writes to a shared node must first break the sharing of the node, the
+\bedag maintains reference counting for each node to track the sharing status of
+nodes.
+In particular, \fti has a node table that maps node IDs to physical locations on
+disk.
+The \bedag stores the reference count of each node in the node table alongside
+the mapping.
+Before writing to a node, the \bedag must check the reference count of the node.
+
+The \bedag breaks the sharing of a node using Copy-on-Write (CoW).
 After range-rename, one parent of the shared node might choose to flush its
 messages to the node.
 At this moment, the lifted \bedag creates a new node that is identical to the
@@ -141,11 +169,15 @@ shared node, sharing all children of the node.
 The lifted \bedag then sets the parent-to-child pointer to the new node and
 performs the flush.
 
-In order to track the sharing status of nodes, the \bedag maintains reference
-counting for each node.
-In particular, \fti has a node table that maps node IDs to physical locations on
-disk.
-The \bedag stores the reference count of each node in the node table alongside
-the mapping.
+Figure~\ref{fig:cow} shows an example of the CoW process.
+In Figure~\ref{subfig:cow-1}, Node $A$ has two parent-to-child pointers to
+Node $C'$ with reference count 2.
+Note, Node $F'$, $G$ and $H'$ have reference count 1.
+When Node $A$ accumulates enough messages and wants to flush messages with
+``/B/'', it clones Node $C'$ to break the sharing.
+As shown in Figure~\ref{subfig:cow-2}, the \bedag creates a new Node $C''$
+identical to Node $C'$.
+Now, both Node $C'$ and $C''$ have reference count, while Node $F'$, $G$ and
+$H'$ have reference count 2.
 
 \section{Preferential splitting}
