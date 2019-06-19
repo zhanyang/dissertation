@@ -182,8 +182,10 @@ $H'$ have reference count 2.
 
 \subsection{\goto messages}
 
-One goal of range-clone is to fit as much work as possible to the
-write-optimized framework of the lifted \bedag.
+The implementation of range-clone with \goto messages delays the tree surgery
+work to the flushes in the lifted \bedag.
+This design puts the tree surgery in the write-optimized framework of the data
+structure.
 
 \section{Preferential splitting}
 

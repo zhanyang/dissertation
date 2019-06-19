@@ -9,6 +9,7 @@ TEX = \
 	clone      \
 	eval       \
 	related    \
+	conclusion \
 
 
 all: $(TEX:=.tex)
