@@ -180,4 +180,42 @@ identical to Node $C'$.
 Now, both Node $C'$ and $C''$ have reference count, while Node $F'$, $G$ and
 $H'$ have reference count 2.
 
+\subsection{\goto messages}
+
+One goal of range-clone is to fit as much work as possible to the
+write-optimized framework of the lifted \bedag.
+
 \section{Preferential splitting}
+
+Most of the additional background work in range-clone is about removing
+unrelated keys and unlifted prefix data from fringe nodes, which
+contain both cloned and non-cloned data.
+Therefore, it is beneficial to reduce the number of fringe nodes.
+
+The baseline \bet splits nodes evenly.
+When a leaf needs to be split, the middle key is picked as the new piovt
+separating the two new leaves to be generated.
+A non-leaf node split can be viewed as promoting the middle pivot in the node to
+the parent.
+
+Preferential splitting generates pivots that maximizes the common prefix under
+the leaf, subject to the constraint that both leaves should be at least 1/4
+full.
+This strategy reduces the likelihood of having fringe nodes
+in a range-clone and bounds the how unbalanced leaves can be.
+
+A naive approach would compare all keys in the range of [1/4, 3/4] of the leaf
+and picking the pair of two adjacent keys that share the shortest common prefix.
+But this scan can be costly.
+
+Preferential splitting only requires the reading of two keys.
+Because the shortest common prefix of adjacent keys is the same as the common
+prefix of the smallest (at 1/4 of the leaf) candidate key, $k_{s}$ and
+the largest (at 3/4 of the leaf) candidate key, $k_{l}$,
+a good pivot can be constructed from these two keys.
+In particular, preferential splitting generates a pivot that is maximum key with
+prefix $p_{s}$, where $p_{s}$ that is the shortest prefix of $k_{s}$ that
+contains the LCP of $k_{s}$ and $k_{l}$ and has a slash or a end-of-string as
+the last character.
+
+\section{Summary}
