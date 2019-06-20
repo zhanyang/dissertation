@@ -394,7 +394,38 @@ it still serves as a filter for queries.
 \paragraph{Fix \xf functions in parent-to-child pointers.}
 \goto messages adds \xf functions to parent-to-child pointers, which indicates
 the child has a larger key range and keys in the child have additional prefixes.
-The lifted \bedag handles \xf functions during flushes.
+
+Before flushing to a node, if the pointer has a \xf function, the
+lifted \bedag propagates the \xf function to pointers of the node.
+Specifically, the lifted \bedag first discards all exterior children of the node
+whose key ranges are completely out of that indicated by the \xf function.
+Then, it removes the prefix in the \xf function from those keys.
+At last, for fringe children whose key ranges partly overlap with that indicated
+by the \xf function, it adds \xf functions to the pointers to those children.
+
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/xf-1}
+        \caption{\label{subfig:xf-1} The parent-to-child pointer from Node $A$
+            to Node $B$ has \xf(``/R/'').}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/xf-2}
+        \caption{\label{subfig:xf-2} To remove the \xf function, it discards
+            exterior children and adds \xf functions to parent-to-child pointers
+            of fringe children.}
+    \end{subfigure}
+    \caption[Fix a \xf function during flushing]{\label{fig:xf}
+        Before flushing messages to a node, the lifted \bedag fixes the \xf
+        function associated with the parent-to-child pointer.}
+\end{figure}
+
+Figure~\ref{fig:xf} shows an example of fixing \xf functions before flushing.
+In Figure~\ref{subfig:xf-2}, exterior nodes, Node $C$ and $G$ out are discarded.
+Then, it adds \xf functions to pointers to fringe nodes, Node $D$ and $F$.
+At last, it updates keys in Node $B$ by removing the prefix in the \xf function.
 
 \section{Preferential splitting}
 
@@ -430,3 +461,12 @@ contains the LCP of $k_{s}$ and $k_{l}$ and has a slash or a end-of-string as
 the last character.
 
 \section{Summary}
+
+This chapter first describes the new interface, range-clone, that enables file
+or directory renames and clones in \betrfs.
+Then, it presents a range-clone implementation that finishes all works
+on the critical path and transforms a lifted \bet to a lifted \bedag.
+Later, it introduces \goto messages that delay tree surgery in the range-clone,
+fit the implementation into the write-optimized framework of the data structure.
+At last, it describes preferential splitting that reduces work needed in
+tree surgery.
