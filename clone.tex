@@ -219,7 +219,7 @@ ID to a special value (e.g., 0).
     \begin{subfigure}{\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{fig/goto-2}
-        \caption{\label{subfig:goto-3} The range-clone generates a \goto message
+        \caption{\label{subfig:goto-2} The range-clone generates a \goto message
             for destination (``/B/'') keys.}
     \end{subfigure}
     \caption[A range-clone example with a \goto message]{\label{fig:goto}
@@ -233,11 +233,33 @@ steps:
 LCA, flushing messages from parent to child simultaneously.
 At this point, all messages with source keys are in the subtree rooted at the
 source LCA.
-\item Then it injects a \goto message to the root of the lifted \bedag with the
-source LCA as the node ID in the \goto message.
+\item Then it injects a \goto message into the root of the lifted \bedag with
+the source LCA as the node ID in the \goto message.
 Note, the \spre in the \goto can be different from the \spre of the range-clone,
 because the root-to-leaf traversal may lift some prefix from the \spre.
 \end{itemize}
+Note, this range-clone design doesn't perform any tree surgery on the critical
+path.
+
+Figure~\ref{fig:goto} shows an example of range-clone(``/R/'', ``/B/'')
+generated a \goto message.
+The range-clone first traverse the lifted \bedag and find the source LCA, Node
+$C$.
+Note all messages that falls into the range of Node $C$ have been flushed to
+Node $C$ during the traversal.
+The range-clone then injects a \goto message into the root node, with ``/B/''
+as \dpre, ``/R/'' as \spre and Node $C$ as node ID.
+Figure~\ref{subfig:goto-2} shows the result, all queries for ``/B/'' keys on
+this lifted \bedag should go to Node $C$ instead of Node $B$.
+
+The lifted \bedag should flush \goto messages alongside other messages.
+However, \goto messages should stay higher than its source LCA to maintain the
+asymptotic IO cost of queries on the lifted \bedag.
+Therefore, there are two cases in flushing \goto messages.
+
+\paragraph{Flushing a \goto message to a node higher than its source LCA.}
+
+\paragraph{Flushing a \goto message to a node at the same height as its source LCA.}
 
 \section{Preferential splitting}
 
