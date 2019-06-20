@@ -182,10 +182,62 @@ $H'$ have reference count 2.
 
 \subsection{\goto messages}
 
-The implementation of range-clone with \goto messages delays the tree surgery
-work to the flushes in the lifted \bedag.
-This design puts the tree surgery in the write-optimized framework of the data
-structure.
+Instead of performing all works on the critical path, range-clone can use a
+new type of messages, the \goto message, that delays tree surgery to flushes
+in the lifted \bedag.
+
+A \goto message consists of 3 parts: a \dpre, a \spre, a node ID.
+When a query visits a node during its root-to-leaf traversal, it must check
+\goto messages.
+If the \dpre of a \goto message matches the search key, the query should follow
+the \goto message, instead of the parent-to-child pointer in the node.
+In other words, the next node this query visit should be the node whose node ID
+is in the \goto message.
+Also, the query should update its search key by changing the prefix from \dpre
+to \spre.
+If the query finds multiple \goto messages matching its search key, it follows
+the \goto message with the latest timestamp.
+
+A \goto message serves two purposes:
+\begin{itemize}
+\item it works as additional parent-to-child pointers in the node.
+Additionally, it works as a filter.
+For all keys the query gets following the \goto messages, only keys with \spre
+are valid.
+\item it nullifies messages that have the destination key and an older
+timestamp, because those messages cannot stay higher than the \goto message.
+\end{itemize}
+\goto messages can be used to implement range-query messages by setting the node
+ID to a special value (e.g., 0).
+
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/rr-1}
+        \caption{\label{subfig:goto-1} The \bet before the range-clone.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/goto-2}
+        \caption{\label{subfig:goto-3} The range-clone generates a \goto message
+            for destination (``/B/'') keys.}
+    \end{subfigure}
+    \caption[A range-clone example with a \goto message]{\label{fig:goto}
+        An example of range-clone(``/R/'', ``/B/'') with a \goto message.}
+\end{figure}
+
+Range-clone(\spre, \dpre) can be done with \goto messages with the following
+steps:
+\begin{itemize}
+\item it performs a root-to-leaf traversal with \spre until reaching the source
+LCA, flushing messages from parent to child simultaneously.
+At this point, all messages with source keys are in the subtree rooted at the
+source LCA.
+\item Then it injects a \goto message to the root of the lifted \bedag with the
+source LCA as the node ID in the \goto message.
+Note, the \spre in the \goto can be different from the \spre of the range-clone,
+because the root-to-leaf traversal may lift some prefix from the \spre.
+\end{itemize}
 
 \section{Preferential splitting}
 
