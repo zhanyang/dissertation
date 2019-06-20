@@ -258,7 +258,7 @@ However, \goto messages should stay higher than its source LCA to maintain the
 asymptotic IO cost of queries on the lifted \bedag.
 Therefore, there are two cases in flushing \goto messages.
 
-\paragraph{Flushing a \goto message to a node higher than its source LCA.}
+\paragraph{Flush a \goto message to a child higher than its source LCA.}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -279,16 +279,27 @@ Therefore, there are two cases in flushing \goto messages.
         The \bedag may need to merge children before flushing}
 \end{figure}
 
-The lifted \bedag may need to merge children before flushing the \goto message
-When flushing a \goto message from a node, the key range of the \goto message
-$(\dpre_{min}, \dpre_{max})$ might overlap with multiple children of the node.
-The lifted \bedag can merge all the related children to generate a child that
-can accommodate the \goto message.
-In fact, because the \goto message nullifies old messages with destination keys,
-all interior children (an interior node is a node whose key range falls
-completely in the key range of the \goto message) can be discarded.
-Therefore, the lifted \bedag only needs to merge two fringe children and sends
-all interior children to the background garbage collection thread.
+When a non-leaf node fills, the lifted \bedag flushes messages, including \goto
+messages, to one or more children.
+In the simple case, the node for a \goto message has a single child that covers
+the key range of the \goto message, $(\dpre_{min}, \dpre_{max})$.
+In this case, flushing the \goto simply lifts the \dpre in the messages and
+moves the message from a parent to child buffer,
+provided the \goto has not yet reached its target height.
+
+In the more complicated case, a \goto message can overlap with multiple
+children.
+There are fringe children whose key ranges are partly covered by the \goto
+message, and partly out of the \goto range;
+there are also some interior children between fringe children that are entirely
+within the key range occluded by the \goto.
+The lift \bedag needs to create a single child that can accommodate the \goto
+message.
+
+To this end, the \bedag simply removes the references and pointers to the
+interior children (potentially garbage collecting these nodes later, if this is
+the last reference),
+and merges the two fringe children into one node.
 
 Figure~\ref{fig:flush} shows an example of merging children before flushing a
 \goto message.
@@ -312,18 +323,46 @@ With key lift, it is not easy to change the key range of a node.
 The problem is solved by adding an empty subtree for that key range as a child
 of the generated node.
 
-There are some special cases when creating a child to accommodate the \goto
-message.
-Specifically, if one of \dpre$_{min}$ and \dpre$_{max}$ matches a pivot in the
-node, there is only one fringe child.
-The lifted \bedag then discards all interior children and expands the range of
-the fringe child, done by merging the fringe child with an empty node.
-If both \dpre$_{min}$ and \dpre$_{max}$ are pivots in the node, all children
-are interior nodes.
-In this scenario, the lifted \bedag keeps one interior child and expands the
-range of the child.
+\paragraph{Converting \goto messages to pivots and parent-to-child pointers.}
+When the lifted \bedag tries to flush a \goto message from a node that is one
+level higher than the source LCA of the \goto messages, it coverts the \goto
+message into two pivots and a parent-to-child pointer in the node.
+This ensures a bounded depth for any root-to-leaf traversal.
 
-\paragraph{Flushing a \goto message to a node at the same height as its source LCA.}
+This is done by adding \dpre$_{min}$ and \dpre$_{max}$ as two new pivots and
+set the parent-to-child pointer to the source LCA of the \goto message.
+Assume \dpre$_{min}$ and \dpre$_{max}$ are in the range of child $i$ of the node
+(the lifted \bedag can perform a aforementioned merge to generate such a child),
+i.e., $\dpre_{min}, \dpre_{max} \in (pivot_{i},pivot_{i+1})$.
+Adding \dpre$_{min}$ and \dpre$_{max}$ as two new pivots creates 3 key ranges,
+$(pivot_{i},\dpre_{min})$, $(\dpre_{min},\dpre_{max})$ and
+$(\dpre_{max}, pivot_{i+1})$.
+Key range $(\dpre_{min},\dpre_{max})$ is cover in the source LCA of the \goto
+message, while the other two are covered by child $i$.
+
+However, all three parent-to-child pointers now points to a child whose key
+range is different than those specified in the node.
+In particular, child $i$ has range $(pivot_{i},pivot_{i+1})$ but bounded by
+$(pivot_{i},\dpre_{min})$ or $(\dpre_{max}, pivot_{i+1})$.
+A smaller key range may lifts longer prefixes through the parent-to-child
+pointer.
+The source LCA has a key range that might be larger than
+$(\spre_{min}, \spre_{max})$ but bounded by $(\dpre_{min},\dpre_{max})$.
+
+The problem is solved by augmenting parent-to-child pointers with \xf functions.
+Each parent-to-child pointer now has a \xf function with a prefix.
+After the query lifts its search key by the LCP of two pivots, the \xf function
+prepends its prefix to the search key.
+Also, \xf functions serves as filters, queries need to remember the key range
+specified by the pivots in the parent so that it can ignore invalid keys in the
+child.
+
+\textbf{example here}.
+
+\paragraph{Fix \xf functions in parent-to-child pointers.}
+\goto messages adds \xf functions to parent-to-child pointers, which indicates
+the child has a larger key range and keys in the child have additional prefixes.
+The lifted \bedag handles \xf functions during flushes.
 
 \section{Preferential splitting}
 
