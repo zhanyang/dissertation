@@ -357,7 +357,39 @@ Also, \xf functions serves as filters, queries need to remember the key range
 specified by the pivots in the parent so that it can ignore invalid keys in the
 child.
 
-\textbf{example here}.
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/goto-2}
+        \caption{\label{subfig:spvt-1} The \goto message cannot be flushed to
+            Node $B$, which is at the same as Node $C$.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{fig/spvt-2}
+        \caption{\label{subfig:spvt-2} The \goto message becomes pivots and
+            adds \xf functions to parent-to-child pointers}
+    \end{subfigure}
+    \caption[Transform a \goto message into pivots]{\label{fig:spvt}
+        When the lifted \bedag cannot flush a \goto message deeper, it
+        transforms the \goto message into pivots and adds \xf functions to
+        parent-to-child pointers.}
+\end{figure}
+
+Figure~\ref{fig:spvt} shows an example of the transformation.
+The lifted \bedag cannot flush the \goto message to Node $B$, because Node $B$
+is at the same height as its source LCA, Node $C$.
+Therefore, it adds two pivots, ``/B/$_{min}$'' and ``/B/$_{max}$''.
+The parent-to-child pointer between ``/B/$_{min}$'' and ``/B/$_{max}$'' points
+to the source LCA, Node $C$, and has a \xf function of ``/R/'', indicating a
+key range mismatch and addition prefix ``/R/'' in the child.
+Queries following that parent-to-child pointer should prepend prefix ``/R/''
+after the normal lifting of ``/B/'' from its search key.
+Also, they remember only keys between ``/R/$_{min}$'' and ``/R/$_{max}$'' in
+the child are valid.
+Similarly, two \xf functions are added to the other two pointers.
+Note, for the leftmost pointer, though the \xf function contains no prefix,
+it still serves as a filter for queries.
 
 \paragraph{Fix \xf functions in parent-to-child pointers.}
 \goto messages adds \xf functions to parent-to-child pointers, which indicates
