@@ -109,16 +109,16 @@ directory tree to adaptively distribute metadata to different metadata servers.
 Many modern file systems provide snapshot mechanism, making read-only copies of
 the whole file system.
 
-The WAFL file system~\cite{wafl} organizes all blocks in a tree structure.
+The WAFL file system~\citep{wafl} organizes all blocks in a tree structure.
 By copying the vol\_info block, which is the root of the tree structure, WAFL
 creates a snapshot.
 Later, WAFL introduces a level of indirection between the file system and the
-underlying disks~\cite{wafl-flexvol}.
+underlying disks~\citep{wafl-flexvol}.
 Therefore, multiple active instances of the file system can exist at the same
 time and WAFL can create writable snapshots of the whole file system by creating
 a new instance and copying the vol\_info block.
 
-FFS~\cite{ffs} creates snapshots by suspending all operations and creating a
+FFS~\citep{ffs} creates snapshots by suspending all operations and creating a
 snapshot file whose inode is stored in the superblock.
 The size of the snapshot file is the same as the disk.
 Upon creation, most block pointers in the snapshot inode are marked
@@ -129,7 +129,7 @@ address on the disk.
 When a ``not copied'' block is modified in the file system, FFS copies the block
 to a new address and updates the block pointer in the snapshot inode.
 
-NILFS~\cite{nilfs2} is a log-structured file system that organizes all blocks
+NILFS~\citep{nilfs2} is a log-structured file system that organizes all blocks
 in a B-tree.
 In NILFS, each logical segment contains modified blocks and a checkpoint block
 used as the root of the B-tree.
@@ -137,7 +137,7 @@ NILFS gets the current view of the file system from the checkpoint block
 of the last logical segment.
 NILFS can create a snapshot by making a checkpoint block permanent.
 
-ZFS~\cite{zfs} also stores the file system in a tree structure and creates
+ZFS~\citep{zfs} also stores the file system in a tree structure and creates
 snapshots by copying the root of the tree (uberblock).
 To avoid maintaining one block bitmap for each snapshot, ZFS keeps birth time
 in each pointer.
@@ -146,14 +146,14 @@ In that case, the block is added to the dead list of the most recent snapshot.
 When a snapshot is deleted, all blocks in its dead list are checked again before
 being freed.
 
-GCTree~\cite{gctree} implements snapshots on top of ext4.
+GCTree~\citep{gctree} implements snapshots on top of ext4.
 It chains different versions of a metadata block with GCTree metadata.
 Also, each pointer in the metadata block has a ``borrowed bit'' indicating
 whether the target block is inherited from the previous version.
 Therefore, GCTree can check whether to free a block by inspecting GCTree
 metadata and doesn't need to maintain reference counts.
 
-NOVA-Fortis~\cite{nova} targets at non-volatile main memory (NVMM).
+NOVA-Fortis~\citep{nova} targets at non-volatile main memory (NVMM).
 In NOVA-Fortis, each inode has a private log with log entries pointing
 to data blocks.
 To enable snapshots, NOVA-Fortis keeps a global snapshot ID and adds the
@@ -167,14 +167,14 @@ all pages read-only.
 
 Some file systems go further to support cloning one single directory or file.
 
-The Episode file system~\cite{episode} groups everything under a directory into
+The Episode file system~\citep{episode} groups everything under a directory into
 a fileset.
 Episode can create an immutable fileset clone by copying all the anodes (inodes)
 and marking all block pointers in the anodes copy-on-write.
 When Episode changes a block with a copy-on-write pointer, it allocates a new
 block and updates the block pointer in the active fileset.
 
-Ext3cow~\cite{ext3cow} creates immutable file clones by maintaining a
+Ext3cow~\citep{ext3cow} creates immutable file clones by maintaining a
 system-wide epoch and inode epochs.
 When an inode is modified, ext3cow allocates a new inode if the epoch in the
 inode is older than the last snapshot epoch.
@@ -182,9 +182,9 @@ Also, each directory stores birth and death epochs for each entry.
 Ext3cow can render the view of the file system in a certain epoch by fetching
 entries alive at that epoch.
 
-Btrfs~\cite{btrfs} supports creating writable snapshot of the whole file system
+Btrfs~\citep{btrfs} supports creating writable snapshot of the whole file system
 by copying the root of the sub-volume tree in its COW friendly
-B-trees~\cite{cowbtree}.
+B-trees~\citep{cowbtree}.
 Btrfs clones a file by sharing all extents of the file.
 The extent allocation tree records extents with back pointers to the inodes.
 Therefore, Btrfs is able to move an extent at a later time.
@@ -193,19 +193,19 @@ Therefore, Btrfs is able to move an extent at a later time.
 
 There are also versioning file systems that versions files and directories.
 
-EFS~\cite{efs} automatically versions files and directories.
+EFS~\citep{efs} automatically versions files and directories.
 By allocating a new inode, it creates and finalizes a new file version when the
 file is opened and closed.
 Each versioned file has an inode log that keeps all versions of the file.
 All entries in directories have creation and deletion time.
 
-CVFS~\cite{cvfs} tries to store metadata versions more compactly.
+CVFS~\citep{cvfs} tries to store metadata versions more compactly.
 CVFS suggests two ways to save space in versioning file systems:
 1. journal-based metadata that keeps a current version and an undo log to
 recover previous versions;
 2. multiversion B-trees that keep all versions of metadata in a B-tree.
 
-Versionfs~\cite{versionfs} builds a stackable versioning file system.
+Versionfs~\citep{versionfs} builds a stackable versioning file system.
 Instead of building a new file system, Versionfs adds the functionality of
 versioning on an existing file system by transferring certain operations to
 other operations.
