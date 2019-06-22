@@ -1,4 +1,38 @@
 \chapter{Conclusion}
 \label{chap:conclusion}
 
-conclusion
+File systems faced trade-offs between the performance of namespace
+operations and spatial locality.
+Traditional inode-based file systems have good performance for namespace
+operations because of the indirection between a directory and entries under it.
+However, this indirection stops these file systems from grouping data under one
+directory close to each other on disk,
+especially when the file system ages.
+On the other hand, full-path-indexed file systems ensure locality by indexing
+metadata and data by full-paths.
+However, existing full-path-indexed file systems either have unbounded cost for
+namespace operations, or taxes other operations for good namespace operation
+performance.
+
+This dissertation first present a new operation on \bets, range-rename,
+that updates all keys with one prefix to have another prefix.
+The range-rename operation adopts \textbf{key lifting} to transform \bets into
+lifted \bets
+and accomplishes its task in a bounded number of IOs through
+\textbf{tree surgery}.
+By calling range-renames to complete file-system renames, full-path-indexed
+\betrfs thus has bounded costs for its renames.
+
+Then, this dissertation introduces another new operations on \bets, range-clone,
+that clones all keys with on prefix to have another prefix.
+By transforming lifted \bets into lifted \bedags, range-clone can utilize
+range-rename techniques to perform its work on the critical path.
+Moreover, the range-clone can delay the tree surgery work with a new type of
+message, \goto messages, fitting into the write-optimized framework of \betrfs.
+Full-path-indexed \betrfs thus has write-optimized file or directory renames and
+clones by implementing them with range-clones.
+
+This dissertation shows that with the right optimizations, a file system can
+have both efficient namespace operations and locality.
+There is no trade-off between them.
+
