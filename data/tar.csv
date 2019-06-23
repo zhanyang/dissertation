@@ -1,0 +1,17 @@
+fs op median min max
+ext4 tar 45.329 41.338 53.972
+ext4 untar 8.993 8.365 10.003
+btrfs tar 18.407 17.373 18.900
+btrfs untar 6.405 6.067 6.535
+xfs tar 73.003 70.959 76.193
+xfs untar 9.957 9.706 10.077
+zfs tar 40.588 39.260 41.039
+zfs untar 10.229 9.808 10.304
+nilfs2 tar 18.656 18.592 18.724
+nilfs2 untar 11.714 11.536 11.745
+betrfs4 tar 16.362 16.164 16.465
+betrfs4 untar 8.716 8.613 9.025
+betrfs5 tar 16.147 16.019 16.300
+betrfs5 untar 8.565 8.504 8.962
+betrfs5-clone tar 16.023 16.003 16.098
+betrfs5-clone untar 9.769 9.119 10.264

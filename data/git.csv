@@ -1,0 +1,17 @@
+fs op median min max
+ext4 clone 35.478 33.935 35.948
+ext4 diff 73.320 64.240 75.195
+btrfs clone 31.523 31.013 31.622
+btrfs diff 38.101 37.615 38.676
+xfs clone 43.598 43.426 44.114
+xfs diff 132.382 130.257 134.004
+zfs clone 41.400 40.550 42.492
+zfs diff 49.265 48.596 49.782
+nilfs2 clone 42.428 41.653 43.004
+nilfs2 diff 59.171 58.902 59.289
+betrfs4 clone 41.685 40.094 42.905
+betrfs4 diff 41.362 40.867 41.503
+betrfs5 clone 39.771 39.480 40.247
+betrfs5 diff 36.819 36.525 37.027
+betrfs5-clone clone 43.501 42.980 44.014
+betrfs5-clone diff 37.058 36.985 37.442
