@@ -6,6 +6,7 @@
 \newcommand{\betrfsTwo}{BetrFS 0.2\xspace}
 \newcommand{\betrfsThree}{BetrFS 0.3\xspace}
 \newcommand{\betrfsFour}{BetrFS 0.4\xspace}
+\newcommand{\betrfsFive}{BetrFS 0.5\xspace}
 \newcommand{\bet}{B$^{\varepsilon}$-tree\xspace}
 \newcommand{\bets}{B$^{\varepsilon}$-trees\xspace}
 \newcommand{\btree}{B-tree\xspace}
@@ -31,6 +32,8 @@
     /fs-names/nilfs2/.initial=NILFS2,
     /fs-names/betrfs3/.initial=\betrfsThree,
     /fs-names/betrfs3-max/.initial=\betrfsThree with one zone,
+    /fs-names/betrfs4/.initial=\betrfsFour,
+    /fs-names/betrfs5/.initial=\betrfsFive,
 }
 
 \pgfkeys{
@@ -41,6 +44,8 @@
     /fs-colors/nilfs2/.initial=cyan,
     /fs-colors/betrfs3/.initial=orange,
     /fs-colors/betrfs3-max/.initial=black,
+    /fs-colors/betrfs4/.initial=orange,
+    /fs-colors/betrfs5/.initial=gray,
 }
 
 \pgfkeys{
@@ -51,21 +56,30 @@
     /fs-marks/nilfs2/.initial=o,
     /fs-marks/betrfs3/.initial=oplus,
     /fs-marks/betrfs3-max/.initial=+,
+    /fs-marks/betrfs4/.initial=oplus,
+    /fs-marks/betrfs5/.initial=*,
 }
 
-\newcommand{\addTokubenchZonePlot}[1]
-{
-    \addplot[
-        color=\pgfkeysvalueof{/fs-colors/#1},
-        line width=0.75pt,
-        mark=\pgfkeysvalueof{/fs-marks/#1},
-    ]
-    plot[
-    ]
-    table[
-    ]
-    {./data/tokuzone/#1.csv};
-    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+\pgfplotsset{
+    discard if/.style 2 args={
+        x filter/.code={
+            \edef\tempa{\thisrow{#1}}
+            \edef\tempb{#2}
+            \ifx\tempa\tempb
+            \def\pgfmathresult{inf}
+            \fi
+        }
+    },
+    discard if not/.style 2 args={
+        x filter/.code={
+            \edef\tempa{\thisrow{#1}}
+            \edef\tempb{#2}
+            \ifx\tempa\tempb
+            \else
+            \def\pgfmathresult{inf}
+            \fi
+        }
+    }
 }
 
 \newtheorem{invariant}{Invariant}

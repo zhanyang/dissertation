@@ -216,9 +216,24 @@ Similary, the file system notices the key for directory ``/foo/bar'' is
 (3, ``/'').
 Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
 
+\newcommand{\addTokubenchZonePlot}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/tokuzone/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
 \begin{figure}[t]
     \centering
-    \begin{tikzpicture}
+    \begin{tikzpicture}[yscale=0.95,xscale=0.95]
         \begin{axis}[
             xlabel={Files created},
             ylabel={Throughput (files/sec)},
@@ -236,8 +251,8 @@ Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
             scaled y ticks=false,
             legend cell align=left,
             transpose legend,
-            height=.5\linewidth,
-            width=.8\linewidth,
+            height=.6\linewidth,
+            width=\linewidth,
         ]
         \addTokubenchZonePlot{betrfs3};
         \addTokubenchZonePlot{betrfs3-max};

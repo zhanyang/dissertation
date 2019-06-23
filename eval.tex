@@ -1,4 +1,113 @@
 \chapter{Evaluation}
 \label{chap:eval}
 
-evaluation
+This chapter evaluates the performance of \betrfs with
+range-rename (\betrfsFour) and \betrfs with range-clone (\betrfsFive).
+The evaluation includes the following four aspects:
+(1) performance of single file-system operations;
+(2) performance of widely used applications;
+(3) performance of renames;
+(4) performance of clones.
+
+\paragraph{Experimental Setup.}
+
+All experimental results were collected on
+a Dell Optiplex 790 with a 4-core 3.40 GHz Intel Core i7-2600 CPU,
+4GB RAM,
+and a 500 GB, 7200 SATA disk with a 4096-byte block size(Seagate Barracuda ST500DM002).
+The system runs 64-bit Ubuntu server 14.04.05 on a USB stick to prevent
+interference form the root file system.
+\betrfsFour runs on a modified Linux-3.11.10 kernel that enlarges the size of the kernel stack,
+while \betrfsFive and all other file systems run on Linux-4.9.142 kernel.
+The evaluation uses ZFS 0.6.5.11 from \url{zfsonlinx.org} and
+ext4, Btrfs, XFS and NILFS2 as parts of the Linux kernel.
+Each experiment runs a minimum of 5 times and reports the median number.
+Error bars indicate minimum and maximum numbers over all runs.
+Similarly, error $\pm$ terms bound minimum and maximum numbers over all runs.
+Unless noted, all benchmarks are cold-cache tests.
+
+\section{Microbenchmarks}
+
+\paragraph{Sequential writes and reads.}
+
+We measure the throughput of sequentially writing and reading a file.
+This benchmark first writes a 10-GiB file, 64 blocks at a time, with a
+\texttt{fsync} to flush the file to disk.
+Then, after cleaning the kernel page cache, the kernel reads the file from disk.
+
+\newcommand{\addSeqPlot}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=median,
+        y error plus expr=\thisrow{max}-\thisrow{median},
+        y error minus expr=\thisrow{median}-\thisrow{min},
+    ]
+    {./data/seq_io.csv};
+}
+
+\begin{figure}[t]
+    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ylabel={Bandwidth (MiB/sec)},
+                ymajorgrids=true,
+                symbolic x coords={seq.write,seq.read},
+                xtick={seq.write,seq.read},
+                xticklabels={write,read},
+                enlarge x limits=0.5,
+                visualization depends on=y \as \rawy,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addSeqPlot{ext4};
+            \addSeqPlot{btrfs};
+            \addSeqPlot{xfs};
+            \addSeqPlot{zfs};
+            \addSeqPlot{nilfs2};
+            \addSeqPlot{betrfs4};
+            \addSeqPlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Sequential writes and writes benchmark]{\label{fig:seq_io}
+        Bandwidth to sequentially read and write a 10 GiB file (higher is better).}
+\end{figure}
+
+Figure~\ref{fig:seq_io} shows the results. Ext4, Btrfs, XFS performs sequential
+writes close to disk bandwidth, while \betrfsFive, similar to NILFS2, is about
+6.5\% slower than the fastest file system.
+The performance increase of \betrfsFive from \betrfsFour is from preferential
+splitting, which creates a pivot matching the maximum file data key the
+beginning of the workload, avoiding further node relifting in subsequent node
+splits.
+For sequential reads, Ext4, Btrfs, XFS run at disk bandwidth, while \betrfsFive
+is 19.1\% slower than the fastest file system, which is close to \betrfsFour
+and NILFS2.
+\betrfs reads a leaf, which is about 4 MiB in size, each time, while
+extent-based file systems can have extents that is more than 100 MiB in size.
+Thus, sequential reads results in more (and smaller) IOs on \betrfs.
+
+\section{Macrobenchmarks}
+
+\section{Rename benchmarks}
+
+\textbf{TODO}
+
+\section{Clone benchmarks}
+
+\textbf{TODO}
+
+\section{Summary}
