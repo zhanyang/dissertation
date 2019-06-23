@@ -1,0 +1,7 @@
+ \pgfkeysvalueof{/fs-names/ext4}  &  2770.6  &  21.3 \\
+ \pgfkeysvalueof{/fs-names/btrfs}  &  2069.1  &  14.6 \\
+ \pgfkeysvalueof{/fs-names/xfs}  &  2863.4  &  14.1 \\
+ \pgfkeysvalueof{/fs-names/zfs}  &  3410.6  &  937.4 \\
+ \pgfkeysvalueof{/fs-names/nilfs2}  &  2022.0  &  4.8 \\
+ \pgfkeysvalueof{/fs-names/betrfs4}  &  4.7  &  0.2 \\
+ \pgfkeysvalueof{/fs-names/betrfs5}  &  5.1  &  0.1 \\
