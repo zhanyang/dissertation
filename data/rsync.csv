@@ -1,0 +1,17 @@
+fs inplace median min max
+ext4 yes 25.02 23.26 28.79
+ext4 no 25.60 22.98 26.66
+btrfs yes 15.38 15.30 15.52
+btrfs no 31.19 30.61 32.12
+xfs yes 3.22 3.13 3.43
+xfs no 1.74 1.70 2.10
+zfs yes 21.56 21.45 22.11
+zfs no 21.61 21.12 22.25
+nilfs2 yes 20.69 20.23 20.79
+nilfs2 no 20.74 20.43 21.04
+betrfs4 yes 55.63 54.39 56.97
+betrfs4 no 43.60 43.01 47.51
+betrfs5 yes 55.10 53.34 57.76
+betrfs5 no 47.18 45.49 52.18
+betrfs5-clone yes 50.53 48.31 52.68
+betrfs5-clone no 37.83 37.37 40.89
