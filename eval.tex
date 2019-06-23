@@ -120,15 +120,41 @@ offsets within the 10GiB file, followed by an \texttt{fsync}.
         \hline
     \end{tabular}
     \caption[Random-write benchmark]{\label{tab:rand_io}
-        Time to perform 256Ki 4-Byte random writes one a 10GiB file.}
+        Time to perform 256Ki 4-Byte random writes one a 10GiB file (1 MiB total IO, lower is better).}
+    \begin{tabular}{l.@{${}\pm{}$}..@{${}\pm{}$}..@{${}\pm{}$}.}
+    \hline
+    File system & \multicolumn{2}{c}{find (sec)} & \multicolumn{2}{c}{grep (sec)} & \multicolumn{2}{c}{delete (sec)} \\
+    \hline
+    \input{./data/dir_ops.csv}
+    \hline
+    \end{tabular}
+    \caption[Directory operation benchmar]{\label{tab:dir_ops}
+        Time to perform recursive grep, find and delete of the Linux 3.11.10 source directory (lower is better).}
 \end{table}
 
 Table~\ref{tab:rand_io} shows the results.
 Because \betrfs performs upserts, which doesn't read the old data, for random
 writes, performing the 1MiB random writes only takes about 5 seconds on
 \betrfsFour and \betrfsFive.
-However, it takes at least 2022 seconds on other file file systems, which is
-more than 400 times slower. 
+However, it takes at least 2022 seconds on other file systems, which is
+more than 400 times slower.
+
+\paragraph{Directory operations.}
+Next, we measure three common directory operations,
+\texttt{grep}, \texttt{find}, and ``rm -rf''.
+The benchmark measures the time to \texttt{grep} keyword cpu\_to\_be64 and
+\texttt{find} file wait.c on a copy of the Linux 3.11.10 source directory.
+Also, it measure the time to recursively delete the directory with ``rm -rf''.
+
+Table~\ref{tab:dir_ops} shows the results.
+Because full-path indexing ensures locality in \betrfs, \texttt{find} and
+\texttt{grep} on \betrfsFour and \betrfsFive are more than two times faster than
+other file systems.
+Recursive delete is implemented by range-delete messages in \betrfsFour and
+\goto messages in \betrfsFive, both shows comparable performance against other
+file systems.
+
+\paragraph{TokuBench.}
 
 \section{Macrobenchmarks}
 
