@@ -219,7 +219,7 @@ The benchmark reports the cumulative throughput of the file creation each time
 Figure~\ref{fig:toku} shows the results.
 Because Tokubench focus on small, random writes, \betrfsFour and \betrfsFive are
 significantly faster than ext4, Btrfs and XFS.
-\BetrfsFive performance better than \betrfsFour because preferential splitting
+\betrfsFive performance better than \betrfsFour because preferential splitting
 also avoids further relifting in the benchmark.
 We expect NILFS to performance better than \betrfsFive in TokuBench that creates
 more files,
@@ -227,6 +227,16 @@ because as a log-structured file system, NILFS2 would have stable performance
 until the log (disk) is full.
 
 \section{Macrobenchmarks}
+
+We then measure the performance of file systems on four canonical applications.
+
+\paragraph{Git.}
+
+\paragraph{Tar.}
+
+\paragraph{Rsync.}
+
+\paragraph{Mailserver.}
 
 \section{Rename benchmarks}
 
