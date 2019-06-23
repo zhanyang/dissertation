@@ -139,32 +139,6 @@ writes, performing the 1MiB random writes only takes about 5 seconds on
 However, it takes at least 2022 seconds on other file systems, which is
 more than 400 times slower.
 
-\paragraph{Directory operations.}
-Next, we measure three common directory operations,
-\texttt{grep}, \texttt{find}, and ``rm -rf''.
-The benchmark measures the time to \texttt{grep} keyword cpu\_to\_be64 and
-\texttt{find} file wait.c on a copy of the Linux 3.11.10 source directory.
-Also, it measure the time to recursively delete the directory with ``rm -rf''.
-
-Table~\ref{tab:dir_ops} shows the results.
-Because full-path indexing ensures locality in \betrfs, \texttt{find} and
-\texttt{grep} on \betrfsFour and \betrfsFive are more than two times faster than
-other file systems.
-Recursive delete is implemented by range-delete messages in \betrfsFour and
-\goto messages in \betrfsFive, both shows comparable performance against other
-file systems.
-
-\paragraph{TokuBench.}
-
-TokuBench is a small-write-intensive benchmark that creates 3 million
-200-Byte files in a balanced tree directory.
-The benchmark first creates the balanced tree directory with a fanout of 128,
-i.e., each directory has at most 128 directories or 128 files.
-Then, it creates files with 4 threads.
-And each thread iterates over the leaf directories, creating one file at a time.
-The benchmark reports the cumulative throughput of the file creation each time
-10000 files are created.
-
 \newcommand{\addTokubenchPlot}[1]
 {
     \addplot[
@@ -215,6 +189,32 @@ The benchmark reports the cumulative throughput of the file creation each time
     \caption[TokuBench benchmark]{\label{fig:toku}
         Cumulative file creation throughput during the Tokubench benchmark (higher is better).}
 \end{figure}
+
+\paragraph{Directory operations.}
+Next, we measure three common directory operations,
+\texttt{grep}, \texttt{find}, and ``rm -rf''.
+The benchmark measures the time to \texttt{grep} keyword cpu\_to\_be64 and
+\texttt{find} file wait.c on a copy of the Linux 3.11.10 source directory.
+Also, it measure the time to recursively delete the directory with ``rm -rf''.
+
+Table~\ref{tab:dir_ops} shows the results.
+Because full-path indexing ensures locality in \betrfs, \texttt{find} and
+\texttt{grep} on \betrfsFour and \betrfsFive are more than two times faster than
+other file systems.
+Recursive delete is implemented by range-delete messages in \betrfsFour and
+\goto messages in \betrfsFive, both shows comparable performance against other
+file systems.
+
+\paragraph{TokuBench.}
+
+TokuBench is a small-write-intensive benchmark that creates 3 million
+200-Byte files in a balanced tree directory.
+The benchmark first creates the balanced tree directory with a fanout of 128,
+i.e., each directory has at most 128 directories or 128 files.
+Then, it creates files with 4 threads.
+And each thread iterates over the leaf directories, creating one file at a time.
+The benchmark reports the cumulative throughput of the file creation each time
+10000 files are created.
 
 Figure~\ref{fig:toku} shows the results.
 Because Tokubench focus on small, random writes, \betrfsFour and \betrfsFive are
