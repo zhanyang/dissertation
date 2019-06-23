@@ -128,7 +128,7 @@ offsets within the 10GiB file, followed by an \texttt{fsync}.
     \input{./data/dir_ops.csv}
     \hline
     \end{tabular}
-    \caption[Directory operation benchmar]{\label{tab:dir_ops}
+    \caption[Directory operation benchmark]{\label{tab:dir_ops}
         Time to perform recursive grep, find and delete of the Linux 3.11.10 source directory (lower is better).}
 \end{table}
 
@@ -155,6 +155,76 @@ Recursive delete is implemented by range-delete messages in \betrfsFour and
 file systems.
 
 \paragraph{TokuBench.}
+
+TokuBench is a small-write-intensive benchmark that creates 3 million
+200-Byte files in a balanced tree directory.
+The benchmark first creates the balanced tree directory with a fanout of 128,
+i.e., each directory has at most 128 directories or 128 files.
+Then, it creates files with 4 threads.
+And each thread iterates over the leaf directories, creating one file at a time.
+The benchmark reports the cumulative throughput of the file creation each time
+10000 files are created.
+
+\newcommand{\addTokubenchPlot}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/toku/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
+\begin{figure}[t]
+    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+        \begin{axis}[
+                xlabel={Files created},
+                ylabel={Throughput (files/sec)},
+                xmin=0,
+                xmax=3000000,
+                ymin=10,
+                ymax=50000,
+                mark repeat=10,
+                ytick={10000,20000,30000,40000,50000},
+                yticklabels={10k,20k,30k,40k,50k},
+                xtick={0,1000000,2000000,3000000},
+                xticklabels={0,1M,2M,3M},
+                grid=major,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=4,
+                legend cell align=left,
+                transpose legend,
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addTokubenchPlot{ext4};
+            \addTokubenchPlot{btrfs};
+            \addTokubenchPlot{xfs};
+            \addTokubenchPlot{zfs};
+            \addTokubenchPlot{nilfs2};
+            \addTokubenchPlot{betrfs4};
+            \addTokubenchPlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[TokuBench benchmark]{\label{fig:toku}
+        Cumulative file creation throughput during the Tokubench benchmark (higher is better).}
+\end{figure}
+
+Figure~\ref{fig:toku} shows the results.
+Because Tokubench focus on small, random writes, \betrfsFour and \betrfsFive are
+significantly faster than ext4, Btrfs and XFS.
+\BetrfsFive performance better than \betrfsFour because preferential splitting
+also avoids further relifting in the benchmark.
+We expect NILFS to performance better than \betrfsFive in TokuBench that creates
+more files,
+because as a log-structured file system, NILFS2 would have stable performance
+until the log (disk) is full.
 
 \section{Macrobenchmarks}
 
