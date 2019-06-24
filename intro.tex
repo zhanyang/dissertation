@@ -1,4 +1,36 @@
 \chapter{Introduction}
 \label{chap:intro}
 
-intro
+Today's general purpose file systems fail to utilize the full bandwidth of the
+underlying hardware.
+Widely used inode-based file systems, such as ext4, XFS, and Btrfs, can write
+large files at near disk bandwidth,
+but typically create small files at less than 3\% of the disk bandwidth.
+Similarly, these file systems can read large files at near disk bandwidth,
+but scanning directories with many small files is slow, and the performance
+degrades when the file system ages~\citep{betrfs3}.
+
+At the heart of this issue is how data is organized on disk.
+The most common desgin pattern fro modern file systems is to use multiple layers
+of indirection.
+The inode number connects the name of a file or directory entry in a directory
+to its metadata location on disk.
+The metadata of an inode contains extents that describes the physical location
+and length of data at different offset.
+Indirection simplifies implementation of the file system, and makes some
+operations, such creating files and appending files, easy to implement.
+In particular, namespace operations are simple and flexible.
+For example, a rename is just a pointer swings, moving one entry from one
+directory to another directory.
+However, indirection doesn't impose any constraint on how metadata and data
+are placed on the disk.
+In the worst case, the metadata of entries under a directory and the content of
+a file can end up scattered over the disk.
+Heuristics, such as cylinder groups~\citep{ffs1}, are designed to mitigate this
+problem.
+However, on modern inode-based file systems, unless the metadata or data are
+modified, their location doesn't change.
+Therefore, after disk space is allocated and freed again and again, the free
+space on disk becomes scattered and perfect placement for future metadata and
+data becomes impossible, leading to bad performance when file system ages.
+

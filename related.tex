@@ -118,7 +118,7 @@ Therefore, multiple active instances of the file system can exist at the same
 time and WAFL can create writable snapshots of the whole file system by creating
 a new instance and copying the vol\_info block.
 
-FFS~\citep{ffs} creates snapshots by suspending all operations and creating a
+FFS~\citep{ffs1,ffs2} creates snapshots by suspending all operations and creating a
 snapshot file whose inode is stored in the superblock.
 The size of the snapshot file is the same as the disk.
 Upon creation, most block pointers in the snapshot inode are marked
