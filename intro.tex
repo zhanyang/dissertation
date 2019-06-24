@@ -69,7 +69,11 @@ in particular, renaming large files and directories.
 For instance, renaming a large directory changes the full-paths of all files
 and directories under that directory, which updates keys of the metadata and
 data and moves them in the keyspace.
-Prior work either suffers from slow namespace operations, or
-breaks full-path indexing and taxes other operations for efficient namespace
-operations.
+Competitive performance for namespace operations in full-path-indexed file
+systems should complete in an IO-efficient manner.
+However, prior work mainly focus on the schema level of the file system, i.e.,
+how metadata and data are keyed and indexed in the write-optimized dictionary.
+Therefore, the file system either suffers from slow namespace operations because
+of full-path indexing, or breaks full-path indexing and
+taxes other operations for efficient namespace operations.
 
