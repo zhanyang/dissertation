@@ -77,10 +77,54 @@ Therefore, the file system either suffers from slow namespace operations because
 of full-path indexing, or breaks full-path indexing and
 taxes other operations for efficient namespace operations.
 
-This dissertations presents IO-efficient ways to do namespace operations in a
+This dissertation presents IO-efficient ways to do namespace operations in a
 full-path-indexed, write-optimized file system.
 Specifically, with full-path indexing limiting changes on schema level,
 this dissertation implements new operations on the underlying write-optimized
-dictionary that finishes namespace operations in file systems with bounded
-number of IOs.
+dictionary that finishes namespace operations in file systems with
+bounded number of IOs.
+
+Chapter~\ref{chap:bg} talks about prior work.
+We start with a presentation of the write-optimized \bets, which gives the idea
+of write-optimization.
+Then, we describes full-path-indexed \betrfs and relative-path-indexed \betrfs.
+The full-path-indexed \betrfs shows the benefit of full-path indexing combined
+with write-optimization, but suffers from slow renames.
+The relative-path-indexed \betrfs has good rename performance, but breaks the
+full-path indexing and taxes other operations.
+The goal of this chapter is to provide the reader with the background of this
+work.
+
+Chapter~\ref{chap:rename} presents a new operation on \bets, range-rename.
+Range-rename transforms a \bet into a lifted \bet through \textbf{key lifting},
+and performs \textbf{tree surgery} to slice out and move a subtree in a lifted
+\bets.
+Range-rename updates and moves keys in an IO-efficient way,
+completing the work of renames in a full-path-indexed file system.
+
+Chapter~\ref{chap:clone} introduces another operation on \bets, range-clone.
+With range-rename techniques, range-clone further transforms a lifted \bet into
+a lifted \bedag by sharing a subtree between multiple parents.
+Moreover, range-clone introduces \goto messages that fit the operation into the
+write-optimized framework of \bets.
+With range-clone, full-path-indexed can rename or clone files or directories
+efficiently.
+
+Chapter~\ref{chap:eval} evaluates the implementation.
+We compare the file system to widely used file systems on micro and macro
+benchmarks, with a particular focus on rename and clone benchmarks.
+
+Chapter~\ref{chap:related} summarize some previously published work related to
+this work.
+We organize related work by topic, and talk in detail about work that is closely
+related to this work.
+
+Chapter~\ref{chap:conclusion} concludes the dissertation.
+
+The primary contribution of this dissertation is showing there is no trade-off
+between efficient namespace operations and locality.
+Efficient renames are possible in a full-path-indexed file system, which ensures
+locality.
+And full-path indexing creates more opportunities for namespace operations,
+such as directory clones.
 
