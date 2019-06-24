@@ -11,7 +11,7 @@ but scanning directories with many small files is slow, and the performance
 degrades when the file system ages~\citep{betrfs3}.
 
 At the heart of this issue is how data is organized on disk.
-The most common desgin pattern fro modern file systems is to use multiple layers
+The most common design pattern for modern file systems is to use multiple layers
 of indirection.
 The inode number connects the name of a file or directory entry in a directory
 to its metadata location on disk.
@@ -34,12 +34,42 @@ Therefore, after disk space is allocated and freed over file system aging,
 the free space on disk becomes scattered,
 leading to bad performance for both reads and writes.
 
-One attempt to solve the problem of writes is the log-structured file
+One attempt to solve the problem of random writes is the log-structured file
 system~\citep{lfs}.
 The log-structure file system treats the disk as a log, so small random writes
 becomes log appends, which are significantly faster.
 However, the log cleaner has severe impact on performance~\citep{lfsbsd},
 especially when the log is full.
-Moreover, the log-structured file system has the same problem for directory
-traversals as other file systems.
+Moreover, the log-structured file system still uses multiple levels of
+indirection, resulting in slow directory traversals.
+
+An alternative design is to use full-path indexing upon write-optimized
+dictionaries in a file system, known to have good performance on nearly all
+operations.
+Write-optimized dictionaries divides the log into multiple levels whose size
+grows exponentially.
+Writes are put to the lowest level, and gradually merged to higher levels in
+batches.
+The flushing process in a write-optimized dictionary keeps data sorted by keys
+and acts as a cleaner to garbage-collect lower levels.
+On the other hand, full-path indexing ensures metadata and data in
+depth-first-search order, that is, lexicographic order by the full-path names
+of files and directory.
+With full-path indexing, metadata and data under one directory are close to each
+other in keyspace, which, combined with the sorted order maintained by the
+write-optimized dictionaries, leads to good locality and fast directory
+traversals.
+Prior work~\citep{betrfs1,betrfs1tos,betrfs2,betrfs2tos,betrfs3} of this design
+realize efficient implementation of many file-system operations, such as random
+writes, file creates and directory traversals,
+but a few operations still have prohibitively high overheads.
+
+The Achilles' heel of such design is the performance of namespace operations,
+in particular, renaming large files and directories.
+For instance, renaming a large directory changes the full-paths of all files
+and directories under that directory, which updates keys of the metadata and
+data and moves them in the keyspace.
+Prior work either suffers from slow namespace operations, or
+breaks full-path indexing and taxes other operations for efficient namespace
+operations.
 
