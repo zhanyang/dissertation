@@ -77,3 +77,10 @@ Therefore, the file system either suffers from slow namespace operations because
 of full-path indexing, or breaks full-path indexing and
 taxes other operations for efficient namespace operations.
 
+This dissertations presents IO-efficient ways to do namespace operations in a
+full-path-indexed, write-optimized file system.
+Specifically, with full-path indexing limiting changes on schema level,
+this dissertation implements new operations on the underlying write-optimized
+dictionary that finishes namespace operations in file systems with bounded
+number of IOs.
+
