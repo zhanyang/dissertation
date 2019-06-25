@@ -83,18 +83,20 @@ Unless noted, all benchmarks are cold-cache tests.
 
 \begin{table}[t]
     \centering
-    \begin{tabular}{l.@{${}\pm{}$}.}
+    \begin{tabular}{l|.@{${}\pm{}$}.}
         \hline
         File system & \multicolumn{2}{c}{random write (sec)} \\
+        \hline
         \hline
         \input{./data/rand_io.csv}
         \hline
     \end{tabular}
     \caption[Random-write benchmark]{\label{tab:rand_io}
         Time to perform 256Ki 4-Byte random writes one a 10GiB file (1 MiB total IO, lower is better).}
-    \begin{tabular}{l.@{${}\pm{}$}..@{${}\pm{}$}..@{${}\pm{}$}.}
+    \begin{tabular}{l|.@{${}\pm{}$}..@{${}\pm{}$}..@{${}\pm{}$}.}
     \hline
     File system & \multicolumn{2}{c}{find (sec)} & \multicolumn{2}{c}{grep (sec)} & \multicolumn{2}{c}{delete (sec)} \\
+    \hline
     \hline
     \input{./data/dir_ops.csv}
     \hline
