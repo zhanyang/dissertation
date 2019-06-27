@@ -5,11 +5,12 @@ This chapter gives the background of \betrfs.
 \betrfs is a file system based on write-optimized \bets.
 Also, \betrfs adopts full-path indexing or relative-path indexing for spatial
 locality.
-This chapter first introduces \bets and full-path-indexed \betrfs,
-showing the difficulty to perform renames efficiently on the file system level
-with full-path indexing,
-followed by the description of relative-path-indexed \betrfs, which has good
-rename performance but taxes other operations.
+We first introduce the underlying data structure, write-optimized \bets.
+Then, we describe full-path-indexed \betrfs,
+showing the difficulty to perform renames efficiently on file system level
+with full-path indexing.
+At least, we discusses relative-path indexing, the previous approach that
+taxes other operations to mitigate the rename issue in \betrfs.
 
 \section{\bets}
 \label{sec:bet}
@@ -117,8 +118,28 @@ along the root-to-leaf path, as well as key/value pairs in the leaves.
         \draw[->, >=stealth] (-.0625\textwidth, .242\textwidth) -- (-.195\textwidth, .192\textwidth);
         \draw[->, >=stealth] (-.0025\textwidth, .242\textwidth) -- (.13\textwidth, .192\textwidth);
     \end{tikzpicture}
-    \caption[A \bet]{\label{fig:bet} A \bet.}
+    \caption[A \bet example]{\label{fig:bet} A \bet stores key/value pairs in
+        leaf nodes, and keeps pivots, parent-to-child-pointers and a message
+        buffer in each non-leaf node.}
 \end{figure}
+
+Figure~\ref{fig:bet} shows a \bet example.
+Node $D$, $E$, $F$, $G$ and $H$ are leaf nodes that stores key/value pairs.
+Each leaf node shows a key/value pair in a row, with the left pair as the key
+and the right pair as the value.
+We use different colors to indicate keys with different prefixes and omit the
+content of the value throughout the dissertation.
+Node $A$, $B$ and $C$ are non-leaf nodes that contains pivots, parent-to-child
+pointers and messages in buffers.
+Parent-to-child pointers connect nodes into a tree, and the left and right
+pivot of a parent-to-child bound the key range of the child node.
+Messages in the buffers of non-leaf nodes are write operations that have been
+applied to the \bet but have not reached their leaf nodes.
+For example, the DEL(``/G/c'') message in Node $B$ indicates that key ``/G/c''
+has been deleted from the \bet.
+Therefore, though a query for key ``/G/c'' can find the key in Node $E$,
+that key/value pair is invalidated by the message in Node $B$ and the
+query returns ``not-found''.
 
 \begin{table}[t]
     \centering
@@ -134,8 +155,8 @@ along the root-to-leaf path, as well as key/value pairs in the leaves.
         \bet ($\varepsilon=0.5$) & $O(log_{B}{N}/{\sqrt{B}})$ & $O(log_{B}{N})$ & $O(log_{B}{N} + k/B)$ \\
         \hline
     \end{tabular}
-    \caption[The asymptotic IO costs of \btrees and \bets]{\label{tab:betbtree}
-        The asymptotic IO costs of \btrees and \bets.}
+    \caption[The asymptotic I/O costs of \btrees and \bets]{\label{tab:betbtree}
+        The asymptotic I/O costs of \btrees and \bets.}
 \end{table}
 
 \bets are asymptotically faster than \btrees, as summarized in
@@ -146,8 +167,8 @@ $B$ keys
 with each key has negligible size).
 The tree has fanout $B$, so its height is $O(log_{B}{N})$.
 Inserts and point queries need to fetch all nodes along the root-to-leaf path,
-resulting in $O(log_{B}{N})$ IOs.
-A range query for $k$ key/value pairs requires $O(log_{B}{N} + k/B)$ IOs.
+resulting in $O(log_{B}{N})$ I/Os.
+A range query for $k$ key/value pairs requires $O(log_{B}{N} + k/B)$ I/Os.
 
 For comparison, a \bet with node size $B$ has fanout $B^{\varepsilon}$, where
 $0 < \varepsilon \leq 1$.
@@ -155,35 +176,36 @@ Therefore, pivot keys in a non-leaf node consume $B^{\varepsilon}$ space and
 the remaining $(B - B^{\varepsilon})$ space is used for buffers.
 As a result, the \bet has height $O(log_{B}{N}/\varepsilon)$.
 A point query fetches all nodes along the root-to-leaf path with
-$O(log_{B}{N}/\varepsilon)$ IOs and a range query for $k$ key/value pairs
-requires $O({log_{B}{N}}/{\varepsilon} + k/B)$ IOs.
+$O(log_{B}{N}/\varepsilon)$ I/Os and a range query for $k$ key/value pairs
+requires $O({log_{B}{N}}/{\varepsilon} + k/B)$ I/Os.
 On the other hand, the cost of an insert consists of injecting the message into
-the root node with $O(1)$ IO and flushing the message down at each level.
+the root node with $O(1)$ I/O and flushing the message down at each level.
 In each flush, \bets has $O(B - B^{\varepsilon})$ messages and $B^{\varepsilon}$
 children.
 Thus, at leave one child can receive at least
 $O((B - B^{\varepsilon})/B^{\varepsilon}) = O(B^{1 - \varepsilon})$ messages.
 Therefore, the amortized cost of an insert in one flush is
 $O(1/B^{1 - \varepsilon})$.
-As the insert must be flushed $O(log_{B}{N}/\varepsilon)$ times, the amortized
-cost of the insert is $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
+As the insert must be flushed $O(log_{B}{N}/\varepsilon)$ (tree height) times,
+the amortized cost of the insert is
+$O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
 A \bet with $\varepsilon = 1$ is equivalent to a \btree.
-And if $\varepsilon = 1/2$, the point and range query costs of the \bet
+And if we set $\varepsilon = 1/2$, the point and range query costs of the \bet
 become $O(log_{B}{N})$ and $O(log_{B}{N} + k/B)$, which is the same as a \btree,
 but the insert cost becomes $O(log_{B}{N}/{\sqrt{B}})$, which is faster by a
 factor of $\sqrt{B}$.
 
-One important change in \bets from \btrees is the asymmetric IO costs for
+One important change in \bets from \btrees is the asymmetric I/O costs for
 point queries and inserts.
 In \btrees, if an application wants to update the old value associated with a
 key, it performs a point query to get the old value and then issues an insert
 with the updated value.
-Because both operations take $O(log_{B}{N})$ IOs, the total cost remains
+Because both operations take $O(log_{B}{N})$ I/Os, the total cost remains
 $O(log_{B}{N})$.
-However, in \bets, the query cost is $O(log_{B}{N}/\varepsilon)$ IOs while the
+However, in \bets, the query cost is $O(log_{B}{N}/\varepsilon)$ I/Os while the
 insert cost is $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
 Performing a query before an insert degrades the total cost to
-$O(log_{B}{N}/\varepsilon)$ IOs.
+$O(log_{B}{N}/\varepsilon)$ I/Os.
 
 To avoid this read-before-write problem, \bets support ``upsert'' operations.
 An upsert injects a message with the key and a delta into the buffer of the root
@@ -191,9 +213,11 @@ node.
 When the upsert message is flushed to the leaf, it updates the old value
 associated with the key with a user-specified function and the delta in the
 message.
-With upsert messages, queries need to compute value on the fly.
-However, this doesn't change the IO costs of queries.
-On the other hand, updating an old value becomes as fast as an insert.
+On one hand, queries need to compute the new value on the fly if the upsert
+message has not reached the leaf node,
+however, this doesn't change the I/O costs of queries.
+On the other hand, updating an old value becomes as fast as an insert,
+because it doesn't need to fetch the old value.
 
 \section{Full-path-indexed \betrfs}
 \label{sec:fpi}
