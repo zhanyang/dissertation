@@ -333,7 +333,7 @@ However, the rename problem remains difficult in full-path-indexed \betrfs.
 \label{sec:rpi}
 
 \begin{figure}[t]
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}[t]{.5\textwidth}
         \centering
         \begin{tikzpicture}{xscale=0.95,yscale=0.95}
             \draw[thick, ->] (0, .08\textwidth) -- (0, 0) node [anchor=north, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, font=\small] {``/foo/bar/file''};
@@ -343,9 +343,9 @@ However, the rename problem remains difficult in full-path-indexed \betrfs.
             \draw[thick, ->] (.32\textwidth, .4\textwidth) -- (.32\textwidth, .32\textwidth) node [anchor=north, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, font=\small] {``/foo''};
             \node [anchor=south, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, thick, font=\small] at (.32\textwidth, .4\textwidth) {``/''};
         \end{tikzpicture}
-        \caption{\label{subfig:FPI} Full-path indexing.}
+        \caption{\label{subfig:FPI} Full-path indexing only keeps full-paths.}
     \end{subfigure}
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}[t]{.5\textwidth}
         \centering
         \begin{tikzpicture}{xscale=0.95,yscale=0.95}
             \node [anchor=south, rectangle, rounded corners, minimum height=.50\textwidth, minimum width=\textwidth, draw=black, dashed] at (.32\textwidth, 0) {};
@@ -365,30 +365,33 @@ However, the rename problem remains difficult in full-path-indexed \betrfs.
             \draw[thick, dashed, ->] (0, .08\textwidth) -- (0, -.07\textwidth);
             \draw[thick, dashed, ->] (.64\textwidth, .08\textwidth) -- (.64\textwidth, -.07\textwidth);
         \end{tikzpicture}
-        \caption{\label{subfig:RPI} Relative-path indexing.}
+        \caption{\label{subfig:RPI} Relative-path indexing splits the directory tree into zones and
+            uses indirection between zones.}
     \end{subfigure}
     \caption[Full-path indexing and relative-path indexing]{\label{fig:FPIRPI}
-        Full-path indexing and relative-path indexing.}
+        The same directory tree under full-path indexing and relative-path indexing.}
 \end{figure}
 
 Relative-path-indexed \betrfs~\citep{betrfs2,betrfs2tos} backed away from
 full-path indexing and introduced relative-path indexing,
 which is also called zoning.
 Relative-path indexing partitions the directory hierarchy into zones.
-Each zone has a zone ID (the root zone has zone ID 0), which is analogous to an
-inode number, and a single root file or directory.
+Each zone has a zone ID (the root zone always has zone ID 0), which is analogous
+to an inode number, and a single root file or directory.
 All file or directory in a zone is indexed relative to the zone root.
 If the file or directory is the root of another zone, the entry contains that
 zone ID to redirect queries.
 
-Figure~\ref{fig:FPIRPI} shows an example of the same directory hierarchy under
+Figure~\ref{fig:FPIRPI} shows an example of the same directory tree under
 full-path indexing and relative-path indexing.
-In Figure~\ref{subfig:RPI}, when querying the key/value store for file
-``/foo/file'' with key (0, ``/foo/file''), the file system gets a special value
-indicating it is the root of Zone 2.
+In Figure~\ref{subfig:RPI}, relative-path indexing partitions the directory
+into three zones.
+When querying the key/value store for file ``/foo/file'' with key
+(0, ``/foo/file''), the file system gets a special value that
+indicates the entry is the root of Zone 2.
 Subsequently, the file system queries the key/value store with key (2, ``/'')
-and gets the right value.
-Similary, the file system notices the key for directory ``/foo/bar'' is
+and gets the correct value.
+Similarly, the file system notices the key for directory ``/foo/bar'' is
 (3, ``/'').
 Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
 
@@ -434,39 +437,60 @@ Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
         \addTokubenchZonePlot{betrfs3-max};
         \end{axis}
     \end{tikzpicture}
-    \caption[Zone maintainance cost in TokuBench benchmark]{Cumulative file creation
-        throughput during the Tokubench benchmark (higher is better).
-        Compared to \betrfsThree with one zone, \betrfsThree has a sudden
-        performance drop because of zone splitting.}
+    \caption[Zone maintainance cost in TokuBench benchmark]{
+        Cumulative file creation throughput during the Tokubench benchmark (higher is better).
+        Compared to \betrfsThree with an infinite zone size,
+        \betrfsThree with the default zone size has a sudden
+        performance drop because of zone splits.}
     \label{fig:tokuzone}
 \end{figure}
 
 Relative-path indexing tries to balance locality and rename performance through
 a target zone size.
-Larger zone size means better locality because full-path indexing is still
-maintained within the zone.
-Smaller zone size imposes a lower bound on rename latency
-because no rename needs to mutate more key/value pairs than in a zone.
+On one hand, full-path indexing is still maintained within a zone,
+so larger zone size gives better locality.
+On the other hand, smaller zone size imposes a lower bound on rename cost,
+because no rename needs to mutate more key/value pairs than the zone size.
+Relative-path-indexing with an infinite zone size is equivalent to
+full-path-indexing, while relative-path-indexing with a zero zone size is the
+same as indexing with inode numbers.
 
-\betrfsTwo adopts relative-path-indexing with a default zone size 128KiB.
-Relative-path indexing made renames on \betrfsTwo almost as fast as inode-based
-file system and recursive-directory traversals almost as fast as \betrfsOne.
+Relative-path indexing maintains zones by splits and merges.
+When a directory or file that is not a zone root becomes too big,
+relative-path indexing moves it to its own zone by a zone split.
+And when a zone becomes too small, relative-path indexing merges the zone.
 
-However, relative-path indexing also imposes zone maintenance costs on other
-file system operations.
-For instance, in Figure~\ref{fig:tokuzone},
-two-thirds of the way through the TokuBench benchmark,
-\betrfsThree (\betrfsThree is \betrfsTwo with some bug fixes) shows a sudden,
+The implementation of relative-path-indexed \betrfs, \betrfsTwo, adopts a
+default zone size 128KiB.
+This default zone size is small enough that renames on \betrfsTwo are almost
+as fast as on inode-based file systems.
+At the same time, the default zone size is large enough that directory
+traversals are almost as fast as \betrfsOne.
+
+However, relative-path indexing imposes zone maintenance costs on other file
+system operations.
+For instance, Figure~\ref{fig:tokuzone} shows the results of running Tokubench,
+which creates 3 million small files, on \betrfsThree
+(\betrfsThree is \betrfsTwo with some bug fixes).
+The experiment runs Tokubench twice,
+one on \betrfsThree with the default zone size,
+the other on \betrfsThree with an infinite zone size.
+On the graph, two-thirds of the way through the TokuBench benchmark,
+\betrfsThree with the default zone size shows a sudden,
 precipitous drop in cumulative throughput for small file creation,
-because the file system performs a huge amount of zone splitting.
-On the contrary, \betrfsThree with an infinite zone size (marked as \betrfsThree
-with one zone) has a smooth curve throughout the benchmark.
+because the file system performs a huge amount of zone splits.
+At that moment, all benchmarking directories are one file less than the target
+zone size.
+Therefore, creating one file in a directory results in a zone split,
+updating all key/value pairs under the directory.
+On the contrary, \betrfsThree with an infinite zone size
+has a smooth curve throughout the benchmark.
 
-Furthermore, relative-path indexing also has bad worst-case performance.
+Furthermore, relative-path indexing has bad worst-case performance.
 It is possible to construct arrangements of nested directories that will each
 reside in their own zone.
 Reading a file in the deepest directory will require reading one zone per
-directory (each withits own I/O).
+directory (each with its own I/O).
 Such a pathological worst case is not possible with full-path indexing in a
 \bet, and an important design goal for \betrfs is keeping a reasonable bound on
 the worst cases.
