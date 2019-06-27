@@ -2,6 +2,7 @@ MAIN = dissertation
 TEX = \
 	$(MAIN)    \
 	defines    \
+	abbrev     \
 	acks       \
 	intro      \
 	background \
