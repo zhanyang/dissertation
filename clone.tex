@@ -42,8 +42,9 @@ At last, we talk about some implementation details.
                          & \ddb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}, false); \\
         \hline
     \end{tabular}
-    \caption[File system renames and clones in \betrfs with range-clones]{\label{tab:fsrc}
-        \betrfs renames or clones \textit{src} to \textit{dst} by calling range-clones.}
+    \caption[Full-path-indexed \betrfs implements file system renames and clones with range-clone]{\label{tab:fsrc}
+        Full-path-indexed \betrfs renames or clones \textit{src} to \textit{dst} by
+        invoking range-clone and other operations on \bets.}
 \end{table}
 
 Similar to range-rename, range-clone is defined as
@@ -1673,8 +1674,9 @@ In Figure~\ref{subfig:xf-2}, exterior nodes, Node $C$ and $G$ out are discarded.
 Then, it adds \xf functions to pointers to fringe nodes, Node $D$ and $F$.
 At last, it updates keys in Node $B$ by removing the prefix in the \xf function.
 
-\section{Preferential splitting}
+\section{Implementation}
 
+\paragraph{Preferential splitting.}
 Most of the additional background work in range-clone is about removing
 unrelated keys and unlifted prefix data from fringe nodes, which
 contain both cloned and non-cloned data.
