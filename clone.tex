@@ -1,18 +1,20 @@
 \chapter{Range-clone}
 \label{chap:clone}
 
-This chapter describes another \bet operation, range-clone, which can be used
-to implement file or directory clones and renames on full-path-indexed \betrfs.
+This chapter describes the range-clone operation on \bets, which can be used
+to implement file or directory clones and renames in full-path-indexed \betrfs.
 Unlikely a range-rename, which completes all its work at once, a range-clone
-injects a new type of message, the \goto messages, to the \bet.
+operation injects a new type of messages, \goto messages,
+into the root of the \bet.
 The \bet then flushes \goto messages with other messages in batches, gradually
 finishing the range-clone works.
 Therefore, range-clone fits into the write-optimized framework of \bets.
 
-This chapter first describes the range-clone interface,
-followed by how range-clones are implemented on \bets.
-At last, this chapter describes a new technique, preferential splitting, which
-makes range-clones more efficient.
+We first describe the range-clone interface and how \betrfs can use it to
+implement file or directory renames and clones.
+Then, we discuss the how to implement the range-clone operations in a
+write-optimized way on \bets.
+At last, we talk about some implementation details.
 
 \section{The range-clone interface}
 
@@ -44,9 +46,9 @@ makes range-clones more efficient.
         \betrfs renames or clones \textit{src} to \textit{dst} by calling range-clones.}
 \end{table}
 
-Similar to range-rename, range-clone is defined as:
-range-clone(\spre, \dpre, \delold), where \delold is a boolean.
-It does the following things:
+Similar to range-rename, range-clone is defined as
+range-clone(\spre, \dpre, \delold), where \delold is a boolean value.
+Range-clone(\spre, \dpre, \delold)  does the following things:
 \begin{itemize}
 \item it deletes all destination key/value pairs from the key/value store;
 \item then, for any source key/value pair $(k,v)$ in the key/value store,
@@ -56,13 +58,24 @@ concatenation of \dpre and the same suffix $s$;
 \item if \delold is true, it deletes all source key/value pairs from the
 key/value store.
 \end{itemize}
-If \delold is true, range-clone is equivalent to range-rename;
+Therefore, if \delold is true, range-clone is equivalent to range-rename;
 otherwise, range-clone is range-rename without deleting source key/value pairs.
-Therefore, as summarized in Table~\ref{tab:fsrc},
-file or directory renames on full-path-indexed \betrfs can be done
-with range-clones just as they are done with range-renames.
-And clones on full-path-index \betrfs are done in the similar ways with \delold
-set to false.
+
+Table~\ref{tab:fsrc} summarizes how \betrfs can complete file or directory
+renames and clones by invoking range-clone operations.
+Because a range-clone operation with \delold set to true is the same as a
+range-rename operation,
+file or directory renames in Table~\ref{tab:fsrc} are the same as those in
+Table~\ref{tab:fsrr}, except using range-clone instead of range-rename.
+And if \betrfs calls the same operations but sets \delold in range-clone to
+false,
+it keeps the source metadata and data.
+Thus, it completes file or directory clones.
+
+Because deleting source key/value pairs can be done with a range-delete message
+for source keys,
+in the rest of the chapter, we set \delold to false and treat range-clone as
+range-clone(\spre, \dpre).
 
 \section{The range-clone operation}
 
