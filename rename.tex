@@ -1133,6 +1133,8 @@ the height of the tree.
 
 In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
 
+\section{Implementation}
+
 \paragraph{Atomicity and Transactions.}
 The \fti in \betrfs implements \bets with multi-version concurrency control by
 augmenting messages with a logical timestamp.
@@ -1188,7 +1190,36 @@ releases the root lock.
 The rest of the range-rename work is handed off to background threads, which
 performing slicing, transplanting and healing.
 
-\section{Implementation}
+\paragraph{Re-lifting nodes.}
+Re-lifting a node requires updating prefixes of all keys in the node.
+Because \bets have a large node size (4 MiB in \fti),
+re-lifting a node can be computation-intensive.
+
+However, we observe that in \fti, instead of storing all messages in one buffer,
+non-leaf nodes keep messages in partitions, each corresponds to a child.
+This design makes message flushes, as well as node splits and merges,
+easy to implement,
+because those operations don't need to remove or add messages to a single
+data structure representing the node buffer.
+
+Therefore, we can lifting the prefixes of keys in a partition by the LCP of
+two pivots bounding it in the non-leaf node.
+In other words, keys in the partition are not only lifted by pivots in ancestors
+but also the two pivots in the node.
+
+To see how it helps, consider a partition bounded by two pivots in the non-leaf
+node.
+All keys in the partition are lifted by the total lifted prefix in ancestors, $p$,
+and the LCP of the two pivots, $q$.
+Therefore, the total amount of prefix lifted from keys in the partition is $(p+q)$.
+Now, assume re-lifting further lifts some prefix $s$ from the node,
+making the total lifted prefix by ancestors $(p+s)$
+and the LCP of the tow pivots $(q-s)$.
+The total amount of prefix lifted for keys in the partition is still $(p+q)$.
+
+Therefore, re-lifting a non-leaf node only needs to update pivots and
+keeps messages in partitions intact.
+However, re-lifting a leaf node still requires updating all keys.
 
 \paragraph{\betrfs key order.}
 There are 2 constraint on the key order of full-path-index \betrfs with
@@ -1197,9 +1228,9 @@ range-renames:
 \begin{itemize}
 \item the readdir constraint. Because \betrfs uses range-queries to fetch all
 child entries for readdirs, all files and directories immediately under one
-directory must be contiguous in keyspace.
+directory must be contiguous in key space.
 \item the lexicographic constraint. Key lifting only works properly with
-lexicographic key order. In order to use range-rename, \betrfs must use
+lexicographic key order. In order to use range-rename, \betrfs must have
 lexicographic key order.
 \end{itemize}
 
@@ -1222,14 +1253,13 @@ Now, ``/foo'' and ``/foo/bar'' become ``//foo'' and ``/foo//bar'', respectively
 With the new full-path keys, \betrfs can use \texttt{memcmp} as the key
 comparison function while satisfying the readdir constraint.
 
-\paragraph{Re-lifting nodes.}
-
 \section{Summary}
 
-This chapter presents a new key/value store operation, range-rename.
+This chapter presents the new range-rename operation on \bets.
 Renames on full-path-indexed \betrfs can be done with an insert, a delete and
-one or two range-renames.
-And on lifted \bets, a range-rename can be done efficiently with tree surgery.
+one or two range-rename operations.
+And on lifted \bets, a range-rename operation can be done efficiently with
+tree surgery.
 
 \betrfs with range-rename demonstrates the possibility of consolidating
 efficient renames into full-path-indexed file systems, showing the possibility
