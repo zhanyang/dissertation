@@ -157,7 +157,7 @@ since \bets are designed to buffer changes and schedule them I/O-efficiently.
             \node[anchor=south, font=\tiny] at (-.195\textwidth, .1\textwidth) {/G/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.195\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (-.195\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {DEL(/G/c)};
+            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {\delm(/G/c)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $C$};
@@ -167,7 +167,7 @@ since \bets are designed to buffer changes and schedule them I/O-efficiently.
             \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {/R/s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(/R/z,...)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {\putm(/R/z,...)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -175,9 +175,9 @@ since \bets are designed to buffer changes and schedule them I/O-efficiently.
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (-.0325\textwidth, .256\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .25\textwidth) {DEL(/R/o)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .25\textwidth) {\delm(/R/o)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .276\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {PUT(/B/b,...)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\putm(/B/b,...)};
 
             \draw[->, >=stealth] (-.225\textwidth, .113\textwidth) -- (-.26\textwidth, .063\textwidth);
             \draw[->, >=stealth] (-.165\textwidth, .113\textwidth) -- (-.13\textwidth, .063\textwidth);
@@ -247,9 +247,9 @@ since \bets are designed to buffer changes and schedule them I/O-efficiently.
             \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.13\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(z,...)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {\putm(z,...)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.13\textwidth, .127\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {\delm(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.3\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -324,9 +324,9 @@ since \bets are designed to buffer changes and schedule them I/O-efficiently.
             \node[anchor=south, font=\tiny] at (-.0025\textwidth, 0) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .025\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.0325\textwidth, .047\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .041\textwidth) {PUT(z,...)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .041\textwidth) {\putm(z,...)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.0325\textwidth, .027\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .021\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .021\textwidth) {\delm(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.3\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -449,7 +449,7 @@ they view the key/value pair with different prefixes.
             \node[anchor=south, font=\tiny] at (-.0025\textwidth, 0) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .025\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.0325\textwidth, .047\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .041\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .041\textwidth) {\delm(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.3\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -465,7 +465,7 @@ they view the key/value pair with different prefixes.
             \node[anchor=south, font=\tiny] at (.0875\textwidth, .229\textwidth) {/R/$_{max}$};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .276\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {PUT(/B/b,...)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\putm(/B/b,...)};
 
             \draw[->, >=stealth] (-.0325\textwidth, .013\textwidth) -- (-.0325\textwidth, -.037\textwidth);
             \draw[->, >=stealth] (.0275\textwidth, .013\textwidth) -- (.0975\textwidth, -.037\textwidth);
@@ -529,7 +529,7 @@ they view the key/value pair with different prefixes.
             \node[anchor=south, font=\tiny] at (.075\textwidth, 0) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.045\textwidth, .025\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.045\textwidth, .047\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.045\textwidth, .041\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (.045\textwidth, .041\textwidth) {\delm(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (-.105\textwidth, 0) {};
             \node[anchor=south, font=\tiny] at (-.105\textwidth, .063\textwidth) {Node $C'$};
@@ -539,9 +539,9 @@ they view the key/value pair with different prefixes.
             \node[anchor=south, font=\tiny] at (-.075\textwidth, 0) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.105\textwidth, .025\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.105\textwidth, .047\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.105\textwidth, .041\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (-.105\textwidth, .041\textwidth) {\delm(o)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.105\textwidth, .027\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.105\textwidth, .021\textwidth) {PUT(o)};
+            \node[anchor=south, font=\tiny] at  (-.105\textwidth, .021\textwidth) {\putm(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.3\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -620,17 +620,19 @@ As shown in Figure~\ref{subfig:cow-2}, the \bedag creates a new Node $C'$,
 identical to Node $C$.
 Now, both Node $C'$ and $C''$ have reference count 1, while Node $F$, $G$ and
 $H$ have reference count 2.
-With the sharing broken, the \bedag can flush message PUT(``/B/b'',...) from
+With the sharing broken, the \bedag can flush message \putm(``/B/b'',...) from
 Node $A$ to Node $C'$ without affecting other root-to-leaf path that includes
 Node $C$.
 
 \subsection{\goto messages}
 
 Instead of performing all works on the critical path, range-clone can use a
-new type of messages, the \goto message, that delays tree surgery to flushes
+new type of messages, the \goto message, that delays tree surgery
 in the lifted \bedag.
 
-A \goto message consists of 3 parts: a \dpre, a \spre, a node ID.
+\paragraph{The \goto message.}
+A \goto message consists of 3 parts: a \dpre, a \spre, a node ID
+(with its height in the \bedag).
 When a query visits a node during its root-to-leaf traversal, it must check
 \goto messages.
 If the \dpre of a \goto message matches the search key, the query should follow
@@ -642,17 +644,29 @@ to \spre.
 If the query finds multiple \goto messages matching its search key, it follows
 the \goto message with the latest timestamp.
 
-A \goto message serves two purposes:
-\begin{itemize}
-\item it works as additional parent-to-child pointers in the node.
-Additionally, it works as a filter.
-For all keys the query gets following the \goto messages, only keys with \spre
-are valid.
-\item it nullifies messages that have the destination key and an older
-timestamp, because those messages cannot stay higher than the \goto message.
-\end{itemize}
-\goto messages can be used to implement range-query messages by setting the node
-ID to a special value (e.g., 0).
+A \goto message serves as an additional parent-to-child pointer in the node with
+a \xf (translate-and-filter) function.
+The \xf function not only translates search keys for queries by updating their
+prefix, but also filters out out-of-range keys in nodes that would be visited
+following the \goto message.
+Consider a query for key ``/B/b'' visits Node $A$ in its root-to-leaf traversal,
+and finds a \goto message, \goto(``/B/'', ``/R'', $C$), in node $A$.
+This query should follow the \goto message and visit Node $C$,
+instead of normal children of Node $A$.
+Additionally, the \goto message acts as a \xf function that translates the
+search key ``/B/b'' to ``/R/b'' and bounds the query result to
+(``/R/$_{min}$'', ``/R/$_{max}$''),
+i.e., the query should not return any result with a key out of that range
+(a range query for key ``/R/b'' may return a key/value pair whose key doesn't
+have ``/R/'' prefix).
+
+Because a \goto message redirects queries whose search keys have a certain
+prefix, it also acts as a range-delete message that invalidates all old messages
+and key/value pairs following other pointers (normal parent-to-child pointers
+and older \goto messages).
+Thus, if we set the node ID in a \goto message to a special value
+(e.g., 0), the \goto message acts as a range-delete message.
+Therefore, we can use \goto message to implement range-delete.
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -719,7 +733,7 @@ ID to a special value (e.g., 0).
             \node[anchor=south, font=\tiny] at (-.195\textwidth, .1\textwidth) {/G/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.195\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (-.195\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {DEL(/G/c)};
+            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {\delm(/G/c)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $C$};
@@ -729,7 +743,7 @@ ID to a special value (e.g., 0).
             \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {/R/s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(/R/z,...)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {\putm(/R/z,...)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -737,9 +751,9 @@ ID to a special value (e.g., 0).
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (-.0325\textwidth, .256\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .25\textwidth) {DEL(/R/o)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .25\textwidth) {\delm(/R/o)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .276\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {PUT(/B/b,...)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\putm(/B/b,...)};
 
             \draw[->, >=stealth] (-.225\textwidth, .113\textwidth) -- (-.26\textwidth, .063\textwidth);
             \draw[->, >=stealth] (-.165\textwidth, .113\textwidth) -- (-.13\textwidth, .063\textwidth);
@@ -822,7 +836,7 @@ ID to a special value (e.g., 0).
             \node[anchor=south, font=\tiny] at (-.195\textwidth, .1\textwidth) {/G/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.195\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (-.195\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {DEL(/G/c)};
+            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {\delm(/G/c)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $C$};
@@ -832,9 +846,9 @@ ID to a special value (e.g., 0).
             \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {/R/s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(/R/z,...)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {\putm(/R/z,...)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .127\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {DEL(R/o)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {\delm(R/o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -842,9 +856,9 @@ ID to a special value (e.g., 0).
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .256\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .25\textwidth) {GOTO(/B/,/R/,$C$)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .25\textwidth) {\goto(/B/,/R/,$C$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .276\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {PUT(/B/b,...)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\putm(/B/b,...)};
 
             \draw[->, >=stealth] (-.225\textwidth, .113\textwidth) -- (-.26\textwidth, .063\textwidth);
             \draw[->, >=stealth] (-.165\textwidth, .113\textwidth) -- (-.13\textwidth, .063\textwidth);
@@ -861,44 +875,52 @@ ID to a special value (e.g., 0).
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (-.15\textwidth, .099\textwidth) {};
             \node[anchor=north, font=\tiny] at (-.15\textwidth, .102\textwidth) {lift(/)};
         \end{tikzpicture}
-        \caption{\label{subfig:goto-2} The range-clone generates a \goto message
+        \caption{\label{subfig:goto-2} The range-clone operation generates a \goto message
             for destination (``/B/'') keys.}
     \end{subfigure}
     \caption[A range-clone example with a \goto message]{\label{fig:goto}
-        An example of range-clone(``/R/'', ``/B/'') with a \goto message.}
+        An example of completing range-clone(``/R/'', ``/B/'') with a \goto message.}
 \end{figure}
 
-Range-clone(\spre, \dpre) can be done with \goto messages with the following
-steps:
+\paragraph{Range-clone with \goto messages.}
+Range-clone(\spre, \dpre) can be implement with \goto messages through the
+following steps:
 \begin{itemize}
 \item it performs a root-to-leaf traversal with \spre until reaching the source
 LCA, flushing messages from parent to child simultaneously.
 At this point, all messages with source keys are in the subtree rooted at the
 source LCA.
-\item Then it injects a \goto message into the root of the lifted \bedag with
-the source LCA as the node ID in the \goto message, increasing the reference
-count of the source LCA by 1.
-Note, the \spre in the \goto can be different from the \spre of the range-clone,
+\item it then injects a \goto message into the root node of the lifted \bedag
+with the source LCA as the node ID in the \goto message, increasing the
+reference count of the source LCA by 1.
+Note, the \spre in the \goto message can be different from the \spre of the
+range-clone operation,
 because the root-to-leaf traversal may lift some prefix from the \spre.
 \end{itemize}
-Note, this range-clone design doesn't perform any tree surgery on the critical
+Note, this range-clone operation doesn't perform any node split on the critical
 path.
 
 Figure~\ref{fig:goto} shows an example of range-clone(``/R/'', ``/B/'')
-generated a \goto message.
-The range-clone first traverse the lifted \bedag and find the source LCA, Node
-$C$.
-Note all messages that falls into the range of Node $C$ have been flushed to
-Node $C$ during the traversal.
-The range-clone then injects a \goto message into the root node, with ``/B/''
-as \dpre, ``/R/'' as \spre and Node $C$ as node ID.
-Figure~\ref{subfig:goto-2} shows the result, all queries for ``/B/'' keys on
-this lifted \bedag should go to Node $C$ instead of Node $B$.
+that generates a \goto message.
+Starting from the root node, Node $A$, the range-clone operation traverses to
+the source LCA, Node $C$.
+At the same time, it flushes the message, \delm(``/R/z''), to Node $C$.
+Then, the range-clone range then injects a \goto message into the root node,
+with ``/B/'' as its \dpre, ``/R/'' as its \spre and Node $C$ as its node ID.
+Figure~\ref{subfig:goto-2} shows the result.
+Now, consider a query for key ``/B/a''.
+The query starts at the Node $A$.
+Then, instead of following the parent-to-child pointers to Node $B$, it follows
+the \goto message and visit Node $C$.
+The \goto message also acts as a \xf function that translates the search key
+to ``/R/a'' and bounds the result in range (``/R/a$_{min}$'', ``/R/$_{max}$'').
+At last, the query finds the correct key/value pair in Node $F$.
 
-The lifted \bedag should flush \goto messages alongside other messages.
-However, \goto messages should stay higher than its source LCA to maintain the
+The lifted \bedag should flush \goto messages alongside with other messages.
+Otherwise, the root node can be filled with \goto messages.
+However, a \goto message should stay higher than its source LCA to maintain the
 asymptotic IO cost of queries on the lifted \bedag.
-Therefore, there are two cases in flushing \goto messages.
+Therefore, there are two cases in flushing a \goto message.
 
 \paragraph{Flush a \goto message to a child higher than its source LCA.}
 
@@ -1017,7 +1039,7 @@ Therefore, there are two cases in flushing \goto messages.
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (.39\textwidth, .256\textwidth) {};
             \node[anchor=south, font=\tiny] at  (.39\textwidth, .25\textwidth) {GOTO(/B/,/R/,$K$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (.39\textwidth, .276\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.39\textwidth, .27\textwidth) {PUT(/G/a,...)};
+            \node[anchor=south, font=\tiny] at  (.39\textwidth, .27\textwidth) {\putm(/G/a,...)};
 
             \draw[->, >=stealth] (.035\textwidth, .113\textwidth) -- (0, .063\textwidth);
             \draw[->, >=stealth] (.095\textwidth, .113\textwidth) -- (.13\textwidth, .063\textwidth);
@@ -1132,7 +1154,7 @@ Therefore, there are two cases in flushing \goto messages.
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (.26\textwidth, .127\textwidth) {};
             \node[anchor=south, font=\tiny] at  (.26\textwidth, .121\textwidth) {GOTO(/B/,/R/,$K$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (.26\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {PUT(/G/a,...)};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {\putm(/G/a,...)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (.715\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.715\textwidth, .163\textwidth) {Node $E$};
@@ -1318,7 +1340,7 @@ child.
             \node[anchor=south, font=\tiny] at (-.195\textwidth, .1\textwidth) {/G/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.195\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (-.195\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {DEL(/G/c)};
+            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {\delm(/G/c)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $C$};
@@ -1328,9 +1350,9 @@ child.
             \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {/R/s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(/R/z,...)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {\putm(/R/z,...)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .127\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {DEL(R/o)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {\delm(R/o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -1422,7 +1444,7 @@ child.
             \node[anchor=south, font=\tiny] at (-.195\textwidth, .1\textwidth) {/G/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.195\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (-.195\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {DEL(/G/c)};
+            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {\delm(/G/c)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $C$};
@@ -1432,9 +1454,9 @@ child.
             \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {/R/s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(/R/z,...)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {\putm(/R/z,...)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .127\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {DEL(R/o)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {\delm(R/o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.18\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -1718,6 +1740,8 @@ In particular, preferential splitting generates a pivot that is maximum key with
 prefix $p_{s}$, where $p_{s}$ that is the shortest prefix of $k_{s}$ that
 contains the LCP of $k_{s}$ and $k_{l}$ and has a slash or a end-of-string as
 the last character.
+
+\paragraph{Queries.}
 
 \section{Summary}
 
