@@ -772,7 +772,7 @@ store.
 From \betrfs's perspective, it is still storing key/value pairs with
 full-path keys, just with a slightly different data structure.
 
-\subsection{Range-rename on lifted \bets}
+\subsection{The range-rename operation on lifted \bets}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -876,7 +876,7 @@ full-path keys, just with a slightly different data structure.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (-.15\textwidth, .099\textwidth) {};
             \node[anchor=north, font=\tiny] at (-.15\textwidth, .102\textwidth) {lift(/)};
         \end{tikzpicture}
-        \caption{\label{subfig:rr-1} The \bet before the range-rename.}
+        \caption{\label{subfig:rr-1} The \bet before the range-rename operation.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -901,10 +901,6 @@ full-path keys, just with a slightly different data structure.
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.26\textwidth, 0) {};
             \node[anchor=south, font=\tiny] at (.26\textwidth, .036\textwidth) {Node $H'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.235\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.235\textwidth, 0) {z};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.288\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.288\textwidth, 0) {...};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.235\textwidth, .023\textwidth) {};
             \node[anchor=south, font=\tiny] at (.235\textwidth, .018\textwidth) {t};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.288\textwidth, .023\textwidth) {};
@@ -912,10 +908,6 @@ full-path keys, just with a slightly different data structure.
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (-.26\textwidth, 0) {};
             \node[anchor=south, font=\tiny] at (-.26\textwidth, .036\textwidth) {Node $D'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.285\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (-.285\textwidth, 0) {b};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.232\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (-.232\textwidth, 0) {...};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.285\textwidth, .023\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.285\textwidth, .018\textwidth) {a};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.232\textwidth, .023\textwidth) {};
@@ -924,6 +916,8 @@ full-path keys, just with a slightly different data structure.
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.26\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.26\textwidth, .163\textwidth) {Node $B'$};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.26\textwidth, .125\textwidth) {};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.26\textwidth, .147\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (-.26\textwidth, .141\textwidth) {PUT(b)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $C'$};
@@ -933,7 +927,9 @@ full-path keys, just with a slightly different data structure.
             \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.13\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(z)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.13\textwidth, .127\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {DEL(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.3\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -969,8 +965,8 @@ full-path keys, just with a slightly different data structure.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (.09\textwidth, .228\textwidth) {};
             \node[anchor=north, font=\tiny] at (.09\textwidth, .231\textwidth) {lift(/R/)};
         \end{tikzpicture}
-        \caption{\label{subfig:rr-2} The range-rename performs tree surgery
-            to slices out the source and destination subtrees.}
+        \caption{\label{subfig:rr-2} The range-rename operations performs tree surgery
+            to slice out the source and destination subtrees.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -995,10 +991,6 @@ full-path keys, just with a slightly different data structure.
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (-.13\textwidth, 0) {};
             \node[anchor=south, font=\tiny] at (-.13\textwidth, .036\textwidth) {Node $H'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.155\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (-.155\textwidth, 0) {z};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.102\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (-.102\textwidth, 0) {...};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.155\textwidth, .023\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.155\textwidth, .018\textwidth) {t};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.102\textwidth, .023\textwidth) {};
@@ -1006,10 +998,6 @@ full-path keys, just with a slightly different data structure.
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.13\textwidth, 0) {};
             \node[anchor=south, font=\tiny] at (.13\textwidth, .036\textwidth) {Node $D'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.105\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.105\textwidth, 0) {b};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.158\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.158\textwidth, 0) {...};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.105\textwidth, .023\textwidth) {};
             \node[anchor=south, font=\tiny] at (.105\textwidth, .018\textwidth) {a};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.158\textwidth, .023\textwidth) {};
@@ -1018,6 +1006,8 @@ full-path keys, just with a slightly different data structure.
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $B'$};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.13\textwidth, .147\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(b)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (-.26\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.26\textwidth, .163\textwidth) {Node $C'$};
@@ -1027,7 +1017,9 @@ full-path keys, just with a slightly different data structure.
             \node[anchor=south, font=\tiny] at (-.23\textwidth, .1\textwidth) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.26\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.26\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.26\textwidth, .141\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (-.26\textwidth, .141\textwidth) {PUT(z)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.26\textwidth, .127\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (-.26\textwidth, .121\textwidth) {DEL(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.3\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -1065,35 +1057,39 @@ full-path keys, just with a slightly different data structure.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (.09\textwidth, .228\textwidth) {};
             \node[anchor=north, font=\tiny] at (.09\textwidth, .231\textwidth) {lift(/R/)};
         \end{tikzpicture}
-        \caption{\label{subfig:rr-3} The range-rename swaps the subtrees and
+        \caption{\label{subfig:rr-3} The range-rename operation swaps the subtrees and
             injects a range-delete message for source keys.}
     \end{subfigure}
     \caption[A range-rename example]{\label{fig:rr}
-        An example of range-rename(``/R/'', ``/B/'').}
+        An example of range-rename(``/R/'', ``/B/'') on the \bet.}
 \end{figure}
 
 On lifted \bets, range-rename(\spre, \dpre) can be done with two steps:
 
 \paragraph{Tree Surgery.}
-The range-rename first slices out two isolated subtrees in the lifted \bet
-simultaneously, one of \spre and the other of \dpre.
-The range-rename requires the source and destination subtrees to be at the same
-height.
-Therefore, for the subtree with a lower LCA, the range-rename keeps slicing its
-ancestors by adding nodes with only one child.
+The range-rename operation first slices out two isolated subtrees in the lifted
+\bet simultaneously, one of \spre and the other of \dpre.
+The range-rename operation requires the source and destination subtrees to be at
+the same height,
+therefore, for the subtree with a lower LCA, the range-rename operation keeps
+slicing its ancestors by adding nodes with only one child.
 
 \paragraph{Transplant.}
-Then, the range-rename swaps these two subtrees and injects a range-delete
-message for source key.
+Then, the range-rename operation swaps these two subtrees and injects a
+range-delete message for source keys.
 Because the source and destination subtree are at the same height, the swap
-doesn't violate the \bet invariant that all leaves should be at the same depth.
+doesn't violate the \bet invariant that all leaf nodes should be at the same
+distance from the root.
 The range-delete message leverages the existing garbage collection mechanism
-to reclaim the destination subtree.
+to reclaim the space of the destination subtree.
 
-An example of range-rename(``/R/'', ``/B/'') is shown in Figure~\ref{fig:rr}.
-Figure~\ref{subfig:rr-1} shows the lifted \bet before the range-rename.
-In Figure~\ref{subfig:rr-2}, tree surgery slices out the source subtree, rooted
-at Node $C'$, and the destination subtree, root at Node $B'$.
+Figure~\ref{fig:rr} shows an example of range-rename(``/R/'', ``/B/'') on the
+\bet.
+Figure~\ref{subfig:rr-1} shows the lifted \bet before the range-rename
+operation.
+In Figure~\ref{subfig:rr-2}, the range-rename operation performs tree surgery
+to slices out the source subtree, rooted at Node $C'$,
+and the destination subtree, root at Node $B'$.
 Note though the destination LCA is Node $D$, tree surgery still splits Node $B$
 to keep the source and destination subtrees at the same height.
 Also, prefix ``/R/'' is lifted from the source subtree and prefix ``/B/''
@@ -1115,7 +1111,7 @@ After the transplant completes, there may be a number of \bet nodes in memory at
 the fringe around the source and destination that have fewer children than
 desired.
 The healing process merges these smaller nodes back together,
-using the same approach as a typical \bet merge.
+using the same approach as a typical \bet node merge.
 At this point, it is also possible that this could trigger a rebalancing within
 the tree.
 
@@ -1135,7 +1131,7 @@ Thus, the number of nodes that must be lifted during a range-rename is no more
 than the nodes that must be sliced during tree surgery, and proportional to
 the height of the tree.
 
-In summary, the IO cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
+In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
 
 \paragraph{Atomicity and Transactions.}
 The \fti in \betrfs implements \bets with multi-version concurrency control by
@@ -1143,23 +1139,23 @@ augmenting messages with a logical timestamp.
 Messages updating a given key range are always applied in logical order.
 Multiple messages can share a timestamp, giving them transactional semantics.
 
-To ensure atomicity for a range-rename,
+To ensure atomicity for a range-rename operation,
 read transactions ``before'' the range-rename must complete before the surgery
 can proceed.
 Each \bet node has a reader-writer lock.
 The range-rename write-locks tree nodes hand-over-hand, and left-to-right to
 identify the LCAs.
 Once the LCAs are locked, this serializes any new read or write transactions
-until the range-rename completes.
+until the range-rename operation completes.
 The lock at the LCA creates a ``barrier''---operations can complete ``above'' or
 ``below'' this lock in the tree, although the slicing will wait for concurrent
 transactions to complete before write-locking that node.
 Once the transplant completes, the write-locks on the parents above LCAs are
 released.
 
-Briefly speaking, the range-rename ensures all messages representing changes in
-the affected key range(s) that logically occurred before the range-rename are
-flushed at least to the LCAs.
+Briefly speaking, the range-rename operation ensures all messages representing
+changes in the affected key range(s) that logically occurred before the
+range-rename operation are flushed at least to the LCAs.
 All messages that logically occur after the range-rename must stay above the
 parents of the LCAs.
 This strategy ensures that, when each message is flushed and applied, it sees a
@@ -1173,19 +1169,22 @@ of the tree on disk.
 Crash recovery simply replays the redo log since the last checkpoint.
 Range-rename works within this framework.
 
-A range-rename is {\em logically applied} as soon as the
+A range-rename operation is {\em logically applied} as soon as the
 range-rename and its corresponding transaction commit entries are inserted into
 the redo log.
-The range rename is durable as soon as the redo log entry is written to disk.
-If the system crashes after a range rename is logged, the recovery will see a
-prefix of the message history that includes the range rename,
-and performs the corresponding range-rename on the \bet.
+The range-rename operation is durable as soon as the redo log entry is written
+to disk.
+If the system crashes after a range-rename operation is logged, the recovery
+will see a prefix of the message history that includes the range-rename
+and its transaction commit entires,
+and performs the corresponding range-rename operation on the \bet.
 
 \paragraph{Latency.}
-The range-rename returns to the user once a log entry is in the journal and the
-root node of the \bet is write-locked.
-No other operation on the \bet can proceed before the range-rename releases the
-root lock.
+The range-rename operation returns to the user once the range-rename and its
+transaction commit entry is in the log and the root node of the \bet is
+write-locked.
+No other operation on the \bet can proceed before the range-rename operation
+releases the root lock.
 The rest of the range-rename work is handed off to background threads, which
 performing slicing, transplanting and healing.
 
