@@ -5,7 +5,7 @@ This chapter describes the range-clone operation on \bets, which can be used
 to implement file or directory clones and renames in full-path-indexed \betrfs.
 Unlikely a range-rename, which completes all its work at once, a range-clone
 operation injects a new type of messages, \goto messages,
-into the root of the \bet.
+into the root node of the \bet.
 The \bet then flushes \goto messages with other messages in batches, gradually
 finishing the range-clone works.
 Therefore, range-clone fits into the write-optimized framework of \bets.
@@ -73,25 +73,22 @@ false,
 it keeps the source metadata and data.
 Thus, it completes file or directory clones.
 
-Because deleting source key/value pairs can be done with a range-delete message
-for source keys,
-in the rest of the chapter, we set \delold to false and treat range-clone as
-range-clone(\spre, \dpre).
-
 \section{The range-clone operation}
 
 This section shows the implementation of range-clone operations.
 Because deleting source key/value pairs can be done by injecting a range-delete
-message into the root node,
-\delold is set to false throughout the section.
+message for source keys into the root node of the \bet,
+we set \delold to false and treat range-clone as range-clone(\spre,\dpre)
+throughout the section.
 
-This section first shows all the changes needed if performing all operations
-at the time of the range-clone, that is, all operations are on the critical
-path, and mutual exclusion on the tree.
-Then, this section shows how to enhance the design to minimize the critical
-path, reduce locking, and move as much work as possible to the background.
+In this section, we first show all the changes needed if performing all
+operations at the time of range-clone,
+that is, all operations are on the critical path,
+and mutual exclusive on the tree.
+Then, we show how to enhance the design to minimize the critical path,
+reduce locking, and move as much work as possible to the background.
 Moving work to the background also reduce the total amount of CPU and IO work,
-since \bets are designed to buffer changes and to schedule them IO-efficiently.
+since \bets are designed to buffer changes and schedule them I/O-efficiently.
 
 \subsection{Range-clone, on the critical path}
 
@@ -197,7 +194,7 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (-.15\textwidth, .099\textwidth) {};
             \node[anchor=north, font=\tiny] at (-.15\textwidth, .102\textwidth) {lift(/)};
         \end{tikzpicture}
-        \caption{\label{subfig:rc-1} The \bet before the range-clone.}
+        \caption{\label{subfig:rc-1} The \bet before the range-clone operation.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -222,10 +219,6 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.26\textwidth, 0) {};
             \node[anchor=south, font=\tiny] at (.26\textwidth, .036\textwidth) {Node $H'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.235\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.235\textwidth, 0) {z};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.288\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.288\textwidth, 0) {...};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.235\textwidth, .023\textwidth) {};
             \node[anchor=south, font=\tiny] at (.235\textwidth, .018\textwidth) {t};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.288\textwidth, .023\textwidth) {};
@@ -254,7 +247,9 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
             \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.13\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {PUT(z,...)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.13\textwidth, .127\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {DEL(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.3\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -290,8 +285,8 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (.09\textwidth, .228\textwidth) {};
             \node[anchor=north, font=\tiny] at (.09\textwidth, .231\textwidth) {lift(/R/)};
         \end{tikzpicture}
-        \caption{\label{subfig:rc-2} The range-clone slices out the source and
-            destination subtrees.}
+        \caption{\label{subfig:rc-2} The range-clone operation slices out the
+            source and destination subtrees.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -316,10 +311,6 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.0975\textwidth, -.1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.0975\textwidth, -.064\textwidth) {Node $H'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.0725\textwidth, -.095\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.0725\textwidth, -.1\textwidth) {z};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.1255\textwidth, -.095\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.1255\textwidth, -.1\textwidth) {...};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.0725\textwidth, -.077\textwidth) {};
             \node[anchor=south, font=\tiny] at (.0725\textwidth, -.082\textwidth) {t};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.1255\textwidth, -.077\textwidth) {};
@@ -333,7 +324,9 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
             \node[anchor=south, font=\tiny] at (-.0025\textwidth, 0) {s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .025\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.0325\textwidth, .047\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .041\textwidth) {DEL(o)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .041\textwidth) {PUT(z,...)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (-.0325\textwidth, .027\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .021\textwidth) {DEL(o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.3\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
@@ -368,42 +361,52 @@ since \bets are designed to buffer changes and to schedule them IO-efficiently.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (.05\textwidth, .228\textwidth) {};
             \node[anchor=north, font=\tiny] at (.05\textwidth, .231\textwidth) {lift(/R/)};
         \end{tikzpicture}
-        \caption{\label{subfig:rc-3} The range-clone discards the destination
-            subtree and shares the source subtree.}
+        \caption{\label{subfig:rc-3} The range-clone operations shares the source
+            subtree at both source and destination and garbage-collects the
+            destination subtree.}
     \end{subfigure}
     \caption[All operations in range-clone]{\label{fig:rc}
         All operations needed in range-clone(``/R/'', ``/B/'').}
 \end{figure}
 
-The range-clone work can be done by slightly modifying the range-rename
-operation.
+The range-clone operation can be done on \bets by slightly modifying the
+range-rename operation.
 In particular, after slicing out the source and destination subtrees with tree
-surgery, range-rename swaps the two subtrees and injects a range-delete message
-for source keys.
-Instead, range-clone can share the source subtree in destination and send the
-destination subtree to a background garbage collection thread.
+surgery,
+instead of swapping the two subtrees and injecting a range-delete message
+for source keys in a range-rename operation,
+a range-clone operation can share the source subtree in both source and
+destination and garbage-collects the destination subtree.
 
-Figure~\ref{fig:rc} shows the work of range-clone(``/R/'', ``/B/'') in the
-lifted \bet in Figure~\ref{subfig:rc-1}.
-Figure~\ref{subfig:rc-2} shows the lifted \bet after tree surgery, which slices
-out the source and destination subtree.
-The tree surgery here is identical to that in range-rename.
-In Figure~\ref{subfig:rc-3}, the lifted \bet discards the destination subtree
-rooted at Node $B'$, and set the parent-to-child pointer between ``/B/$_{min}$''
-and ``/B/$_{max}$'' to Node $C'$, which is the root of the source subtree.
+Figure~\ref{fig:rc} shows an example of performing the work of
+range-clone(``/R/'', ``/B/'') on the lifted \bet in Figure~\ref{subfig:rc-1}.
+Figure~\ref{subfig:rc-2} shows the lifted \bet after tree surgery.
+Tree surgery slices out the source and destination subtree, which is identical
+to that in range-rename.
+In Figure~\ref{subfig:rc-3}, the lifted \bet garbage-collects the destination
+subtree, rooted at Node $B'$, and sets the parent-to-child pointer between
+``/B/$_{min}$'' and ``/B/$_{max}$'' to Node $C'$,
+the root node of the source subtree.
 
-Range-rename transforms a lifted \bet into a lifted \bedag.
-Because the DAG is generated by sharing subtrees in a tree,
-there is still one root in the DAG,
-which can reach all nodes in the DAG through parent-to-child pointers.
+Range-rename transforms a lifted \bet into a lifted \bedag
+(Directed Acyclic Graph) with some constraints.
+Because the \bedag is generated by sharing subtrees in a \bet,
+there is still one root node in the \bedag,
+which can reach all nodes in the \bedag through parent-to-child pointers.
 And since the source and destination subtrees generated by tree surgery are at
-the same height, the length of any root-to-leaf path in the DAG is still
+the same height, the length of any root-to-leaf path in the \bedag is still
 logarithmic in the size of the graph.
 
 In a lifted \bedag, the root-to-leaf traversals of different queries may end up
 reaching the same leaf node, fetching the same key/value pair.
 However, because key lifting requires queries to reconstruct the full key by
 concatenating lifted prefixes, different queries are able to see different keys.
+For example, in Figure~\ref{subfig:rc-3}, queries for key ``/R/n'' and ``/B/n''
+follow the same root-to-leaf path and get the same key/value pair from the
+leaf node, Node $G$.
+However, because two queries follow different parent-to-child pointers with
+different lifted prefixes fromNode $A$ to Node $C'$,
+they view the key/value pair with different prefixes.
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -483,7 +486,7 @@ concatenating lifted prefixes, different queries are able to see different keys.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (.05\textwidth, .228\textwidth) {};
             \node[anchor=north, font=\tiny] at (.05\textwidth, .231\textwidth) {lift(/R/)};
         \end{tikzpicture}
-        \caption{\label{subfig:cow-1} Node $C'$ is a shared by two
+        \caption{\label{subfig:cow-1} Node $C$ is a shared by two
             parent-to-child pointers in Node $A$.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
@@ -577,41 +580,49 @@ concatenating lifted prefixes, different queries are able to see different keys.
             \node[anchor=north, font=\tiny] at (.05\textwidth, .231\textwidth) {lift(/R/)};
         \end{tikzpicture}
         \caption{\label{subfig:cow-2} Before Node $A$ flushes ``/B/'' messages,
-            it breaks the sharing creating Node $C''$, which is a clone of Node
-            $C'$.}
+            it breaks the sharing by cloning Node $C$ to Node $C'$.}
     \end{subfigure}
     \caption[\bedags break node sharing with CoW]{\label{fig:cow}
-        When the parent accumulates enough messages to flush to a shared node,
-        it breaks the sharing with Cow.}
+        When a parent want to flush messages to a shared node,
+        it breaks the sharing by cloning the shared node.}
 \end{figure}
 
-Any writes to a shared node must first break the sharing of the node, the
-\bedag maintains reference counting for each node to track the sharing status of
-nodes.
+Any write to a shared node must first break the sharing of the node.
+The \bedag maintains reference counting for each node to track the sharing
+status of nodes.
 In particular, \fti has a node table that maps node IDs to physical locations on
 disk.
 The \bedag stores the reference count of each node in the node table alongside
-the mapping.
+with the mapping.
 Before writing to a node, the \bedag must check the reference count of the node.
 
 The \bedag breaks the sharing of a node using Copy-on-Write (CoW).
-After range-rename, one parent of the shared node might choose to flush its
-messages to the node.
+For instance, after the range-clone, one parent of the shared node might choose
+to flush its messages to the node.
 At this moment, the lifted \bedag creates a new node that is identical to the
 shared node, sharing all children of the node.
-The lifted \bedag then sets the parent-to-child pointer to the new node and
-performs the flush.
+The lifted \bedag then sets the parent-to-child pointer in the parent to the new
+node and performs the flush.
 
 Figure~\ref{fig:cow} shows an example of the CoW process.
 In Figure~\ref{subfig:cow-1}, Node $A$ has two parent-to-child pointers to
-Node $C'$ with reference count 2.
-Note, Node $F'$, $G$ and $H'$ have reference count 1.
-When Node $A$ accumulates enough messages and wants to flush messages with
-``/B/'', it clones Node $C'$ to break the sharing.
-As shown in Figure~\ref{subfig:cow-2}, the \bedag creates a new Node $C''$
-identical to Node $C'$.
-Now, both Node $C'$ and $C''$ have reference count, while Node $F'$, $G$ and
-$H'$ have reference count 2.
+Node $C$.
+The reference count of Node $C'$ is 2 and
+Node $F$, $G$ and $H$ have reference count 1
+(assume nodes omitted in the figure don't have parent-to-child pointers
+to nodes shown in the figure).
+When Node $A$ wants to flush messages with through the parent-to-child pointer
+between ``/B/$_{min}$'' and ``/B/$_{max}$'',
+it finds out that Node $C$ is a shared node because its reference count is
+greater than 1.
+Therefore, it clones Node $C$ to break the sharing.
+As shown in Figure~\ref{subfig:cow-2}, the \bedag creates a new Node $C'$,
+identical to Node $C$.
+Now, both Node $C'$ and $C''$ have reference count 1, while Node $F$, $G$ and
+$H$ have reference count 2.
+With the sharing broken, the \bedag can flush message PUT(``/B/b'',...) from
+Node $A$ to Node $C'$ without affecting other root-to-leaf path that includes
+Node $C$.
 
 \subsection{\goto messages}
 

@@ -494,8 +494,8 @@ into Node $C'$, $C''$ and $C'''$ with both keys, ``/R/$_{min}$'' and
 The subtree rooted at Node $C'$ is the isolated subtree that contains and
 only contains all keys with the prefix ``/R/''.
 
-When the LCA is the root of the \bet, tree surgery creates a new root as the
-parent of the old root before slicing.
+When the LCA is the root node of the \bet, tree surgery creates a new root node
+as the parent of the old root node before slicing.
 
 \subsection{Key lifting}
 
@@ -1079,7 +1079,7 @@ Then, the range-rename operation swaps these two subtrees and injects a
 range-delete message for source keys.
 Because the source and destination subtree are at the same height, the swap
 doesn't violate the \bet invariant that all leaf nodes should be at the same
-distance from the root.
+distance from the root node.
 The range-delete message leverages the existing garbage collection mechanism
 to reclaim the space of the destination subtree.
 
@@ -1089,7 +1089,7 @@ Figure~\ref{subfig:rr-1} shows the lifted \bet before the range-rename
 operation.
 In Figure~\ref{subfig:rr-2}, the range-rename operation performs tree surgery
 to slices out the source subtree, rooted at Node $C'$,
-and the destination subtree, root at Node $B'$.
+and the destination subtree, rooted at Node $B'$.
 Note though the destination LCA is Node $D$, tree surgery still splits Node $B$
 to keep the source and destination subtrees at the same height.
 Also, prefix ``/R/'' is lifted from the source subtree and prefix ``/B/''
