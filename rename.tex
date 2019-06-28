@@ -87,15 +87,15 @@ the \bet can complete the range-rename operation efficiently.
 
 \section{The range-rename operation}
 
-This section describes the approach to do range-rename on the \bet
-with a bounded number of IOs.
-The efficient range-rename requires lexicographic key order so that keys with
-the same prefix are contiguous in the key space.
+This section describes the approach to perform the range-rename operation on the
+\bet with a bounded number of I/Os.
+The efficient range-rename operation requires lexicographic key order so that
+keys with the same prefix are contiguous in the key space.
 With contiguous keys, it is possible to have an isolated subtree that contains
-and only contains all keys of a certain prefix.
-The range-rename performs \textbf{tree surgery} to slice out such isolated
-subtrees, which are then moved to other locations on the \bet.
-The prefixes of keys in the subtrees are updated automatically through
+and only contains all keys of a certain prefix in the \bet.
+The range-rename performs \textbf{tree surgery} to slice out such an isolated
+subtree, which are then moved to another locations in the \bet.
+The prefixes of keys in the subtree are updated automatically through
 \textbf{key lifting}, which transforms \bets to lifted \bets.
 
 This section first describes tree surgery and key lifting, and then shows how
@@ -230,10 +230,6 @@ range-rename can be done efficiently with these two techniques.
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.39\textwidth, 0) {};
             \node[anchor=south, font=\tiny] at (.39\textwidth, .036\textwidth) {Node $H'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.365\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.365\textwidth, 0) {/R/z};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.418\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.418\textwidth, 0) {...};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.365\textwidth, .023\textwidth) {};
             \node[anchor=south, font=\tiny] at (.365\textwidth, .018\textwidth) {/R/t};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.418\textwidth, .023\textwidth) {};
@@ -290,7 +286,9 @@ range-rename can be done efficiently with these two techniques.
             \node[anchor=south, font=\tiny] at (.35\textwidth, .1\textwidth) {/R/$_{max}$};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.26\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.26\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {DEL(/R/o)};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {PUT(/R/z,...)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.26\textwidth, .127\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .121\textwidth) {DEL(/R/o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (.0325\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (.0325\textwidth, .292\textwidth) {Node $A$};
@@ -342,10 +340,6 @@ range-rename can be done efficiently with these two techniques.
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.39\textwidth, 0) {};
             \node[anchor=south, font=\tiny] at (.39\textwidth, .036\textwidth) {Node $H'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.365\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.365\textwidth, 0) {/R/z};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.418\textwidth, .005\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.418\textwidth, 0) {...};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.365\textwidth, .023\textwidth) {};
             \node[anchor=south, font=\tiny] at (.365\textwidth, .018\textwidth) {/R/t};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.418\textwidth, .023\textwidth) {};
@@ -402,21 +396,13 @@ range-rename can be done efficiently with these two techniques.
             \node[anchor=south, font=\tiny] at (.29\textwidth, .1\textwidth) {/R/s};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.26\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.26\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {DEL(/R/o)};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {PUT(/R/z,...)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.26\textwidth, .127\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .121\textwidth) {DEL(/R/o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (.4875\textwidth, .1\textwidth) {};
             \node[anchor=south, font=\tiny] at (.4875\textwidth, .163\textwidth) {Node $C'''$};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.4875\textwidth, .125\textwidth) {};
-
-            \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (.26\textwidth, .1\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.26\textwidth, .163\textwidth) {Node $C'$};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.23\textwidth, .105\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.23\textwidth, .1\textwidth) {/R/m};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.29\textwidth, .105\textwidth) {};
-            \node[anchor=south, font=\tiny] at (.29\textwidth, .1\textwidth) {/R/s};
-            \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.26\textwidth, .125\textwidth) {};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.26\textwidth, .147\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {DEL(/R/o)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.18\textwidth, draw=black] at (.14625\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (.14625\textwidth, .292\textwidth) {Node $A$};
@@ -444,12 +430,12 @@ range-rename can be done efficiently with these two techniques.
         \end{tikzpicture}
         \caption{\label{subfig:slice-3} Tree surgery splits the LCA.}
     \end{subfigure}
-    \caption[Tree surgery example]{\label{fig:slice}
+    \caption[A tree surgery example]{\label{fig:slice}
         Tree surgery slices out an isolated subtree of prefix ``/R/''.}
 \end{figure}
 
 The goal of tree surgery is to slice out an isolated subtree of a certain
-prefix $p$ on the \bet.
+prefix $p$ in the \bet.
 In the \bet, each node covers a certain key range, bounded by the key range and
 pivots of its parent.
 For a certain key range $(p_{min}, p_{max})$ ($p_{min}$ and $p_{max}$ are the
@@ -459,46 +445,49 @@ nodes whose key ranges are completely out of the key range (exterior nodes),
 nodes whose key ranges are completely in the key range (interior nodes),
 and nodes whose key ranges partly overlap with the key range (fringe nodes).
 
-Figure~\ref{subfig:slice-1} shows an example of a \bet.
-Node $A$, $B$ and $C$ are non-leaf nodes with buffers and pivots, while
-Node $D$, $E$, $F$, $G$ and $H$ are leaf nodes that only store key/value pairs.
-Parent-to-leaf pointers link all nodes into a tree.
-Consider prefix ``/R/'',
+In the \bet shown in Figure~\ref{subfig:slice-1},
+consider prefix ``/R/'' with key range (``/R/$_{min}$'', ``/R/$_{min}$''),
 Node $B$, $D$ and $E$ are exterior nodes, Node $G$ is an interior node,
-and the others are fringe nodes.
+and the other nodes are fringe nodes.
 
 \paragraph{Identifying fringe nodes.}
 The first step of tree surgery is to identify all fringe nodes.
-This is done by performing root-to-leaf traversals with two keys,
-$p_{min}$ and $p_{max}$,
-because a fringe node must have one of the two keys in its key range.
+Because the key range of a fringe node partly overlaps with key range
+$(p_{min}, p_{max})$,
+a fringe node must include either $p_{min}$ or $p_{max}$ in its key range.
+Therefore, tree surgery can perform two root-to-leaf traversals with two keys,
+$p_{min}$ and $p_{max}$, to identify all fringe nodes.
 
 An important fringe node for tree surgery is the \textbf{LCA}
-(Lowest Common Ancestor) of the two traversal keys: the lowest \bet node
-whose key range includes both search keys.
-For exmaple, in Figure~\ref{subfig:slice-1}, Node C is the LCA of prefix ``/R/''.
+(Lowest Common Ancestor) of the two traversing keys: the lowest \bet node
+whose key range includes both keys.
+For example, in Figure~\ref{subfig:slice-1}, Node $C$ is the LCA of prefix
+``/R/''.
 The subtree rooted at the LCA is the lowest subtree in the \bet that covers
 the whole range $(p_{min}, p_{max})$.
-And tree surgery uses this subtree to slice out its targeted subtree
-by performing node splits.
-In order to push all messages to the subtree, before reaching the LCA,
-the traversals also performs parent-to-child flushes for fringe nodes.
+Therefore, this subtree is the lowest subtree tree surgery can use to slice out
+its target subtree.
+In order to push all related messages to the subtree, before reaching the LCA,
+tree surgery also performs parent-to-child flushes for fringe nodes.
 
 \paragraph{Slicing.}
-The second step is to slice out the isolated subtree by splitting fringe nodes
-from bottom up.
-The goal of slicing to separate unrelated key/value pairs in the fringe nodes
-from key/values in the range (thus with prefix $p$).
-Slicing uses the same code used for standard \bet node splits, but slicing
-divides the node at the slicing key, which is $p_{min}$ or $p_{max}$ rather than
+With all related messages and key/value pairs in the subtree rooted at the LCA,
+tree surgery starts slicing out the isolated subtree
+by splitting fringe nodes from bottom up.
+The goal of slicing to separate unrelated keys in the fringe nodes
+from keys in the key range (thus with prefix $p$).
+Slicing uses the same code used for standard \bet node splits, but
+divides the node at one of the slicing keys, $p_{min}$ or $p_{max}$, rather than
 picking a key in the middle of the node.
 
-In Figure~\ref{subfig:slice-2}, tree surgery splits Node $F$ with key
-``/R/$_{min}$'', generating Node $F'$ that only contains keys with the prefix
-``/R/'' and another Node $F''$ that doesn't contain any key with prefix
-``/R/''.
-Likewise, tree surgery splits Node $H$ into Node $H'$ and Node $H'$ with key
-``/R/$_{max}$''.
+Figure~\ref{subfig:slice-2} shows the \bet after the bottom-up slicing splits
+leaf nodes.
+Tree surgery splits Node $F$ with key ``/R/$_{min}$'', generating an interior
+node, Node $F'$, and an exterior node, Node $F''$.
+Likewise, tree surgery splits Node $H$ into an interior node, Node $H'$ and
+an exterior node, Node $H'$, with key ``/R/$_{max}$''.
+Note, the message DEL(``/R/o'') has been flushed from Node $A$ to Node $C$.
+
 At last, in Figure~\ref{subfig:slice-3}, tree surgery splits the LCA, Node $C$,
 into Node $C'$, $C''$ and $C'''$ with both keys, ``/R/$_{min}$'' and
 ``/R/$_{max}$''.
