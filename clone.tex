@@ -1779,11 +1779,16 @@ the last character.
 
 \section{Summary}
 
-This chapter first describes the new interface, range-clone, that enables file
-or directory renames and clones in \betrfs.
-Then, it presents a range-clone implementation that finishes all works
-on the critical path and transforms a lifted \bet to a lifted \bedag.
-Later, it introduces \goto messages that delay tree surgery in the range-clone,
-fit the implementation into the write-optimized framework of the data structure.
-At last, it describes preferential splitting that reduces work needed in
-tree surgery.
+This chapter presents the new range-clone operation,
+which enables file or directory renames and clones in \betrfs,
+on \bets.
+We first describe a range-clone implementation that finishes all works
+on the critical path and transforms lifted \bets into lifted \bedags.
+Then, we introduce \goto messages that delay tree surgery in the range-clone
+operation,
+fitting the implementation into the write-optimized framework of \bedags.
+At last, we talk about some implementation details about the range-clone operation.
+
+This chapter shows that because full-path indexing groups metadata and data
+one directory in a contiguous key range, it opens up new opportunities for
+namespace operations, such as directory clones.
