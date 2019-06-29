@@ -87,7 +87,7 @@ that is, all operations are on the critical path,
 and mutual exclusive on the tree.
 Then, we show how to enhance the design to minimize the critical path,
 reduce locking, and move as much work as possible to the background.
-Moving work to the background also reduce the total amount of CPU and IO work,
+Moving work to the background also reduce the total amount of CPU and I/O work,
 since \bets are designed to buffer changes and schedule them I/O-efficiently.
 
 \subsection{Range-clone, on the critical path}
@@ -624,7 +624,7 @@ With the sharing broken, the \bedag can flush message \putm(``/B/b'',...) from
 Node $A$ to Node $C'$ without affecting other root-to-leaf path that includes
 Node $C$.
 
-\subsection{\goto messages}
+\subsection{Range-clone with \goto messages}
 
 Instead of performing all works on the critical path, range-clone can use a
 new type of messages, the \goto message, that delays tree surgery
@@ -883,6 +883,7 @@ Therefore, we can use \goto message to implement range-delete.
 \end{figure}
 
 \paragraph{Range-clone with \goto messages.}
+
 Range-clone(\spre, \dpre) can be implement with \goto messages through the
 following steps:
 \begin{itemize}
@@ -916,13 +917,17 @@ The \goto message also acts as a \xf function that translates the search key
 to ``/R/a'' and bounds the result in range (``/R/a$_{min}$'', ``/R/$_{max}$'').
 At last, the query finds the correct key/value pair in Node $F$.
 
+\subsection{Flushing \goto messages.}
+
 The lifted \bedag should flush \goto messages alongside with other messages.
 Otherwise, the root node can be filled with \goto messages.
-However, a \goto message should stay higher than its source LCA to maintain the
-asymptotic IO cost of queries on the lifted \bedag.
-Therefore, there are two cases in flushing a \goto message.
+In the simple case, the node that tries to flush a \goto message has a single
+child that covers the key range of the \goto message
+and the child is higher than the source LCA of the \goto message.
+Flushing the \goto message simply lifts the \dpre of the \goto message and moves
+the \goto message from the parent buffer to the child buffer.
 
-\paragraph{Flush a \goto message to a child higher than its source LCA.}
+\paragraph{The \bedag merges children before flushing a \goto message.}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -1037,7 +1042,7 @@ Therefore, there are two cases in flushing a \goto message.
             \node[anchor=south, font=\tiny] at (.45\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.39\textwidth, .254\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (.39\textwidth, .256\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.39\textwidth, .25\textwidth) {GOTO(/B/,/R/,$K$)};
+            \node[anchor=south, font=\tiny] at  (.39\textwidth, .25\textwidth) {\goto(/B/,/R/,$K$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (.39\textwidth, .276\textwidth) {};
             \node[anchor=south, font=\tiny] at  (.39\textwidth, .27\textwidth) {\putm(/G/a,...)};
 
@@ -1066,7 +1071,7 @@ Therefore, there are two cases in flushing a \goto message.
         \end{tikzpicture}
         \caption{\label{subfig:flush-1} The lifted \bedag wants to flush the
             \goto message from Node $A$, however, the \goto message doesn't
-            fit into any child.}
+            fit into a single child.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -1152,7 +1157,7 @@ Therefore, there are two cases in flushing a \goto message.
             \node[anchor=south, font=\tiny] at (.35\textwidth, .1\textwidth) {/B/u};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.26\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (.26\textwidth, .127\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.26\textwidth, .121\textwidth) {GOTO(/B/,/R/,$K$)};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .121\textwidth) {\goto(/B/,/R/,$K$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (.26\textwidth, .147\textwidth) {};
             \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {\putm(/G/a,...)};
 
@@ -1189,35 +1194,40 @@ Therefore, there are two cases in flushing a \goto message.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (.67\textwidth, .099\textwidth) {};
             \node[anchor=north, font=\tiny] at (.67\textwidth, .102\textwidth) {lift(/)};
         \end{tikzpicture}
-        \caption{\label{subfig:flush-2} The lifted \bedag discards Node $C$ and
-            merges Node $B$ and $D$ into Node $B'$, which can accommodate the
-            \goto message.}
+        \caption{\label{subfig:flush-2} The lifted \bedag garbage-collects Node
+            $C$ and merges Node $B$ and $D$ into Node $B'$,
+            which can accommodate the \goto message.}
     \end{subfigure}
-    \caption[An example of flushing \goto messages merges children]{\label{fig:flush}
-        The \bedag may need to merge children before flushing}
+    \caption[The \bedag merges children before flushing a \goto message]{\label{fig:flush}
+        When a node tries to flush a \goto message, there may be more than
+        one child that overlaps with the key range of the \goto message.
+        In this case, the \bedag must merge children to create a single child
+        that can accommodate the \goto message.}
 \end{figure}
 
-When a non-leaf node fills, the lifted \bedag flushes messages, including \goto
-messages, to one or more children.
-In the simple case, the node for a \goto message has a single child that covers
-the key range of the \goto message, $(\dpre_{min}, \dpre_{max})$.
-In this case, flushing the \goto simply lifts the \dpre in the messages and
-moves the message from a parent to child buffer,
-provided the \goto has not yet reached its target height.
 
-In the more complicated case, a \goto message can overlap with multiple
-children.
-There are fringe children whose key ranges are partly covered by the \goto
-message, and partly out of the \goto range;
-there are also some interior children between fringe children that are entirely
-within the key range occluded by the \goto.
+In the more complicated case, a \goto message can overlap with the key ranges
+of multiple children.
+There are at most two fringe children whose key ranges are partly covered by the
+key range of the \goto message,
+and partly out of the key range of the \goto message;
+there are also some interior children whose key ranges are entirely
+within the key range occluded by the \goto message.
 The lift \bedag needs to create a single child that can accommodate the \goto
 message.
 
-To this end, the \bedag simply removes the references and pointers to the
-interior children (potentially garbage collecting these nodes later, if this is
+To this end, the \bedag removes the references and pointers to the
+interior children (potentially garbage-collecting these nodes, if this is
 the last reference),
-and merges the two fringe children into one node.
+and merges the two fringe children into one child.
+Removing interior children creates a key range that is not covered by the
+fringe children.
+One solution is to expand the key range of one fringe child,
+however, changing the key range of a node means re-lifting the node and at
+least one descendant at each height.
+To avoid touching any descendant of the fringe children,
+we add an empty subtree that covers the key range as the child of the merged
+node.
 
 Figure~\ref{fig:flush} shows an example of merging children before flushing a
 \goto message.
@@ -1225,32 +1235,34 @@ In Figure~\ref{subfig:flush-1}, Node $B$, $C$ and $D$ all overlaps with the
 range of the \goto message.
 Node $B$ AND $D$ are fringe children, while Node $C$ is an interior child.
 To flush the \goto message, in Figure~\ref{subfig:flush-2}, the lifted \bedag
-sends Node $C$ to the background garbage collection thread and merges Node $B$
-and $D$ into Node $B'$.
-Note, this merge needs to create an empty node, Node Z, to cover the range
-(``/B/h'', ``/B/q'').
-With key lifting, changing the range of a node needs to re-lift the node.
-Therefore, in order to keep Node $E$, $F$, $G$ and $H$ untouched, the merge
-adds an empty node for the range not covered by those nodes.
+garbage-collects Node $C$ and merges Node $B$ and $D$ into Node $B'$.
+After the merge, Node $A$ flushes the \goto message to Node $B'$.
+Note in the example, the merge creates an empty node, Node $M$, to cover the key
+range (``/B/h'', ``/B/q'').
 
-As shown in the example, discarding interior children creates a key range that
-is not covered by the fringe children.
-Therefore, there will be a key range that is not covered by the children of the
-node generated by the merge.
-With key lift, it is not easy to change the key range of a node.
-The problem is solved by adding an empty subtree for that key range as a child
-of the generated node.
+In special cases, there can be only one or no fringe child.
+If there is only one fringe child, we removes the interior children and add
+an empty subtree to cover the key range as one child of the fringe child.
+If there is no fringe child, we remove the interior child and add an empty
+subtree to cover the key range as the child of the node.
 
 \paragraph{Converting \goto messages to pivots and parent-to-child pointers.}
-When the lifted \bedag tries to flush a \goto message from a node that is one
-level higher than the source LCA of the \goto messages, it coverts the \goto
-message into two pivots and a parent-to-child pointer in the node.
-This ensures a bounded depth for any root-to-leaf traversal.
+After the merging process, there is only one child whose key range overlaps
+with the key range of the \goto message.
+If the child is higher than the source LCA of the \goto message,
+we can simple flush the \goto message to the child buffer.
+However, if the child is at the same height as the source LCA,
+we cannot flush the \goto message.
+Otherwise, the \goto message would redirect queries to a node at the same level,
+which breaks the asymptotic I/O costs of queries.
+
+In such scenarios, the \goto message is converted into into pivots and a
+parent-to-child pointer in the node.
 
 This is done by adding \dpre$_{min}$ and \dpre$_{max}$ as two new pivots and
-set the parent-to-child pointer to the source LCA of the \goto message.
-Assume \dpre$_{min}$ and \dpre$_{max}$ are in the range of child $i$ of the node
-(the lifted \bedag can perform a aforementioned merge to generate such a child),
+set the parent-to-child pointer between the two pivots to the source LCA of the
+\goto message.
+Assume \dpre$_{min}$ and \dpre$_{max}$ are in the range of child $i$ of the node,
 i.e., $\dpre_{min}, \dpre_{max} \in (pivot_{i},pivot_{i+1})$.
 Adding \dpre$_{min}$ and \dpre$_{max}$ as two new pivots creates 3 key ranges,
 $(pivot_{i},\dpre_{min})$, $(\dpre_{min},\dpre_{max})$ and
@@ -1262,18 +1274,17 @@ However, all three parent-to-child pointers now points to a child whose key
 range is different than those specified in the node.
 In particular, child $i$ has range $(pivot_{i},pivot_{i+1})$ but bounded by
 $(pivot_{i},\dpre_{min})$ or $(\dpre_{max}, pivot_{i+1})$.
-A smaller key range may lifts longer prefixes through the parent-to-child
-pointer.
 The source LCA has a key range that might be larger than
 $(\spre_{min}, \spre_{max})$ but bounded by $(\dpre_{min},\dpre_{max})$.
+A smaller key range may lift a longer prefix through the parent-to-child
+pointer.
 
-The problem is solved by augmenting parent-to-child pointers with \xf functions.
+The problem is solved by augmenting parent-to-child pointers with \xf functions,
+which is the same as the \xf function described in \goto messages.
 Each parent-to-child pointer now has a \xf function with a prefix.
 After the query lifts its search key by the LCP of two pivots, the \xf function
 prepends its prefix to the search key.
-Also, \xf functions serves as filters, queries need to remember the key range
-specified by the pivots in the parent so that it can ignore invalid keys in the
-child.
+Also, \xf functions serves as filters, bounding the results queries may return.
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -1360,7 +1371,7 @@ child.
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .276\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {GOTO(/B/,/R/,$C$)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\goto(/B/,/R/,$C$)};
 
             \draw[->, >=stealth] (-.225\textwidth, .113\textwidth) -- (-.26\textwidth, .063\textwidth);
             \draw[->, >=stealth] (-.165\textwidth, .113\textwidth) -- (-.13\textwidth, .063\textwidth);
@@ -1491,22 +1502,22 @@ child.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.08\textwidth, fill={white}] at (.03\textwidth, .228\textwidth) {};
             \node[anchor=north, font=\tiny] at (.03\textwidth, .231\textwidth) {lift(/B/); \xf (/R/)};
         \end{tikzpicture}
-        \caption{\label{subfig:spvt-2} The \goto message becomes pivots and
-            adds \xf functions to parent-to-child pointers}
+        \caption{\label{subfig:spvt-2} The \goto message becomes pivots and a
+            parent-to-child pointer, and adds \xf functions to the parent-to-child pointers.}
     \end{subfigure}
-    \caption[Transform a \goto message into pivots]{\label{fig:spvt}
+    \caption[Transform a \goto message into pivots and a parent-to-child pointer]{\label{fig:spvt}
         When the lifted \bedag cannot flush a \goto message deeper, it
-        transforms the \goto message into pivots and adds \xf functions to
-        parent-to-child pointers.}
+        transforms the \goto message into pivots and a parent-to-child pointers
+        and adds \xf functions to the parent-to-child pointers.}
 \end{figure}
 
 Figure~\ref{fig:spvt} shows an example of the transformation.
-The lifted \bedag cannot flush the \goto message to Node $B$, because Node $B$
-is at the same height as its source LCA, Node $C$.
-Therefore, it adds two pivots, ``/B/$_{min}$'' and ``/B/$_{max}$''.
+The lifted \bedag cannot flush the \goto message from Node $A$ to Node $B$,
+because Node $B$ is at the same height as its source LCA, Node $C$.
+Therefore, it adds two pivots, ``/B/$_{min}$'' and ``/B/$_{max}$'', to Node $A$.
 The parent-to-child pointer between ``/B/$_{min}$'' and ``/B/$_{max}$'' points
 to the source LCA, Node $C$, and has a \xf function of ``/R/'', indicating a
-key range mismatch and addition prefix ``/R/'' in the child.
+key range mismatch and the additional prefix ``/R/'' for keys in the child.
 Queries following that parent-to-child pointer should prepend prefix ``/R/''
 after the normal lifting of ``/B/'' from its search key.
 Also, they remember only keys between ``/R/$_{min}$'' and ``/R/$_{max}$'' in
@@ -1515,17 +1526,26 @@ Similarly, two \xf functions are added to the other two pointers.
 Note, for the leftmost pointer, though the \xf function contains no prefix,
 it still serves as a filter for queries.
 
-\paragraph{Fix \xf functions in parent-to-child pointers.}
-\goto messages adds \xf functions to parent-to-child pointers, which indicates
-the child has a larger key range and keys in the child have additional prefixes.
+\paragraph{Fixing \xf functions in parent-to-child pointers.}
+\goto messages adds \xf functions to parent-to-child pointers.
+The \xf function transforms the search keys of queries by prepending its prefix
+after normal key lifting through parent-to-child pointers.
+Also, the \xf function indicates the child contains keys outside of the key range
+specified by pivots in the parent and queries should ignore those keys following
+the parent-to-child pointers.
 
-Before flushing to a node, if the pointer has a \xf function, the
-lifted \bedag propagates the \xf function to pointers of the node.
-Specifically, the lifted \bedag first discards all exterior children of the node
-whose key ranges are completely out of that indicated by the \xf function.
-Then, it removes the prefix in the \xf function from those keys.
-At last, for fringe children whose key ranges partly overlap with that indicated
-by the \xf function, it adds \xf functions to the pointers to those children.
+The lifted \bedag resolves \xf functions through node flushes.
+Specifically, when flushing from a parent to a child and the parent-to-child
+pointer has a \xf function,
+the lifted \bedag garbage-collects exterior children of the child whose key
+ranges are completely outside of the key range specified by the pivots in parent.
+Also, the lifted \bedag removes messages whose keys are outside of the key
+range specified in the parent from the child buffer.
+Then, for fringe children whose key ranges partly overlaps with that specified
+in the parent, the \bedag propagates the \xf function to their parent-to-child
+pointers.
+At last, if the \xf function has a prefix, the \bedag lifts the prefix from
+keys in the child.
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -1597,6 +1617,10 @@ by the \xf function, it adds \xf functions to the pointers to those children.
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={yellow!60}] at (.35\textwidth, .105\textwidth) {};
             \node[anchor=south, font=\tiny] at (.35\textwidth, .1\textwidth) {/Y/x};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.26\textwidth, .125\textwidth) {};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.26\textwidth, .147\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {\putm(/R/z,...)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (.26\textwidth, .127\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .121\textwidth) {\putm(/G/a,...)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (.26\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (.26\textwidth, .292\textwidth) {Node $A$};
@@ -1670,6 +1694,8 @@ by the \xf function, it adds \xf functions to the pointers to those children.
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.29\textwidth, .105\textwidth) {};
             \node[anchor=south, font=\tiny] at (.29\textwidth, .1\textwidth) {g};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.26\textwidth, .125\textwidth) {};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black] at (.26\textwidth, .147\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {\putm(z,...)};
 
             \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (.26\textwidth, .229\textwidth) {};
             \node[anchor=south, font=\tiny] at (.26\textwidth, .292\textwidth) {Node $A$};
@@ -1697,15 +1723,23 @@ by the \xf function, it adds \xf functions to the pointers to those children.
             exterior children and adds \xf functions to parent-to-child pointers
             of fringe children.}
     \end{subfigure}
-    \caption[Fix a \xf function during flushing]{\label{fig:xf}
-        Before flushing messages to a node, the lifted \bedag fixes the \xf
+    \caption[Resolving \xf functions in node flushes]{\label{fig:xf}
+        During node flushes, the lifted \bedag resolves the \xf
         function associated with the parent-to-child pointer.}
 \end{figure}
 
-Figure~\ref{fig:xf} shows an example of fixing \xf functions before flushing.
-In Figure~\ref{subfig:xf-2}, exterior nodes, Node $C$ and $G$ out are discarded.
-Then, it adds \xf functions to pointers to fringe nodes, Node $D$ and $F$.
-At last, it updates keys in Node $B$ by removing the prefix in the \xf function.
+Figure~\ref{fig:xf} shows an example of fixing \xf functions in node flushes.
+In Figure~\ref{subfig:xf-1}, the parent-to-child pointer from Node $A$ to
+Node $B$ has a \xf function, \xf(``/R/'').
+The key range specified by Node $A$ is (``/B/$_{min}$'',``/B/$_{max}$''), which
+translates to (``/R/$_{min}$'',``/R/$_{max}$'') in Node $B$.
+In Figure~\ref{subfig:xf-2}, the lifted \bedag garbage-collects exterior nodes,
+Node $C$ and $G$
+and adds \xf functions to pointers to fringe nodes, Node $D$ and $F$.
+Also, it updates keys in Node $B$ by removing the prefix, ``/R/'',
+in the \xf function.
+Note, the message \putm(/G/a,...) is also removed from Node $B$
+because it is out of the key range specified in Node $A$.
 
 \section{Implementation}
 
