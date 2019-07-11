@@ -1246,10 +1246,21 @@ However, re-lifting a leaf node still requires updating all keys.
 
 \subsection{Transactions}
 
-\Fti performs multiple operations atomically in a transaction.
+\Fti performs multiple operations atomically in transactions.
+To avoid transactions from touching the same key, \fti maintains locks for key
+ranges in an interval tree.
+Before querying a key, the operation should read-lock the specific key range so
+that no other transaction can modify keys in the key range.
+Likewise, before modifying a key, the operation should write-lock the specific
+key range.
+The key locks are released only when the transaction commits or aborts.
+When a transaction fails to lock a key range for its operation, it should
+abort.
 
-When a transaction commits or aborts, \fti injects one transaction-commit or
-transaction-abort message for each operations in the transaction.
+Transaction commits or aborts are implemented with transaction-commit or
+transaction-abort messages.
+When a transaction commits or aborts, it injects one transaction-commit or
+transaction-abort message for each operation it performs.
 For example, consider an insert for key $k$ in a transaction.
 During the transaction, the insert injects an \putm message with key $k$
 to the lifted \bet.
@@ -1257,37 +1268,30 @@ When the transaction commits, the transaction injects a transaction-commit
 message with key $k$ for the insert, finalizing the insert.
 If the transaction aborts, the transaction injects a transaction-abort message
 with key $k$ for the insert, invalidating the insert.
+Queries need to ignore uncommitted or aborted messages.
 
-To ensure atomicity for a range-rename operation,
-read transactions ``before'' the range-rename must complete before the surgery
-can proceed.
-Each \bet node has a reader-writer lock.
-The range-rename write-locks tree nodes hand-over-hand, and left-to-right to
-identify the LCAs.
-Once the LCAs are locked, this serializes any new read or write transactions
-until the range-rename operation completes.
-The lock at the LCA creates a ``barrier''---operations can complete ``above'' or
-``below'' this lock in the tree, although the slicing will wait for concurrent
-transactions to complete before write-locking that node.
-Once the transplant completes, the write-locks on the parents above LCAs are
-released.
+The range-rename operation needs to write-lock the source and
+destination key range when it is called by the file system.
+However, the range-rename operation doesn't generate messages that can
+be committed or aborted with transaction-commit or transaction-abort message.
+Therefore, we perform the whole work of the range-rename operation in
+transaction commits.
+If the transaction aborts, nothing happens to the lifted \bet.
 
-Briefly speaking, the range-rename operation ensures all messages representing
-changes in the affected key range(s) that logically occurred before the
-range-rename operation are flushed at least to the LCAs.
-All messages that logically occur after the range-rename must stay above the
-parents of the LCAs.
-This strategy ensures that, when each message is flushed and applied, it sees a
-point-in-time consistent view of the subtree.
+\subsection{Recovery}
 
-\paragraph{Crash Consistency.}
-In general, \fti ensures crash consistency by keeping a redo log of pending
-messages and applying messages to nodes copy-on-write.
-At periodic intervals, \fti ensures that there is a consistent checkpoint
-of the tree on disk.
-Crash recovery simply replays the redo log since the last checkpoint.
-Range-rename works within this framework.
+\Fti ensures crash consistency by keeping a redo log of pending messages and
+applying messages to \betrfs nodes with copy-on-write.
+At periodic intervals (60 seconds in \betrfs), \fti checkpoints its lifted
+\bets by writing all dirty nodes to the disk.
+Then, \fti can discards the redo log that stores operations after previous
+checkpoint.
+Application can ensure all changes are persistent on the disk by force a log
+flush.
+When a machine fails, after rebooting, \fti simply replays the redo log on the
+lifted \bets at the last checkpoint.
 
+The range-rename operations works within this framework.
 A range-rename operation is {\em logically applied} as soon as the
 range-rename and its corresponding transaction commit entries are inserted into
 the redo log.
@@ -1295,29 +1299,41 @@ The range-rename operation is durable as soon as the redo log entry is written
 to disk.
 If the system crashes after a range-rename operation is logged, the recovery
 will see a prefix of the message history that includes the range-rename
-and its transaction commit entires,
-and performs the corresponding range-rename operation on the \bet.
+and its transaction commit entries,
+and performs the corresponding range-rename operation on the lifted \bets of the
+last checkpoint.
 
-\paragraph{Latency.}
+\subsection{Latency}
+
+\Fti maintains a readers-writer lock for each \bet node.
+A query needs to read-lock all nodes along its root-to-leaf path, while a
+write operation needs to write-lock the root node.
+To avoid contentions on the root lock, \fti has a promotion mechanism.
+Specifically, if the partition the message should be injected into is empty,
+the message can be directly injected into the child.
+In such scenario, the write operation only needs to write-lock the node it is
+going to inject its message and read-lock its ancestors.
+
 The range-rename operation returns to the user once the range-rename and its
 transaction commit entry is in the log and the root node of the \bet is
 write-locked.
-No other operation on the \bet can proceed before the range-rename operation
+no other operation on the \bet can proceed before the range-rename operation
 releases the root lock.
 The rest of the range-rename work is handed off to background threads, which
 performing slicing, transplanting and healing.
 
-\paragraph{\betrfs key order.}
-There are 2 constraint on the key order of full-path-index \betrfs with
-range-renames:
+\subsection{\betrfs key order}
+
+There are 2 constraint on the key order of full-path-index \betrfs with the
+range-rename operation:
 
 \begin{itemize}
 \item the readdir constraint. Because \betrfs uses range-queries to fetch all
 child entries for readdirs, all files and directories immediately under one
 directory must be contiguous in key space.
 \item the lexicographic constraint. Key lifting only works properly with
-lexicographic key order. In order to use range-rename, \betrfs must have
-lexicographic key order.
+lexicographic key order. In order to use the range-rename operation,
+\betrfs must have lexicographic key order.
 \end{itemize}
 
 Simple \texttt{memcmp} key order fails the readdir constraint.
@@ -1332,8 +1348,8 @@ and then by a \texttt{memcmp}.
 This key order satisfies the readdir constraint but fails the lexicographic
 constraint, so \betrfs needs a new key order for range-rename.
 
-In order to adopt range-rename, \betrfs tweaks its full-path keys by adding one
-additional slash alongside the last slash.
+In order to use the range-rename operation, \betrfs tweaks its full-path keys by
+adding one additional slash alongside the last slash.
 Now, ``/foo'' and ``/foo/bar'' become ``//foo'' and ``/foo//bar'', respectively
 (for correct ordering, `\textbackslash x01' is used as slashes).
 With the new full-path keys, \betrfs can use \texttt{memcmp} as the key
@@ -1342,8 +1358,8 @@ comparison function while satisfying the readdir constraint.
 \section{Summary}
 
 This chapter presents the new range-rename operation on \bets.
-Renames on full-path-indexed \betrfs can be done with an insert, a delete and
-one or two range-rename operations.
+File system renames in full-path-indexed \betrfs can be done with an insert,
+a delete and one or two range-rename operations.
 And on lifted \bets, a range-rename operation can be done efficiently with
 tree surgery.
 
