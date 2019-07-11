@@ -10,18 +10,19 @@ Similarly, these file systems can read large files at near disk bandwidth,
 but scanning directories with many small files is slow, and the performance
 degrades when the file system ages~\citep{betrfs3}.
 
-At the heart of this issue is how data is organized on disk.
+At the heart of this issue is how data is organized on the disk.
 The most common design pattern for modern file systems is to use multiple layers
 of indirection.
-The inode number of a file or directory connects the name of an entry in a
-directory to its metadata location on disk.
+The inode number of a file or directory connects the name of an entry in the
+parent directory to its metadata location on the disk.
 The metadata of an inode contains extents that describes the physical location
-and length of data at different offsets.
+of data at different offsets.
 Indirection simplifies implementation of the file system, and makes some
 operations, such creating files and appending files, easy to implement.
 In particular, namespace operations are simple and flexible.
 For example, a rename is just a pointer swing, moving an entry from one
-directory to another directory.
+directory to another directory, without touching the file or directory being
+renamed.
 However, indirection doesn't impose any constraint on how metadata and data
 are placed on the disk.
 In the worst case, the metadata of entries under a directory and the content of
@@ -31,17 +32,22 @@ problem.
 However, on modern inode-based file systems, unless the metadata or data are
 modified, their location doesn't change.
 Therefore, after disk space is allocated and freed over file system aging,
-the free space on disk becomes scattered,
-leading to bad performance for both reads and writes.
+the free space on disk becomes scattered, making such heuristics ineffective.
 
 One attempt to solve the problem of random writes is the log-structured file
 system~\citep{lfs}.
-The log-structure file system treats the disk as a log, so small random writes
-becomes log appends, which are significantly faster.
+The log-structure file system treats the disk as a log,
+and all write operations, including random writes, become log appends,
+which are written to the underlying disk sequentially.
+Because sequential writes are much faster than random writes on disks,
+the log-structured file system performs random writes much faster than
+conventional file systems.
 However, the log cleaner in a log-structured file system has severe impact on
 performance~\citep{lfsbsd}, especially when the log is full.
-And the log-structured file system still uses multiple levels of
-indirection, resulting in slow directory traversals.
+Also, because file or directory modification requires the log-structured file
+system to keep track of both old and new writes,
+the log-structured file system still uses inode numbers and metadata as
+layers of indirection, resulting in slow directory traversals.
 
 An alternative design is to use full-path indexing upon write-optimized
 dictionaries (WODs) in a file system, known to have good performance on nearly
@@ -50,8 +56,11 @@ On one hand, WODs have fast random write performance.
 A WOD divides its data into multiple levels whose sizes grow exponentially.
 Writes are put to the lowest level, and gradually merged to higher levels in
 batches.
-This merging process in a WOD keeps data sorted in a certain order at each level
-and acts as a cleaner to garbage-collect lower levels.
+Because all data are written in batches, the amortized cost of each write is
+much smaller in WODs,
+despite the fact that each write is written multiple times.
+Also, the merging process in a WOD keeps data sorted in a certain order at each
+level and acts as a cleaner to garbage-collect lower levels.
 On the other hand, full-path indexing ensures metadata and data in
 depth-first-search order, that is, lexicographic order by the full-path names
 of files and directories.
@@ -73,11 +82,12 @@ systems should complete in an I/O-efficient manner.
 
 However, prior work mainly focuses on the schema level of the file system, i.e.,
 how metadata and data are keyed and indexed in the WODs.
-The full-path-indexed file system usually implements a rename by
-fetching all key/value pairs of metadata and data,
+Prior full-path-indexed file systems usually implement renames by
+fetching all related key/value pairs of metadata and data,
 inserting them back with updated keys, and deleting old key/value pairs.
-Therefore, a rename needs to call several operations for each affected full-path
-names, leading to bad performance.
+With this design, a file system rename needs to call several operations for each
+affected full-path names, leading to bad performance,
+especially when the file or directory being renamed is large.
 Or, the file system partly backs away from full-path-indexing and adopts
 relative-path-indexing, a hybrid of full-path-indexing and indirection.
 This approach not only breaks the locality of full-path-indexing, but also
@@ -85,37 +95,43 @@ taxes other operations for efficient namespace operations.
 
 This dissertation presents I/O-efficient ways to do namespace operations in a
 full-path-indexed, write-optimized file system.
-Specifically, though full-path indexing limits possible change on the schema
+Specifically, though full-path indexing limits possible changes on the schema
 level, we observe that it can make all full-path names under a directory
 contiguous in key space.
 And the underlying WOD, \bets, has a tree structure, which makes it possible to
-move or clone a contiguous key range efficiently.
-Therefore, we dig into the underlying \bets, and implements two new operations,
-range-rename and range-clone, that completes file system renames and clones with
-bounded number of I/Os.
+move a contiguous key range in a subtree efficiently.
+Therefore, we dig into the underlying \bets, and implement a new operation,
+range-rename, that completes file system renames with a bounded number of I/Os.
+Moreover, the contiguity in key space enables namespace operations that are
+difficulty in inode-based file systems.
+In particular, we expand the range-rename operation into the range-clone
+operation, which can complete file or directory clones efficiently.
 
 Chapter~\ref{chap:bg} talks about the necessary background of this dissertation.
 We start with a presentation of the write-optimized \bets,
 showing the idea of write-optimization.
 Then, we describes full-path-indexed \betrfs and relative-path-indexed \betrfs.
-The full-path-indexed \betrfs shows the benefit of full-path indexing combined
-with write-optimization, but suffers from slow renames.
+The full-path-indexed \betrfs shows the benefit of full-path indexing and
+write-optimization, but suffers from slow renames.
 The relative-path-indexed \betrfs has good rename performance, but breaks the
 full-path indexing and taxes other operations for efficient renames.
 
-Chapter~\ref{chap:rename} presents the range-rename operation on \bets,
-which full-path-indexed \betrfs can use to implement file system renames.
+Chapter~\ref{chap:rename} presents the range-rename operation on \bets.
+Full-path-indexed \betrfs can use the range-rename to implement file system
+renames.
 A range-rename operation updates all keys with one prefix to another prefix
 efficiently through two techniques,
 \textbf{key lifting} and \textbf{tree surgery}.
 
-Chapter~\ref{chap:clone} expands range-rename to range-clone,
-which full-path-indexed \betrfs can use to implement both file or directory
-renames and clones.
+Chapter~\ref{chap:clone} expands the range-rename operation into the
+range-clone operation.
+Full-path-indexed \betrfs can use the range-clone operation to implement both
+file or directory renames and clones.
 We first show how to implement range-clone with range-rename techniques by
 transforming \bets into \bedags.
-Then, we introduces a new type of messages, \goto messages, that works as other
-messages in \bedags, fitting range-clone into write-optimization.
+Then, we introduces a new type of messages to \bedags, \goto messages,
+that works like other messages in \bedags,
+fitting the range-clone operation into write-optimization.
 
 Chapter~\ref{chap:eval} evaluates the implementation.
 We compare full-path-indexed \betrfs with range-rename or range-clone to
