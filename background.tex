@@ -3,14 +3,17 @@
 
 This chapter gives the background of \betrfs.
 \betrfs is a file system based on write-optimized \bets.
-Also, \betrfs adopts full-path indexing or relative-path indexing for spatial
-locality.
-We first introduce the underlying data structure, write-optimized \bets.
-Then, we describe full-path-indexed \betrfs,
-showing the difficulty to perform renames efficiently on file system level
-with full-path indexing.
-At least, we discusses relative-path indexing, the previous approach that
-taxes other operations to mitigate the rename issue in \betrfs.
+Also, \betrfs adopts full-path indexing or relative-path indexing for locality.
+Section~\ref{sec:bet} introduces the underlying data structure, the \bet.
+The \bet is a WOD that treats writes as messages and cascades messages in
+batches.
+Then, Section~\ref{sec:fpi} describes full-path-indexed \betrfs.
+Full-path indexing keeps metadata and data under one directory close to each
+other in the key space,
+but makes the simple implementation of file system renames expensive.
+At last, Section~\ref{sec:rpi} discusses relative-path indexing,
+the previous approach that taxes other operations to mitigate the rename issue
+in \betrfs.
 
 \section{\bets}
 \label{sec:bet}
@@ -19,10 +22,19 @@ taxes other operations to mitigate the rename issue in \betrfs.
 nodes.
 New writes are injected as messages into the buffer of the root node of a \bet.
 When a node's buffer becomes full, messages are flushed from that node's buffer
-to one of its children's buffers.
-The leaves of the \bet store key/value pairs, as in a \btree.
-Point and range queries on a \bet must check related messages in the buffers
-along the root-to-leaf path, as well as key/value pairs in the leaves.
+to one of its children.
+If the child is a non-leaf node, the message is injected into the child's
+buffer.
+Otherwise, the message takes effects on the leaf node.
+If it is an insert message,
+the message becomes a key/value pair in the leaf node,
+overwriting the old key/value pair with the same key if it exists.
+If it is a delete message, the message deletes the old key/value pair with the
+same key if it exists.
+Therefore, in a \bets, leaf nodes only store key/value pairs, as in a \btree.
+Because writes can be messages in non-leaf nodes, point and range queries on a
+\bet must check the buffers along the root-to-leaf path,
+as well as key/value pairs in leaf nodes.
 
 \begin{figure}[t]
     \centering
