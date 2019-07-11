@@ -100,13 +100,18 @@ The efficient range-rename operation requires lexicographic key order so that
 keys with the same prefix are contiguous in the key space.
 With contiguous keys, it is possible to have an isolated subtree that contains
 and only contains all keys of a certain prefix in the \bet.
-The range-rename performs \textbf{tree surgery} to slice out such an isolated
-subtree, which are then moved to another locations in the \bet.
+The range-rename operation performs \textbf{tree surgery} to slice out such an
+isolated subtree, which are then moved to another locations in the \bet.
 The prefixes of keys in the subtree are updated automatically through
-\textbf{key lifting}, which transforms \bets to lifted \bets.
+\textbf{key lifting}, which transforms \bets into lifted \bets.
 
-This section first describes tree surgery and key lifting, and then shows how
-range-rename can be done efficiently with these two techniques.
+Section~\ref{sec:rr:surgery} describes tree surgery, which splits nodes in the
+\bet to create an isolated subtree of a prefix.
+Then, Section~\ref{sec:rr:lift} introduces key lifting, which transforms the
+\bets into lifted \bets that update prefixes of keys in a subtree
+automatically when the subtree is moved to another location.
+At last, Section~\ref{sec:rr:rr} combines the two techniques and shows how
+to implement the efficient range-rename operation on lifted \bets.
 
 \subsection{Tree surgery}
 \label{sec:rr:surgery}
@@ -475,7 +480,7 @@ The subtree rooted at the LCA is the lowest subtree in the \bet that covers
 the whole range $(p_{min}, p_{max})$.
 Therefore, this subtree is the lowest subtree tree surgery can use to slice out
 its target subtree.
-In order to push all related messages to the subtree, before reaching the LCA,
+In order to push all related messages into the subtree, before reaching the LCA,
 tree surgery also performs parent-to-child flushes for fringe nodes.
 
 \paragraph{Slicing.}
@@ -492,9 +497,10 @@ Figure~\ref{subfig:slice-2} shows the \bet after the bottom-up slicing splits
 leaf nodes.
 Tree surgery splits Node $F$ with key ``/R/$_{min}$'', generating an interior
 node, Node $F'$, and an exterior node, Node $F''$.
-Likewise, tree surgery splits Node $H$ into an interior node, Node $H'$ and
+Likewise, tree surgery splits Node $H$ into an interior node, Node $H'$, and
 an exterior node, Node $H'$, with key ``/R/$_{max}$''.
-Note, the message \delm(``/R/o'') has been flushed from Node $A$ to Node $C$.
+Note, the message \delm(``/R/o'') has been flushed from Node $A$ to Node $C$
+before slicing.
 
 At last, in Figure~\ref{subfig:slice-3}, tree surgery splits the LCA, Node $C$,
 into Node $C'$, $C''$ and $C'''$ with both keys, ``/R/$_{min}$'' and
@@ -502,8 +508,10 @@ into Node $C'$, $C''$ and $C'''$ with both keys, ``/R/$_{min}$'' and
 The subtree rooted at Node $C'$ is the isolated subtree that contains and
 only contains all keys with the prefix ``/R/''.
 
-When the LCA is the root node of the \bet, tree surgery creates a new root node
-as the parent of the old root node before slicing.
+A special case in tree surgery is when the LCA is the root node of the \bet.
+In such scenario, splitting the root node divides the tree into a forest.
+To avoid such case, we creates a new root node as the parent of the old root
+node before slicing.
 
 \subsection{Key lifting}
 \label{sec:rr:lift}
@@ -642,7 +650,8 @@ as the parent of the old root node before slicing.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (0, .099\textwidth) {};
             \node[anchor=north, font=\tiny] at (0, .102\textwidth) {lift(m/)};
         \end{tikzpicture}
-        \caption{\label{subfig:lift-1} The same tree with key lifting. Lifted prefixes are marked as strike-through in keys.}
+        \caption{\label{subfig:lift-1} The lifted \bet that stores the same keys
+            in each node. Lifted prefixes are marked as strike-through in keys.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -713,7 +722,8 @@ as the parent of the old root node before slicing.
             \node[anchor=north, font=\tiny] at (0, .102\textwidth) {lift(m/)};
         \end{tikzpicture}
         \caption{\label{subfig:lift-2} When the subtree rooted at Node $B$ is
-            bounded by two different pivots, all keys in the subtree change their prefixes.}
+            bounded by two different pivots, all keys in the subtree change
+            their prefixes.}
     \end{subfigure}
     \caption[An key lifting example]{\label{fig:lift}
         Key lifting lifts prefixes from the subtree. Keys in the same subtree
@@ -725,14 +735,15 @@ After tree surgery, one can move the isolated subtree to another location on
 the \bet.
 However, the keys in the subtree will not be coherent with the new location in
 the tree.
-As part of a range-rename, the prefixes of keys in this subtree need to be
-updated.
-Updating the prefixes by traversing the subtree costs a lot of I/Os, touching
-nodes that would otherwise be untouched by tree surgery.
-The particularly concerning case is when the subtree is a very large.
+Also, as a part of the range-rename operation, the prefixes of keys in this
+subtree need to be updated.
+A naive approach will traverse the subtree and update all keys.
+However, this process costs a lot of I/Os, touching nodes that would otherwise
+be untouched by tree surgery.
+The particularly concerning case is when the subtree is very large.
 
-Key lifting eliminates the need to update prefixes in the subtree by
-transforming \bets to lifted \bets.
+Key lifting eliminates the need to update prefixes of keys in the subtree by
+transforming \bets into lifted \bets.
 The idea of key lifting comes from the observation that with lexicographic key
 order, all keys bounded in the key range of two pivots must have the same prefix
 that is the \textbf{LCP} (Longest Common Prefix) of the pivots.
@@ -751,30 +762,56 @@ parent node, eliminating the need to change key and pivot prefixes in all nodes
 of a subtree.
 
 Figure~\ref{fig:lift} shows an example of key lifting.
+Figure~\ref{subfig:lift-0} and Figure~\ref{subfig:lift-1} show the same \bet
+with and without key lifting, respectively.
 In Figure~\ref{subfig:lift-1}, the subtree rooted at Node $B$ is
 bounded by two pivots, ``/R/$_{min}$'' and ``/R/$_{max}$'', in Node $A$.
 Therefore, all keys in the subtree must have prefix ``/R/'' and key lifting
-removes this prefix from the subtree (marked as strike-through in keys).
+removes this prefix from the subtree
+(we show the lifted prefix on the parent-to-child pointer and mark the lifted
+prefix as strike-through in the subtree).
+Because now keys in Node $B$ doesn't have prefix ``/R/'' physically in the node,
+we show transparent keys in the node.
 Likewise, Node $D$ is bounded by ``m/a'' and ``m/z'' in Node $B$
 (note ``/R/'' is already lifted from the sutbree rooted at Node $B$),
 so key lifting removes prefix ``m/'' from Node $D$.
 In Figure~\ref{subfig:lift-2}, the same subtree, which contains exactly the
-same key/value pairs, is moved to a different location, bounded by two pivots,
-``/B/$_{min}$'' and ``/B/$_{max}$''. in Node $A'$.
+same key/value pairs, is moved to a different location, bounded by two new
+pivots, ``/B/$_{min}$'' and ``/B/$_{max}$'', in Node $A'$.
 Because the prefix lifted through the parent-to-child pointer in Node $A'$
 becomes ``/B/'', all keys in the subtree have prefix ``/B/'' instead.
+For examples in the rest of the dissertation, we will not show lifted prefixes
+in keys.
 
-Key lifting doesn't introduce additional I/Os to operations on \bets.
 A query on a lifted \bet needs to memorize lifted prefixes during the
 root-to-leaf traversal and reconstruct the full key by concatenating these
 prefixes and the suffix in the leaf.
-Lifted \bets must remove the lifted prefix from a message before flushing the
-message from parent to child.
-A node split in a lifted \bet adds a pivot to the parent, changing the lifted
-prefix in the parent-to-child pointer, so it needs to update keys in the
-resulting children.
+For example, consider a query for key ``/R/m/1'' in Figure~\ref{subfig:lift-1}.
+When the query follows the parent-to-child pointer from Node $A$ to Node $B$,
+it notices the lifted prefix ``/R/''.
+Therefore, it search for key ``m/1'' in Node $B$ and follows the parent-to-child
+pointer to Node $D$.
+Again, it removes the lifted prefix, ``m/'', from its search key.
+After it finds the key/value pair of key ``1'' in Node $D$, it prepends prefixes
+lifted long the root-to-leaf path and recover the full key ``/R/m/1''.
+Note the recovering process is not necessary for point queries because they know
+their keys beforehand, but range queries must reconstruct the resulting keys.
+
+Also, a lifted \bet must remove the lifted prefix from a message before flushing
+the message from parent to child.
+For example, in Figure~\ref{subfig:lift-1}, when flushing the message
+\putm(``/R/m/2'',...) from Node $A$ to Node $B$, the lifted \bet remove the
+prefix ``/R/'' from the message and injects a message \putm(``m/2'',...) into
+the buffer of Node $B$.
+
+A node split in a lifted \bet adds a pivot to the parent, which may change
+the lifted prefix associated with the parent-to-child pointer, so it may need to
+update keys in the resulting children.
 Similarly, a node merge needs to re-lift keys in the resulting node.
-However, all these operations don't incur additional I/O.
+
+However, the extra work described above for \bet operations can be resolved in
+memory.
+Therefore, key lifting doesn't incur additional I/Os for other \bet operations.
 
 Key lifting is completely transparent to the application using the key/value
 store.
@@ -782,6 +819,7 @@ From \betrfs's perspective, it is still storing key/value pairs with
 full-path keys, just with a slightly different data structure.
 
 \subsection{The range-rename operation on lifted \bets}
+\label{sec:rr:rr}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -1073,7 +1111,7 @@ full-path keys, just with a slightly different data structure.
         An example of range-rename(``/R/'', ``/B/'') on the \bet.}
 \end{figure}
 
-On lifted \bets, range-rename(\spre, \dpre) can be done with two steps:
+On a lifted \bet, range-rename(\spre, \dpre) can be done with two steps:
 
 \paragraph{Tree Surgery.}
 The range-rename operation first slices out two isolated subtrees in the lifted
@@ -1099,23 +1137,27 @@ operation.
 In Figure~\ref{subfig:rr-2}, the range-rename operation performs tree surgery
 to slices out the source subtree, rooted at Node $C'$,
 and the destination subtree, rooted at Node $B'$.
-Note though the destination LCA is Node $D$, tree surgery still splits Node $B$
+Note though the destination LCA in Figure~\ref{subfig:rr-1} is Node $D$,
+tree surgery still splits Node $B$
 to keep the source and destination subtrees at the same height.
 Also, prefix ``/R/'' is lifted from the source subtree and prefix ``/B/''
 is lifted from the destination subtree.
 Figure~\ref{subfig:rr-3} shows the lifted \bet after swapping the source and
 destination subtrees, with a range-delete message for ``/R/'' keys in Node $A$.
+At this point, no key with prefix ``/R/'' exists in the lifted \bet because of
+the range-delete message, and all keys with prefix ``/R/'' in
+Figure~\ref{subfig:rr-1} now have prefix ``/B/''.
 
 \paragraph{Healing.}
-The \fti implementation of \bets maintains the invariant that all non-leaf nodes
-have between 4 and 16 children, which bounds the height of the tree.
+The lifted \bets maintains the invariant that each non-leaf node should have
+$O(log_{B}{N})$ children, which bounds the height of the tree.
 However, tree surgery might break the constraint because it splits nodes with
 its own keys.
 
 This situation is handled by triggering a rebalancing within the tree after
-the range-rename.
+the range-rename operation.
 Specifically, if a node has only one child, the slicing process will merge
-it after completing the work of the rename.
+it after completing the work of the range-rename operation.
 After the transplant completes, there may be a number of \bet nodes in memory at
 the fringe around the source and destination that have fewer children than
 desired.
@@ -1125,7 +1167,8 @@ At this point, it is also possible that this could trigger a rebalancing within
 the tree.
 
 \paragraph{Complexity.}
-During tree surgery, at most 4 root-to-leaf paths are traversed, dirtying all
+During tree surgery, at most 4 root-to-leaf paths
+(2 for source and 2 for destination)are traversed, dirtying all
 nodes along the paths.
 These nodes will need to be read, if not in cache, and written back to disk as
 part of the checkpointing process.
