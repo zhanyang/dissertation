@@ -1188,11 +1188,75 @@ In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
 \section{Implementation}
 \label{sec:rrimp}
 
-\paragraph{Atomicity and Transactions.}
-The \fti in \betrfs implements \bets with multi-version concurrency control by
-augmenting messages with a logical timestamp.
-Messages updating a given key range are always applied in logical order.
-Multiple messages can share a timestamp, giving them transactional semantics.
+This section discusses implementation details of the range-rename operation.
+
+\subsection{The message buffer}
+
+\Fti stores messages in a non-leaf node in multiple buffers, called partitions,
+rather than keeping them in a single large buffer.
+A non-leaf node in \fti with $n$ children has $n$ partitions, each corresponds
+to a child of the node, and each partition stores message in a list, sorted
+by the logical timestamps of messages.
+When a message is injected or flushed to a non-leaf node, it is placed at the
+tail the partition
+that corresponds to the child the message will be flushed to later.
+The benefit of such a design is that a query doesn't need to fetch the whole
+non-leaf node,
+because only one partition can contain messages with the query key.
+Therefore, the amount of I/Os a query needs to perform is reduced.
+Moreover, because messages are sorted in the timestamp order, the flushing
+process can simply iterate the list in the parent buffer.
+
+\paragraph{Splitting fringe nodes.}
+Because each partition keeps messages in the timestamp order, it is difficult
+to separate messages targeting two resulting children.
+Therefore, before splitting a node, \fti first flushes all messages in the
+parent partition to the child node.
+Thus, in the splitting process of tree surgery, before splitting fringe nodes
+from bottom up, all messages along the root-to-leaf path are flushed to the
+leaf nodes.
+
+\paragraph{Re-lifting a non-leaf node.}
+Re-lifting a node requires updating prefixes of all keys in the node.
+Because \fti has a large node size (4 MiB),
+re-lifting a node can cause a large amount of computation.
+
+However, with partitions, we can lift the prefixes of keys in a partition by the
+LCP of two pivots bounding it in the non-leaf node.
+In other words, keys in the partition are not only lifted by pivots in ancestors
+but also the two pivots in the node.
+
+To see how it helps, consider a partition bounded by two pivots in the non-leaf
+node.
+All keys in the partition are lifted by the total lifted prefix in ancestors, $p$,
+and the LCP of the two pivots, $q$.
+Therefore, the total amount of prefix lifted from keys in the partition is $(p+q)$.
+Now, assume re-lifting further lifts some prefix $s$ from the node,
+making the total lifted prefix by ancestors $(p+s)$
+and the LCP of the two pivots $(q-s)$.
+The total amount of prefix lifted for keys in the partition remains $(p+q)$.
+Similarly, assume re-lifting reduces the lifted prefix from ancestors to
+$(p-s')$.
+Now the LCP of the two pivots become $(q+s')$, and the total amount of prefix
+lifted for keys in the partition is still $(p+q)$.
+
+Therefore, re-lifting a non-leaf node only needs to update pivots.
+It is not necessary to touch any message in partitions.
+However, re-lifting a leaf node still requires updating all keys.
+
+\subsection{Transactions}
+
+\Fti performs multiple operations atomically in a transaction.
+
+When a transaction commits or aborts, \fti injects one transaction-commit or
+transaction-abort message for each operations in the transaction.
+For example, consider an insert for key $k$ in a transaction.
+During the transaction, the insert injects an \putm message with key $k$
+to the lifted \bet.
+When the transaction commits, the transaction injects a transaction-commit
+message with key $k$ for the insert, finalizing the insert.
+If the transaction aborts, the transaction injects a transaction-abort message
+with key $k$ for the insert, invalidating the insert.
 
 To ensure atomicity for a range-rename operation,
 read transactions ``before'' the range-rename must complete before the surgery
@@ -1242,37 +1306,6 @@ No other operation on the \bet can proceed before the range-rename operation
 releases the root lock.
 The rest of the range-rename work is handed off to background threads, which
 performing slicing, transplanting and healing.
-
-\paragraph{Re-lifting nodes.}
-Re-lifting a node requires updating prefixes of all keys in the node.
-Because \bets have a large node size (4 MiB in \fti),
-re-lifting a node can be computation-intensive.
-
-However, we observe that in \fti, instead of storing all messages in one buffer,
-non-leaf nodes keep messages in partitions, each corresponds to a child.
-This design makes message flushes, as well as node splits and merges,
-easy to implement,
-because those operations don't need to remove or add messages to a single
-data structure representing the node buffer.
-
-Therefore, we can lifting the prefixes of keys in a partition by the LCP of
-two pivots bounding it in the non-leaf node.
-In other words, keys in the partition are not only lifted by pivots in ancestors
-but also the two pivots in the node.
-
-To see how it helps, consider a partition bounded by two pivots in the non-leaf
-node.
-All keys in the partition are lifted by the total lifted prefix in ancestors, $p$,
-and the LCP of the two pivots, $q$.
-Therefore, the total amount of prefix lifted from keys in the partition is $(p+q)$.
-Now, assume re-lifting further lifts some prefix $s$ from the node,
-making the total lifted prefix by ancestors $(p+s)$
-and the LCP of the tow pivots $(q-s)$.
-The total amount of prefix lifted for keys in the partition is still $(p+q)$.
-
-Therefore, re-lifting a non-leaf node only needs to update pivots and
-keeps messages in partitions intact.
-However, re-lifting a leaf node still requires updating all keys.
 
 \paragraph{\betrfs key order.}
 There are 2 constraint on the key order of full-path-index \betrfs with
