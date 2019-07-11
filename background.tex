@@ -393,9 +393,9 @@ an operation that is uncommon in key/value stores.
             \draw[thick, ->] (.32\textwidth, .4\textwidth) -- (.32\textwidth, .32\textwidth) node [anchor=north, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, font=\small] {0, ``/foo''};
             \node [anchor=south, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, thick, font=\small] at (.32\textwidth, .4\textwidth) {0, ``/''};
             \node [anchor=south, rectangle, rounded corners, minimum height=.36\textwidth, minimum width=.36\textwidth, draw=black, dashed] at (0, -.39\textwidth) {};
-            \node [anchor=south] at (0, -.39\textwidth) {Zone 3};
-            \node [anchor=north, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, thick, font=\small] at (0, -.07\textwidth) {3, ``/''};
-            \draw[thick, ->] (0, -.15\textwidth) -- (0, -.23\textwidth) node [anchor=north, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, font=\small] {3, ``/file''};
+            \node [anchor=south] at (0, -.39\textwidth) {Zone 1};
+            \node [anchor=north, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, thick, font=\small] at (0, -.07\textwidth) {1, ``/''};
+            \draw[thick, ->] (0, -.15\textwidth) -- (0, -.23\textwidth) node [anchor=north, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, font=\small] {1, ``/file''};
             \node [anchor=south, rectangle, rounded corners, minimum height=.2\textwidth, minimum width=.36\textwidth, draw=black, dashed] at (.64\textwidth, -.23\textwidth) {};
             \node [anchor=south] at (.64\textwidth, -.23\textwidth) {Zone 2};
             \node [anchor=north, rectangle, text centered, minimum height=.08\textwidth, minimum width=.3\textwidth, draw=black, thick, font=\small] at (.64\textwidth, -.07\textwidth) {2, ``/''};
@@ -416,13 +416,17 @@ Relative-path indexing partitions the directory hierarchy into zones.
 Each zone has a zone ID (the root zone always has zone ID 0), which is analogous
 to an inode number, and a single root file or directory.
 All file or directory in a zone is indexed relative to the zone root.
-If the file or directory is the root of another zone, the entry contains that
+If the file or directory is the root of another zone, the entry contains the
 zone ID to redirect queries.
+With the introduction of zoning, each key in \betrfs contains two parts,
+a zone ID and the relative path to the zone root.
 
 Figure~\ref{fig:FPIRPI} shows an example of the same directory tree under
 full-path indexing and relative-path indexing.
 In Figure~\ref{subfig:RPI}, relative-path indexing partitions the directory
 into three zones.
+Zone 0 is the root zone, Zone 1 is rooted at a directory ``/foo/bar'' and
+Zone 2 is rooted at a file ``/foo/file''.
 When querying the key/value store for file ``/foo/file'' with key
 (0, ``/foo/file''), the file system gets a special value that
 indicates the entry is the root of Zone 2.
@@ -447,6 +451,34 @@ Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
     \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
 }
 
+Relative-path indexing tries to balance locality and rename performance through
+a target zone size.
+On one hand, full-path indexing is still maintained within a zone,
+so larger zone size gives better locality.
+On the other hand, smaller zone size imposes a lower bound on rename cost,
+because no rename needs to mutate more key/value pairs than the zone size.
+Relative-path-indexing with an infinite zone size is equivalent to
+full-path-indexing, while relative-path-indexing with a zero zone size is the
+same as indexing with inode numbers.
+
+Relative-path indexing keeps zones within the target zone size by zone splits
+and merges.
+In particular, for each file or directory, \betrfs keeps a counter in its inode
+to indicate how many key/value pairs will be affected if the file or directory
+is renamed.
+When the counter of a directory or file becomes too big,
+relative-path indexing moves it to its own zone with a zone split,
+updating all affected keys with the new zone ID and relative-paths.
+When the counter of a zone root becomes too small (1/4 of the maximum
+size), relative-path indexing merges it to the parent zone.
+
+The implementation of relative-path-indexed \betrfs, \betrfsTwo, adopts a
+default zone size 128KiB.
+This default zone size is small enough that renames on \betrfsTwo are almost
+as fast as on inode-based file systems.
+At the same time, the default zone size is large enough that directory
+traversals are almost as fast as \betrfsOne.
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[yscale=0.95,xscale=0.95]
@@ -467,7 +499,7 @@ Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
             scaled y ticks=false,
             legend cell align=left,
             transpose legend,
-            height=.6\linewidth,
+            height=.618\linewidth,
             width=\linewidth,
         ]
         \addTokubenchZonePlot{betrfs3};
@@ -482,36 +514,19 @@ Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
     \label{fig:tokuzone}
 \end{figure}
 
-Relative-path indexing tries to balance locality and rename performance through
-a target zone size.
-On one hand, full-path indexing is still maintained within a zone,
-so larger zone size gives better locality.
-On the other hand, smaller zone size imposes a lower bound on rename cost,
-because no rename needs to mutate more key/value pairs than the zone size.
-Relative-path-indexing with an infinite zone size is equivalent to
-full-path-indexing, while relative-path-indexing with a zero zone size is the
-same as indexing with inode numbers.
-
-Relative-path indexing maintains zones by splits and merges.
-When a directory or file that is not a zone root becomes too big,
-relative-path indexing moves it to its own zone by a zone split.
-And when a zone becomes too small, relative-path indexing merges the zone.
-
-The implementation of relative-path-indexed \betrfs, \betrfsTwo, adopts a
-default zone size 128KiB.
-This default zone size is small enough that renames on \betrfsTwo are almost
-as fast as on inode-based file systems.
-At the same time, the default zone size is large enough that directory
-traversals are almost as fast as \betrfsOne.
-
 However, relative-path indexing imposes zone maintenance costs on other file
 system operations.
+When a file system operation happens to trigger a zone split or merge,
+in addition to the costs of the operation itself,
+relative-path indexing charges the zone split or merge to that operations.
 For instance, Figure~\ref{fig:tokuzone} shows the results of running Tokubench,
-which creates 3 million small files, on \betrfsThree
+which creates 3 million small files in a balanced tree structure,
+on \betrfsThree
 (\betrfsThree is \betrfsTwo with some bug fixes).
 The experiment runs Tokubench twice,
 one on \betrfsThree with the default zone size,
-the other on \betrfsThree with an infinite zone size.
+the other on \betrfsThree with an infinite zone size
+(the same as full-path indexing).
 On the graph, two-thirds of the way through the TokuBench benchmark,
 \betrfsThree with the default zone size shows a sudden,
 precipitous drop in cumulative throughput for small file creation,
@@ -521,25 +536,43 @@ zone size.
 Therefore, creating one file in a directory results in a zone split,
 updating all key/value pairs under the directory.
 On the contrary, \betrfsThree with an infinite zone size
-has a smooth curve throughout the benchmark.
+has a smooth curve throughout the benchmark
+because no zone split happens with a infinite zone size.
 
 Furthermore, relative-path indexing has bad worst-case performance.
 It is possible to construct arrangements of nested directories that will each
 reside in their own zone.
 Reading a file in the deepest directory will require reading one zone per
-directory (each with its own I/O).
+directory (each with its own I/O),
+essentially making the file system inode-based.
 Such a pathological worst case is not possible with full-path indexing in a
 \bet, and an important design goal for \betrfs is keeping a reasonable bound on
 the worst cases.
+
+Finally, relative-path indexing breaks the clean mapping of directory subtrees
+onto contiguous ranges of the key space,
+preventing us from using range-messages to implement bulk operations on entire
+directory.
+For example, with full-path indexing, we can use range-delete messages not
+only to delete files, but an entire directory.
+We could also use range messages to perform a variety of other operations on
+the whole directory, such as recursive \texttt{chmod}, \texttt{chown} and
+timestamp updates.
+And, as we will eventually see with the range-clone operations, we can clone the
+whole directory with one operation.
 
 \section{Summary}
 
 \betrfs is a general file system designed for all operations, with a particular
 focus on random writes and locality.
-The underlying data structure, \bets, performs random writes faster than \btrees
-by cascading writes in batches.
-The full-path indexing schema of \betrfsOne ensures good locality, while making
-renames slow.
-The relative-path indexing schema of \betrfsTwo enables fast renames,
-but imposes additional costs on other operations.
+The underlying data structure, \bets, performs random writes much faster than
+\btrees by cascading writes in batches.
+The full-path indexing schema of \betrfsOne ensures good locality.
+However, the preliminary implementation of namespace operations in \betrfsOne
+is slow because they need to iterate all affected keys.
+The relative-path indexing schema of \betrfsTwo enables fast renames by bounding
+the maximum number of affected in a rename.
+However, it imposes zone maintenance costs on other file system operations.
+Also, it breaks the full-path indexing, preventing us from implementing other
+efficient namespace operations that are difficult on other file systems.
 
