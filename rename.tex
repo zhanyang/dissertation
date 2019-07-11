@@ -1,20 +1,24 @@
 \chapter{Range-Rename}
 \label{chap:rename}
 
-This chapter describes the range-rename~\citep{betrfs4,betrfs4tos}
-operation on \bets that makes
-efficient renames possible on full-path-indexed \betrfs.
+This chapter describes the range-rename operation~\citep{betrfs4,betrfs4tos}
+on \bets that makes efficient renames possible on full-path-indexed \betrfs.
 To perform a file system rename, \betrfs simply invokes the range-rename
 operation on \bets,
 which updates all related key/value pairs in an I/O-efficient way.
 
-We first describe the range-rename interface and how \betrfs can use it to
-implement file system renames.
-Then, we discuss two key techniques that enable efficient range-rename
-on \bets, \textbf{tree surgery} and \textbf{key lifting}.
-At last, we talk about some implementation details of \betrfs and range-rename.
+Section~\ref{sec:rrint} describes the range-rename interface and shows how
+\betrfs can implement file system renames by calling range-rename operations.
+Then, Section~\ref{sec:rr} discusses how to implement the range-rename operation
+in an I/O-efficient way on \bets.
+In particular, the range-rename operation introduces two key techniques,
+\textbf{tree surgery} (Section~\ref{sec:rr:surgery}) and
+\textbf{key lifting} (Section~\ref{sec:rr:lift}).
+At last, Section~\ref{sec:rrimp} talks about implementation details of
+the range-rename operation in \fti and \betrfs.
 
 \section{The range-rename interface}
+\label{sec:rrint}
 
 Range-rename is a new key/value store operation defined as
 range-rename(\spre, \dpre).
@@ -87,6 +91,7 @@ Therefore, efficient renames are possible in full-path-indexed \betrfs if
 the \bet can complete the range-rename operation efficiently.
 
 \section{The range-rename operation}
+\label{sec:rr}
 
 This section describes the approach to perform the range-rename operation on the
 \bet with a bounded number of I/Os.
@@ -103,6 +108,7 @@ This section first describes tree surgery and key lifting, and then shows how
 range-rename can be done efficiently with these two techniques.
 
 \subsection{Tree surgery}
+\label{sec:rr:surgery}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -499,6 +505,7 @@ When the LCA is the root node of the \bet, tree surgery creates a new root node
 as the parent of the old root node before slicing.
 
 \subsection{Key lifting}
+\label{sec:rr:lift}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -1135,6 +1142,7 @@ the height of the tree.
 In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
 
 \section{Implementation}
+\label{sec:rrimp}
 
 \paragraph{Atomicity and Transactions.}
 The \fti in \betrfs implements \bets with multi-version concurrency control by
