@@ -131,27 +131,30 @@ as well as key/value pairs in leaf nodes.
         \draw[->, >=stealth] (-.0025\textwidth, .242\textwidth) -- (.13\textwidth, .192\textwidth);
     \end{tikzpicture}
     \caption[A \bet example]{\label{fig:bet} A \bet stores key/value pairs in
-        leaf nodes, and keeps pivots, parent-to-child-pointers and a message
-        buffer in each non-leaf node.}
+        a leaf node, and keeps pivots, parent-to-child pointers and a message
+        buffer in a non-leaf node.}
 \end{figure}
 
 Figure~\ref{fig:bet} shows a \bet example.
-Node $D$, $E$, $F$, $G$ and $H$ are leaf nodes that stores key/value pairs.
-Each leaf node shows a key/value pair in a row, with the left pair as the key
-and the right pair as the value.
+Node $D$, $E$, $F$, $G$ and $H$ are leaf nodes that store key/value pairs.
+Each leaf node shows a key/value pair in a row, with the left part as the key
+and the right part as the value.
 We use different colors to indicate keys with different prefixes and omit the
-content of the value throughout the dissertation.
+content of the value as dots throughout the dissertation.
 Node $A$, $B$ and $C$ are non-leaf nodes that contains pivots, parent-to-child
 pointers and messages in buffers.
-Parent-to-child pointers connect nodes into a tree, and the left and right
-pivot of a parent-to-child bound the key range of the child node.
+Parent-to-child pointers connect all nodes into a tree, and the left and right
+pivots of a parent-to-child pointer bound the key range of the child node.
 Messages in the buffers of non-leaf nodes are write operations that have been
-applied to the \bet but have not reached their leaf nodes.
-For example, the DEL(``/G/c'') message in Node $B$ indicates that key ``/G/c''
-has been deleted from the \bet.
-Therefore, though a query for key ``/G/c'' can find the key in Node $E$,
+applied to the \bet but have not taken effects on leaf nodes.
+For example, the message \delm(``/G/c'') in Node $B$ indicates that the key
+``/G/c'' has been deleted.
+Therefore, though a query for ``/G/c'' can find the key/value pair with the
+key in Node $E$,
 that key/value pair is invalidated by the message in Node $B$ and the
-query returns ``not-found''.
+query returns \texttt{NOT\_FOUND}.
+Likewise, a query for ``/R/z'' returns the value in the message
+\putm(``/R/z'',...) in node $C$.
 
 \begin{table}[t]
     \centering
@@ -163,6 +166,8 @@ query returns ``not-found''.
         \btree & $O(log_{B}{N})$ & $O(log_{B}{N})$ & $O(log_{B}{N} + k/B)$\\
         \hline
         \bet & $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$ & $O({log_{B}{N}}/{\varepsilon})$ & $O({log_{B}{N}}/{\varepsilon} + k/B)$ \\
+        \hline
+        \bet ($\varepsilon=1$) & $O(log_{B}{N})$ & $O(log_{B}{N})$ & $O(log_{B}{N} + k/B)$ \\
         \hline
         \bet ($\varepsilon=0.5$) & $O(log_{B}{N}/{\sqrt{B}})$ & $O(log_{B}{N})$ & $O(log_{B}{N} + k/B)$ \\
         \hline
@@ -185,7 +190,7 @@ A range query for $k$ key/value pairs requires $O(log_{B}{N} + k/B)$ I/Os.
 For comparison, a \bet with node size $B$ has fanout $B^{\varepsilon}$, where
 $0 < \varepsilon \leq 1$.
 Therefore, pivot keys in a non-leaf node consume $B^{\varepsilon}$ space and
-the remaining $(B - B^{\varepsilon})$ space is used for buffers.
+the remaining $(B - B^{\varepsilon})$ space is used for the message buffer.
 As a result, the \bet has height $O(log_{B}{N}/\varepsilon)$.
 A point query fetches all nodes along the root-to-leaf path with
 $O(log_{B}{N}/\varepsilon)$ I/Os and a range query for $k$ key/value pairs
@@ -216,19 +221,19 @@ Because both operations take $O(log_{B}{N})$ I/Os, the total cost remains
 $O(log_{B}{N})$.
 However, in \bets, the query cost is $O(log_{B}{N}/\varepsilon)$ I/Os while the
 insert cost is $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
-Performing a query before an insert degrades the total cost to
+Performing a query before an insert degrades the write cost to
 $O(log_{B}{N}/\varepsilon)$ I/Os.
 
 To avoid this read-before-write problem, \bets support ``upsert'' operations.
-An upsert injects a message with the key and a delta into the buffer of the root
-node.
+An upsert operation injects a upsert message with the key and a delta into the
+buffer of the root node.
 When the upsert message is flushed to the leaf, it updates the old value
 associated with the key with a user-specified function and the delta in the
 message.
-On one hand, queries need to compute the new value on the fly if the upsert
-message has not reached the leaf node,
+With the introduction of upsert messages, queries need to compute the new value
+on the fly if upsert messages have not reached the leaf node,
 however, this doesn't change the I/O costs of queries.
-On the other hand, updating an old value becomes as fast as an insert,
+On the other hand, updating an old value becomes as fast as an insert operation,
 because it doesn't need to fetch the old value.
 
 \section{Full-path-indexed \betrfs}
