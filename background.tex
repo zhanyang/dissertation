@@ -263,8 +263,9 @@ because it doesn't need to fetch the old value.
         The \betrfs architecture.}
 \end{figure}
 
-\betrfs~\citep{betrfs1,betrfs1tos} is a Linux in-kernel file
-system built upon \fti~\citep{fti}, a key/value store that implements \bets and
+\betrfs~\citep{betrfs1,betrfs1tos} is a Linux in-kernel, full-path-indexed,
+write-optimized file system built upon \fti~\citep{fti},
+a key/value store that implements \bets and
 exposes a key/value interface similar to BerkelyDB.
 
 Figure~\ref{fig:betrfs} shows the \betrfs architecture.
@@ -278,30 +279,36 @@ store operations in \fti.
 \texttt{get} and \texttt{del}, as well as range queries with cursors
 (\texttt{c\_get} with DB\_SET\_RANGE and DB\_NEXT).
 \betrfs also uses the transaction interface of \fti to execute multiple
-operations atomically.
+operations atomically in one transaction.
 A redo log and periodic checkpoints (every 60 seconds) in \fti ensure that
-changes can be made persistent on disk.
+changes can be made persistent on the disk.
 
 \Fti cannot be integrated into a Linux kernel module easily because
 it is a userspace library that assumes libc functions and system calls.
-\betrfs has a shim layer called \klibc that implements all functions \fti
-requires.
-Through this way, \betrfs can incorporate \fti into the kernel module without
-modifying code in \fti.
+To address this issue, we built a shim layer called \klibc in \betrfs.
+\Klibc implements all functions \fti requires.
+For example, \fti requires a underlying file system to perform file operations.
+To this end, \klibc privately mounts an ext4 file system and calls the
+corresponding VFS functions when \fti invokes file system operations.
+Through a shim layer, \betrfs can incorporate \fti into the kernel module
+without modifying code in \fti.
 
 \betrfs uses two key/value indexes to store metadata and data in the file
 system.
-One \mdb stores metadata, mapping full-paths to \texttt{struct stat} structures.
-Another \ddb stores data, mapping (full-path and block number) to 4KB blocks.
+One index, \mdb, stores metadata, mapping full-paths to \texttt{struct stat}
+structures.
+The other index, \ddb, stores data, mapping (full-path and block number) to
+4KiB blocks.
 When the file system function needs metadata, \betrfs queries
-the \mdb with the full-path and constructs the corresponding inode
+the \mdb with the full-path key and constructs the corresponding inode
 from the \texttt{struct stat}.
 Likewise, when a dirty inode needs to be written, the \texttt{struct stat} is
 assembled from the inode and written to the \mdb with the
 full-path key.
 Blocks of a file are fetched and written by the full-path and the indexes of
 blocks.
-Although other block granularity is possible, 4KB is the natural block size
+Although other block granularity is possible (we tried 512B for the preliminary
+implementation of \betrfs), 4KiB is the natural block size
 because it is the same as the page size in the Linux page cache.
 
 \betrfs can write to a block without fetching the old block to memory, avoiding
@@ -313,11 +320,22 @@ However, \bets have asymmetric read and write costs, so read-before-write should
 be avoided.
 In \betrfs, if the corresponding block is not in memory, an upsert message,
 which describes the offset, length and content of this write, is injected into
-the \bet.
+the root node of the \bet.
 When this upsert message is flushed to the leaf node, the change is applied to
 the old block.
 
-Full-path indexing ensures locality even with file system aging~\citep{betrfs3}.
+Write-optimized \bets make random writes much faster in \betrfs than
+conventional file systems.
+Unlike other file systems,
+which performs each random write at a random locality on the disk,
+\betrfs usually resolves a random write by injecting a message into the root
+node of the \bet
+and flushes messages in batches.
+Because random I/Os are much slower than sequential I/Os on disks,
+\betrfs have much better random write performance.
+
+Also, full-path indexing in \betrfs ensures locality even with file system
+aging~\citep{betrfs3}.
 After \betrfs fetches one block of a file from the disk, all nodes along the
 root-to-leaf path are present in memory.
 And with full-path indexing, all keys under one directory are contiguous in the
@@ -344,7 +362,9 @@ children whose key ranges overlap with the range-delete message.
 Upon reaching a leaf node, the range-delete message deletes all key/value pairs
 within its key range.
 
-However, the rename problem remains difficult in full-path-indexed \betrfs.
+However, the rename problem remains difficult in full-path-indexed \betrfs
+because a rename needs to update all affected keys in the \bets,
+an operation that is uncommon in key/value stores.
 
 \section{Relative-path-indexed \betrfs}
 \label{sec:rpi}
