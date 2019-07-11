@@ -22,19 +22,19 @@ the range-rename operation in \fti and \betrfs.
 
 Range-rename is a new key/value store operation defined as
 range-rename(\spre, \dpre).
-Define a source key/value pair as a key/value pair whose key has the prefix \spre
-and a destination key/value pair as a key/value pair whose key has the prefix \dpre.
+Define a key/value pair whose key has prefix \spre as a source key/value pair
+and a key/value pair whose key has prefix \dpre as a destination key/value pair.
 Range-rename(\spre, \dpre) does three things:
 \begin{itemize}
 \item it deletes all destination key/value pairs from the key/value store;
-\item then, for any source key/value pair $(k,v)$ in the key/value store,
+\item then, for each source key/value pair $(k,v)$ in the key/value store,
 it inserts a key/value pair $(k',v)$ to the key/value store,
 where $k$ is the concatenation of \spre and some suffix $s$ and $k'$ is the
 concatenation of \dpre and the same suffix $s$;
 \item at last, it deletes all source key/value pairs from the key/value store.
 \end{itemize}
 In other words, the range-rename deletes all destination key/value pairs and
-updates all source key/value pairs to have \dpre.
+updates all source key/value pairs, changing the key prefix from \spre to \dpre.
 
 To see how range-rename accomplishes file system renames in full-path-indexed
 \betrfs, consider renaming file ``/foo'' to ``/bar''.
@@ -84,9 +84,10 @@ to have prefix ``/qux/'', which is done by range-rename(``/baz/'', ``/qux/'')
 Table~\ref{tab:fsrr} summarizes how file system renames can be done with
 range-rename operations in full-path-index \betrfs.
 Briefly speaking, full-path-indexed \betrfs can finish a file rename by
-invoking three operations on \bets: an insert, a delete and a range-rename.
+invoking three operations on \bets: an insert, a delete and a range-rename
+operation.
 And a directory rename can be done with an insert, a delete and two
-range-renames.
+range-rename operations.
 Therefore, efficient renames are possible in full-path-indexed \betrfs if
 the \bet can complete the range-rename operation efficiently.
 
