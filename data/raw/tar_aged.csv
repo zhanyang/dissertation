@@ -1,0 +1,13 @@
+fs, op, time.s
+ext4, untar, 11.712
+ext4, untar, 11.821
+ext4, untar, 11.804
+ext4, untar, 11.730
+ext4, untar, 11.964
+
+ext4, tar, 54.036
+ext4, tar, 51.878
+ext4, tar, 53.006
+ext4, tar, 51.777
+ext4, tar, 54.429
+

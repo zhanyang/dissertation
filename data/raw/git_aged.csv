@@ -1,0 +1,12 @@
+fs, op, time.s
+ext4, clone, 47.415
+ext4, clone, 46.687
+ext4, clone, 47.440
+ext4, clone, 47.008
+ext4, clone, 47.126
+
+ext4, diff, 68.212
+ext4, diff, 63.500
+ext4, diff, 66.941
+ext4, diff, 65.200
+ext4, diff, 64.481
