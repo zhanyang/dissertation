@@ -1,0 +1,13 @@
+fs, in.place, throughput.MBps
+ext4, yes, 15.78
+ext4, yes, 15.99
+ext4, yes, 13.38
+ext4, yes, 13.90
+ext4, yes, 13.70
+
+ext4, no, 14.79
+ext4, no, 14.95
+ext4, no, 14.69
+ext4, no, 13.26
+ext4, no, 15.08
+
