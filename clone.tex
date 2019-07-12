@@ -3,20 +3,28 @@
 
 This chapter describes the range-clone operation on \bets, which can be used
 to implement file or directory clones and renames in full-path-indexed \betrfs.
-Unlikely a range-rename, which completes all its work at once, a range-clone
-operation injects a new type of messages, \goto messages,
+Unlikely a range-rename operation, which completes all its work at once,
+a range-clone operation injects a new type of messages, \goto messages,
 into the root node of the \bet.
 The \bet then flushes \goto messages with other messages in batches, gradually
-finishing the range-clone works.
-Therefore, range-clone fits into the write-optimized framework of \bets.
+finishing the range-clone work.
+Therefore, the range-clone operation fits into the write-optimized framework of
+\bets.
 
-We first describe the range-clone interface and how \betrfs can use it to
-implement file or directory renames and clones.
-Then, we discuss the how to implement the range-clone operations in a
-write-optimized way on \bets.
-At last, we talk about some implementation details.
+Section~\ref{sec:rcint} describes the range-clone interface and how to implement
+file or directory renames and clones in full-path-index \betrfs by calling the
+range-clone operation.
+Section~\ref{sec:rc} discusses how to implement the range-clone operation.
+In particular, we first describes an implementation of the range-clone operation
+with techniques introduced by the range-rename operation,
+finishing all work on the critical path.
+Then, we introduces the \goto message that delays most of the range-clone work
+to the flushing process in the data structure.
+At last, Section~\ref{sec:rcimp} talks about some implementation details in the
+range-clone operation.
 
 \section{The range-clone interface}
+\label{sec:rcint}
 
 \begin{table}[t]
     \centering
@@ -74,6 +82,7 @@ it keeps the source metadata and data.
 Thus, it completes file or directory clones.
 
 \section{The range-clone operation}
+\label{sec:rc}
 
 This section shows the implementation of range-clone operations.
 Because deleting source key/value pairs can be done by injecting a range-delete
@@ -1742,6 +1751,7 @@ Note, the message \putm(/G/a,...) is also removed from Node $B$
 because it is out of the key range specified in Node $A$.
 
 \section{Implementation}
+\label{sec:rcimp}
 
 \paragraph{Preferential splitting.}
 Most of the work in range-clone and range-rename is about splitting fringe
