@@ -685,16 +685,18 @@ a \xf (translate-and-filter) function.
 The \xf function not only translates search keys for queries by updating their
 prefix, but also filters out out-of-range keys in nodes that would be visited
 following the \goto message.
-Consider a query for key ``/B/b'' visits Node $A$ in its root-to-leaf traversal,
-and finds a \goto message, \goto(``/B/'', ``/R'', $C$), in node $A$.
+
+For example, in Figure~\ref{subfig:goto2}, consider a query for key ``/B/b''.
+The query first visits the root node, Node $A$ and finds a \goto message,
+\goto(``/B/'', ``/R'', $C$).
 This query should follow the \goto message and visit Node $C$,
-instead of normal children of Node $A$.
+instead of the normal parent-to-child pointer to Node $B$..
 Additionally, the \goto message acts as a \xf function that translates the
-search key ``/B/b'' to ``/R/b'' and bounds the query result to
+search key from ``/B/b'' to ``/R/b'' and bounds the query result to
 (``/R/$_{min}$'', ``/R/$_{max}$''),
-i.e., the query should not return any result with a key out of that range
+i.e., the query should not fetch a key without prefix ``/R/'' in the subtree
 (a range query for key ``/R/b'' may return a key/value pair whose key doesn't
-have ``/R/'' prefix).
+have prefix ``/R/'').
 
 Because a \goto message redirects queries whose search keys have a certain
 prefix, it also acts as a range-delete message that invalidates all old messages
@@ -702,7 +704,7 @@ and key/value pairs following other pointers (normal parent-to-child pointers
 and older \goto messages).
 Thus, if we set the node ID in a \goto message to a special value
 (e.g., 0), the \goto message acts as a range-delete message.
-Therefore, we can use \goto message to implement range-delete.
+Therefore, we can use \goto messages to implement range-delete.
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -942,7 +944,7 @@ that generates a \goto message.
 Starting from the root node, Node $A$, the range-clone operation traverses to
 the source LCA, Node $C$.
 At the same time, it flushes the message, \delm(``/R/z''), to Node $C$.
-Then, the range-clone range then injects a \goto message into the root node,
+Then, the range-clone operation injects a \goto message into the root node,
 with ``/B/'' as its \dpre, ``/R/'' as its \spre and Node $C$ as its node ID.
 Figure~\ref{subfig:goto-2} shows the result.
 Now, consider a query for key ``/B/a''.
@@ -950,7 +952,7 @@ The query starts at the Node $A$.
 Then, instead of following the parent-to-child pointers to Node $B$, it follows
 the \goto message and visit Node $C$.
 The \goto message also acts as a \xf function that translates the search key
-to ``/R/a'' and bounds the result in range (``/R/a$_{min}$'', ``/R/$_{max}$'').
+to ``/R/a'' and bounds the result in range (``/R/$_{min}$'', ``/R/$_{max}$'').
 At last, the query finds the correct key/value pair in Node $F$.
 
 \subsection{Flushing \goto messages}
@@ -962,7 +964,7 @@ In the simple case, the node that tries to flush a \goto message has a single
 child that covers the key range of the \goto message
 and the child is higher than the source LCA of the \goto message.
 Flushing the \goto message simply lifts the \dpre of the \goto message and moves
-the \goto message from the parent buffer to the child buffer.
+the \goto message from the node's buffer to the child's buffer.
 
 \paragraph{The \bedag merges children before flushing a \goto message.}
 
@@ -1242,29 +1244,35 @@ the \goto message from the parent buffer to the child buffer.
         that can accommodate the \goto message.}
 \end{figure}
 
-
 In the more complicated case, a \goto message can overlap with the key ranges
 of multiple children.
-There are at most two fringe children whose key ranges are partly covered by the
-key range of the \goto message,
-and partly out of the key range of the \goto message;
-there are also some interior children whose key ranges are entirely
-within the key range occluded by the \goto message.
-The lift \bedag needs to create a single child that can accommodate the \goto
-message.
+One solution is to duplicate the \goto message and flushes to all children,
+however, this may greatly increase the reference count of the node referenced
+by the \goto message,
+making the sharing complicated.
 
-To this end, the \bedag removes the references and pointers to the
-interior children (potentially garbage-collecting these nodes, if this is
-the last reference),
-and merges the two fringe children into one child.
-Removing interior children creates a key range that is not covered by the
-fringe children.
-One solution is to expand the key range of one fringe child,
-however, changing the key range of a node means re-lifting the node and at
-least one descendant at each height.
-To avoid touching any descendant of the fringe children,
-we add an empty subtree that covers the key range as the child of the merged
-node.
+Our solution is to generate a single child that can accommodate the \goto
+message.
+An easy way to accomplish this goal is to merge all children whose key range
+overlaps with the \goto message.
+However, this may create a node with a huge fanout.
+In fact, because the \goto message invalidates all old keys
+with \dpre, we can decrease the reference counts
+(and potentially garbage-collect)
+of all children whose key ranges fall completely in the key range of the \goto
+message (we call these children interior children)
+and merges the two fringe children whose key ranges partly overlaps with the
+\goto message.
+
+However, removing interior children creates a key range that is not covered by
+the fringe children.
+Therefore, we need to expand the key range of one fringe child to cover that
+range.
+This expansion creates a key range that is not covered by any children of the
+fringe child.
+This key-range hole propagates until the leaf level.
+To avoid reading any descendent of the fringe node, we create an empty subtree
+and add the subtree as one child of the expanded fringe child.
 
 Figure~\ref{fig:flush} shows an example of merging children before flushing a
 \goto message.
