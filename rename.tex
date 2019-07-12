@@ -509,7 +509,7 @@ The subtree rooted at Node $C'$ is the isolated subtree that contains and
 only contains all keys with the prefix ``/R/''.
 
 A special case in tree surgery is when the LCA is the root node of the \bet.
-In such scenario, splitting the root node divides the tree into a forest.
+In such a scenario, splitting the root node divides the tree into a forest.
 To avoid such case, we creates a new root node as the parent of the old root
 node before slicing.
 
@@ -1311,7 +1311,7 @@ write operation needs to write-lock the root node.
 To avoid contentions on the root lock, \fti has a promotion mechanism.
 Specifically, if the partition the message should be injected into is empty,
 the message can be directly injected into the child.
-In such scenario, the write operation only needs to write-lock the node it is
+In such a scenario, the write operation only needs to write-lock the node it is
 going to inject its message and read-lock its ancestors.
 
 The range-rename operation returns to the user once the range-rename and its

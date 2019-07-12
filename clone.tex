@@ -55,12 +55,12 @@ range-clone operation.
         invoking range-clone and other operations on \bets.}
 \end{table}
 
-Similar to range-rename, range-clone is defined as
+Range-clone is defined as
 range-clone(\spre, \dpre, \delold), where \delold is a boolean value.
 Range-clone(\spre, \dpre, \delold)  does the following things:
 \begin{itemize}
 \item it deletes all destination key/value pairs from the key/value store;
-\item then, for any source key/value pair $(k,v)$ in the key/value store,
+\item then, for each source key/value pair $(k,v)$ in the key/value store,
 it inserts a key/value pair $(k',v)$ to the key/value store,
 where $k$ is the concatenation of \spre and some suffix $s$ and $k'$ is the
 concatenation of \dpre and the same suffix $s$;
@@ -71,15 +71,19 @@ Therefore, if \delold is true, range-clone is equivalent to range-rename;
 otherwise, range-clone is range-rename without deleting source key/value pairs.
 
 Table~\ref{tab:fsrc} summarizes how \betrfs can complete file or directory
-renames and clones by invoking range-clone operations.
+renames and clones by invoking the range-clone operation.
 Because a range-clone operation with \delold set to true is the same as a
 range-rename operation,
 file or directory renames in Table~\ref{tab:fsrc} are the same as those in
-Table~\ref{tab:fsrr}, except using range-clone instead of range-rename.
-And if \betrfs calls the same operations but sets \delold in range-clone to
-false,
-it keeps the source metadata and data.
-Thus, it completes file or directory clones.
+Table~\ref{tab:fsrr},
+except using the range-clone operation instead of the range-rename operation.
+And if \betrfs calls the range-clone operation but sets \delold in the
+range-clone operation to false,
+it keeps the source key/value pairs of metadata and data.
+In such a scenario, the file system completes file or directory clones if it
+doesn't call delete the metadata for the source file or directory
+(in rename, this delete is not covered in the range-rename or range-clone
+operation).
 
 \section{The range-clone operation}
 \label{sec:rc}
