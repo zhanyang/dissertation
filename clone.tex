@@ -1299,21 +1299,21 @@ we can simple flush the \goto message to the child buffer.
 However, if the child is at the same height as the source LCA,
 we cannot flush the \goto message.
 Otherwise, the \goto message would redirect queries to a node at the same level,
-which breaks the asymptotic I/O costs of queries.
+breaking the asymptotic I/O costs for queries.
 
-In such scenarios, the \goto message is converted into into pivots and a
+In such scenarios, the \goto message is converted into pivots and a
 parent-to-child pointer in the node.
 
 This is done by adding \dpre$_{min}$ and \dpre$_{max}$ as two new pivots and
-set the parent-to-child pointer between the two pivots to the source LCA of the
+set the parent-to-child pointer between them to the source LCA of the
 \goto message.
-Assume \dpre$_{min}$ and \dpre$_{max}$ are in the range of child $i$ of the node,
-i.e., $\dpre_{min}, \dpre_{max} \in (pivot_{i},pivot_{i+1})$.
+Assume \dpre$_{min}$ and \dpre$_{max}$ are in the key range of child $i$ of the node,
+that is, $\dpre_{min}, \dpre_{max} \in (pivot_{i},pivot_{i+1})$.
 Adding \dpre$_{min}$ and \dpre$_{max}$ as two new pivots creates 3 key ranges,
 $(pivot_{i},\dpre_{min})$, $(\dpre_{min},\dpre_{max})$ and
 $(\dpre_{max}, pivot_{i+1})$.
 Key range $(\dpre_{min},\dpre_{max})$ is cover in the source LCA of the \goto
-message, while the other two are covered by child $i$.
+message, while the other two key range are covered by child $i$.
 
 However, all three parent-to-child pointers now points to a child whose key
 range is different than those specified in the node.
@@ -1327,8 +1327,8 @@ pointer.
 The problem is solved by augmenting parent-to-child pointers with \xf functions,
 which is the same as the \xf function described in \goto messages.
 Each parent-to-child pointer now has a \xf function with a prefix.
-After the query lifts its search key by the LCP of two pivots, the \xf function
-prepends its prefix to the search key.
+After key lifting lifts the search keys of queries by the LCP of two pivots,
+the \xf function prepends its prefix to the search key.
 Also, \xf functions serves as filters, bounding the results queries may return.
 
 \begin{figure}
@@ -1568,8 +1568,8 @@ after the normal lifting of ``/B/'' from its search key.
 Also, they remember only keys between ``/R/$_{min}$'' and ``/R/$_{max}$'' in
 the child are valid.
 Similarly, two \xf functions are added to the other two pointers.
-Note, for the leftmost pointer, though the \xf function contains no prefix,
-it still serves as a filter for queries.
+Note, for the leftmost parent-to-child pointer of Node $A$, though the \xf
+function contains no prefix, it still serves as a filter for queries.
 
 \paragraph{Fixing \xf functions in parent-to-child pointers.}
 \goto messages adds \xf functions to parent-to-child pointers.
