@@ -343,7 +343,7 @@ space, about 36\% of the partition size.
         y error plus expr=\thisrow{ci},
         y error minus expr=\thisrow{ci},
     ]
-    {./data/git.csv};
+    {./data/git_aged.csv};
 }
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
@@ -419,40 +419,87 @@ space, about 36\% of the partition size.
     ]
     table[
         x=op,
-        y=median,
-        y error plus expr=\thisrow{max}-\thisrow{median},
-        y error minus expr=\thisrow{median}-\thisrow{min},
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
     ]
     {./data/tar.csv};
 }
 
+\newcommand{\addTarPlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/tar_aged.csv};
+}
 \begin{figure}[t]
-    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-        \begin{axis}[
-                ybar,
-                ymin=0,
-                ylabel={Time (sec)},
-                ymajorgrids=true,
-                symbolic x coords={untar,tar},
-                xtick={untar,tar},
-                enlarge x limits=0.5,
-                xtick pos=right,
-                major tick length=0in,
-                xticklabel pos=right,
-                visualization depends on=y \as \rawy,
-                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
-                height=.6\linewidth,
-                width=\linewidth,
-            ]
-            \addTarPlot{ext4};
-            \addTarPlot{btrfs};
-            \addTarPlot{xfs};
-            \addTarPlot{zfs};
-            \addTarPlot{nilfs2};
-            \addTarPlot{betrfs4};
-            \addTarPlot{betrfs5};
-        \end{axis}
-    \end{tikzpicture}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    ybar,
+                    ymin=0,
+                    ylabel={Time (sec)},
+                    ymajorgrids=true,
+                    symbolic x coords={untar,tar},
+                    xtick={untar,tar},
+                    enlarge x limits=0.5,
+                    xtick pos=right,
+                    major tick length=0in,
+                    xticklabel pos=right,
+                    visualization depends on=y \as \rawy,
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addTarPlot{ext4};
+                \addTarPlot{btrfs};
+                \addTarPlot{xfs};
+                \addTarPlot{zfs};
+                \addTarPlot{nilfs2};
+                \addTarPlot{betrfs3};
+                \addTarPlot{betrfs4};
+                \addTarPlot{betrfs5};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{subfig:tar}Benchmarking on empty file systems.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    ybar,
+                    ymin=0,
+                    ylabel={Time (sec)},
+                    ymajorgrids=true,
+                    symbolic x coords={untar,tar},
+                    xtick={untar,tar},
+                    enlarge x limits=0.5,
+                    xtick pos=right,
+                    major tick length=0in,
+                    xticklabel pos=right,
+                    visualization depends on=y \as \rawy,
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addTarPlotAged{ext4};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{subfig:tar_aged}Benchmarking on aged file systems.}
+    \end{subfigure}
     \caption[Tar benchmark]{\label{fig:tar}
         Latency to untar and tar the Liinux-3.11.10 source directory (lower is better).}
 \end{figure}
@@ -702,11 +749,17 @@ source directory.
 At last, it measures the time to generate a tar ball from the newly created
 Linux-3.11.10 source directory.
 
-Figure~\ref{fig:tar} shows the result.
+Figure~\ref{subfig:tar} shows the results of running the benchmark on empty
+file systems.
 Untaring consists sequentially reading the tar ball and file creations.
 \betrfsFour and \betrfsFive are only slightly slower than Btrfs.
 Taring traverse the directory and sequentially writes the tar ball.
 \betrfsFour and \betrfsFive are the fastest file system in the tar benchmark.
+
+Figure~\ref{subfig:tar_aged} shows the results of running the benchmark on aged
+file systems.
+In this case, the benchmark copies the tar ball under the aged git repository
+and performs untar and tar there.
 
 \paragraph{Rsync.}
 

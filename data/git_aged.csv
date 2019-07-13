@@ -1,0 +1,4 @@
+fs      op    avg     ci
+ext4    clone  47.135 0.273
+ext4    diff   65.667 1.664
+
