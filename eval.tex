@@ -60,7 +60,7 @@ space, about 36\% of the partition size.
     ]
     table[
         x=op,
-        y=median,
+        y=avg,
         y error plus expr=\thisrow{ci},
         y error minus expr=\thisrow{ci},
     ]
@@ -79,7 +79,7 @@ space, about 36\% of the partition size.
     ]
     table[
         x=op,
-        y=median,
+        y=avg,
         y error plus expr=\thisrow{ci},
         y error minus expr=\thisrow{ci},
     ]
@@ -320,41 +320,89 @@ space, about 36\% of the partition size.
     ]
     table[
         x=op,
-        y=median,
-        y error plus expr=\thisrow{max}-\thisrow{median},
-        y error minus expr=\thisrow{median}-\thisrow{min},
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
     ]
     {./data/git.csv};
 }
 
+\newcommand{\addGitPlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/git.csv};
+}
 \begin{figure}[t]
-    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-        \begin{axis}[
-                ybar,
-                ymin=0,
-                ylabel={Time (sec)},
-                ymajorgrids=true,
-                symbolic x coords={clone, diff},
-                xticklabels={git clone,git diff},
-                xtick={clone,diff},
-                enlarge x limits=0.5,
-                xtick pos=right,
-                major tick length=0in,
-                xticklabel pos=right,
-                visualization depends on=y \as \rawy,
-                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                height=.6\linewidth,
-                width=\linewidth,
-            ]
-            \addGitPlot{ext4};
-            \addGitPlot{btrfs};
-            \addGitPlot{xfs};
-            \addGitPlot{zfs};
-            \addGitPlot{nilfs2};
-            \addGitPlot{betrfs4};
-            \addGitPlot{betrfs5};
-        \end{axis}
-    \end{tikzpicture}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    ybar,
+                    ymin=0,
+                    ylabel={Time (sec)},
+                    ymajorgrids=true,
+                    symbolic x coords={clone, diff},
+                    xticklabels={git clone,git diff},
+                    xtick={clone,diff},
+                    enlarge x limits=0.5,
+                    xtick pos=right,
+                    major tick length=0in,
+                    xticklabel pos=right,
+                    visualization depends on=y \as \rawy,
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addGitPlot{ext4};
+                \addGitPlot{btrfs};
+                \addGitPlot{xfs};
+                \addGitPlot{zfs};
+                \addGitPlot{nilfs2};
+                \addGitPlot{betrfs3};
+                \addGitPlot{betrfs4};
+                \addGitPlot{betrfs5};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{subfig:git}Benchmarking on empty file systems.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    ybar,
+                    ymin=0,
+                    ylabel={Time (sec)},
+                    ymajorgrids=true,
+                    symbolic x coords={clone, diff},
+                    xticklabels={git clone,git diff},
+                    xtick={clone,diff},
+                    enlarge x limits=0.5,
+                    xtick pos=right,
+                    major tick length=0in,
+                    xticklabel pos=right,
+                    visualization depends on=y \as \rawy,
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addGitPlotAged{ext4};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{subfig:git_aged}Benchmarking on aged file systems.}
+    \end{subfigure}
     \caption[Git benchmark]{\label{fig:git}
         Latency of ``git clone'' and ``git diff'' (lower is better).}
 \end{figure}
@@ -620,7 +668,7 @@ In this case, we run the benchmark in the directory of the aged git repository.
 \section{Macrobenchmarks}
 \label{sec:macro}
 
-We then measure the performance of file systems on four canonical applications.
+We then measure the performance of file systems on canonical applications.
 
 \paragraph{Git.}
 
@@ -629,7 +677,8 @@ clones a local copy of the linux source repository,
 then measures the latency of finishing ``git diff'' that generates a patch
 between two tags in the repository, the ``v4.7'' and ``v4.14'' tags.
 
-Figure~\ref{fig:git} shows the results.
+Figure~\ref{subfig:git} shows the results of running the benchmark on empty file
+systems.
 The ``git clone'' benchmark performs a mixture sequential writes and file
 creations.
 \betrfsFour and \betrfsFive are slightly slower than ext4 and Btrfs mainly
@@ -638,6 +687,11 @@ The ``git diff'' benchmark traverses the directory and reads the deltas from git
 objects.
 \betrfsFour and \betrfsFive are among the fastest file systems because of good
 locality in directory traversals.
+
+Figure~\ref{subfig:git_aged} shows the results of running the benchmark on aged
+file systems.
+In this case, we clone the git repository under the directory that contains the
+aged git repository.
 
 \paragraph{Tar.}
 

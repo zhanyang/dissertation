@@ -83,14 +83,3 @@ betrfs5, diff, 36.819
 betrfs5, diff, 36.525
 betrfs5, diff, 36.742
 
-betrfs5-clone, clone, 43.588
-betrfs5-clone, clone, 44.014
-betrfs5-clone, clone, 43.501
-betrfs5-clone, clone, 42.980
-betrfs5-clone, clone, 43.281
-
-betrfs5-clone, diff, 37.442
-betrfs5-clone, diff, 36.985
-betrfs5-clone, diff, 37.058
-betrfs5-clone, diff, 37.112
-betrfs5-clone, diff, 37.054
