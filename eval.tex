@@ -492,6 +492,139 @@ all operations are performed in the aged git repository.
          Throughput of renaming a directory (higher is better).}
 \end{figure}
 
+\newcommand{\addCloneMicroPlot}[2]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[x=num,y=#2
+    ]
+    {./data/clone/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
+\begin{figure}[t]
+    \begin{subfigure}[b]{.49\linewidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                xlabel={Clone Number},
+                ylabel={Latency (sec)},
+                xmin=1,
+                xmax=8,
+                ymin=0,
+                ymax=1,
+                mark repeat=1,
+                xtick={2,4,6,8,10,12,14,16},
+                grid=none,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=3,
+                legend cell align=left,
+                legend style={at={(0.5,-0.1)},anchor=north}
+                ]
+                \addCloneMicroPlot{btrfs}{clonetime};
+                \addCloneMicroPlot{xfs}{clonetime};
+                \addCloneMicroPlot{betrfs5}{clonetime};
+                \addCloneMicroPlot{btrfs-svol}{clonetime};
+                \addCloneMicroPlot{zfs}{clonetime};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{fig:clone:clone} Time to clone a directory.}
+    \end{subfigure}
+    \begin{subfigure}[b]{.49\linewidth}
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                xlabel={Clone Number},
+                ylabel={Clone Space (KiB, log scale)},
+                xmin=1,
+                xmax=8,
+                ymin=1,
+                ymax=100000,
+                ymode=log,
+                log basis y=10,
+                mark repeat=1,
+                xtick={2,4,6,8,10,12,14,16},
+                grid=none,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=3,
+                legend cell align=left,
+                legend style={at={(0.5,-0.1)},anchor=north}
+                ]
+                \addCloneMicroPlot{btrfs}{clonespace};
+                \addCloneMicroPlot{xfs}{clonespace};
+                \addCloneMicroPlot{betrfs5}{clonespace};
+                \addCloneMicroPlot{btrfs-svol}{clonespace};
+                \addCloneMicroPlot{zfs}{clonespace};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{fig:clone:space} Change in space usage. }
+    \end{subfigure}
+    \begin{subfigure}[b]{.49\linewidth}
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                xlabel={Clone Number},
+                ylabel={Grep Time (sec)},
+                xmin=1,
+                xmax=8,
+                ymin=0,
+                ymax=9,
+                mark repeat=1,
+                xtick={2,4,6,8,10,12,14,16},
+                grid=none,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=3,
+                legend cell align=left,
+                legend style={at={(0.5,-0.1)},anchor=north}
+                ]
+                \addCloneMicroPlot{btrfs}{greptime};
+                \addCloneMicroPlot{xfs}{greptime};
+                \addCloneMicroPlot{betrfs5}{greptime};
+                \addCloneMicroPlot{btrfs-svol}{greptime};
+                \addCloneMicroPlot{zfs}{greptime};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{fig:clone:grep} Grep Time.}
+    \end{subfigure}
+    \begin{subfigure}[b]{.49\linewidth}
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                xlabel={Clone Number},
+                ylabel={Write Time (sec)},
+                xmin=1,
+                xmax=8,
+                ymin=0,
+                ymax=1.5,
+                mark repeat=1,
+                xtick={2,4,6,8,10,12,14,16},
+                grid=none,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=3,
+                legend cell align=left,
+                legend style={at={(0.5,-0.1)},anchor=north}
+                ]
+                \addCloneMicroPlot{btrfs}{writetime};
+                \addCloneMicroPlot{xfs}{writetime};
+                \addCloneMicroPlot{betrfs5}{writetime};
+                \addCloneMicroPlot{btrfs-svol}{writetime};
+                \addCloneMicroPlot{zfs}{writetime};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{fig:clone:write} Small write latency.}
+    \end{subfigure}
+    \caption[Directory clone benchmark]{\label{fig:clone}
+        Latency to clone, read, and write, as well as space usage, as a function
+        of the number of times a directory tree has been cloned
+        (lower is better for all metrics).}
+\end{figure}
+
 \newcommand{\addGitPlot}[1]{
     \addplot[
         discard if not={fs}{#1},
@@ -529,6 +662,7 @@ all operations are performed in the aged git repository.
     ]
     {./data/git_aged.csv};
 }
+
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
         \centering
@@ -1016,6 +1150,66 @@ Figure~\ref{subfig:dir_rename_aged} shows the results of running the benchmark o
 aged file systems.
 Before renaming, we use ``make clean'' to remove files generated by kernel
 building and then renames the direcotyr of the repository 100 times.
+
+\paragraph{Directory clones.}
+To evaluate the performance of cloning and similar copy-on-write optimizations
+in other file systems,
+we wrote a simple microbenchmark that creates a directory hierarchy with 8
+directories, each of which has 8 files that are 4 MiB each.
+At each step, we measure the copy time (Figure~\ref{fig:clone:clone}),
+we measure the impact of copy-on-write by writing 16 bytes to each copied file
+and syncing the data (Figure~\ref{fig:clone:write}.
+We then clear the file system caches and measure the impact on read time by
+grepping the copied directory (Figure~\ref{fig:clone:grep}).
+Finally, we record the change in space utilization for the file system at each
+step (Figure~\ref{fig:clone:space}).
+
+We compare directory-level clone in \betrfs to 3 Linux file systems that either
+support volume snapshots or clones (Btrfs and ZFS)
+or reflink copies of files (Btrfs and XFS).
+We compare in both modes; the label Btrfs-svol is in volume snapshot mode.
+Neither model supports directory-level clone natively, but Btrfs does allow a
+user to turn a directory into a subvolume, which can then be snapshotted.
+We cover this behavior by measuring the volume case.
+we compare to both methods, either creating a volume with these contents and
+cloning it, or doing a reflink copy of each file.
+
+n terms of time to do a clone, both Btrfs and XFS file-level cloning degrade as
+a function of the number of prior clones;
+after 8 iterations, the latency to do the clones is roughly doubled.
+In contrast, the time to clone a volume in Btrfs and ZFS is relatively flat.
+The cloning time in \betrfsFive varies somewhat, but oscillates around 60 ms, or
+33\% faster than the closest data point from another file system
+(the first clone on XFS), 58\% faster than a volume clone on Btrfs,
+and an order of magnitude faster than the worst case for the competition.
+
+In terms of write costs, the cost to write a cloned file or volume is flat,
+although \betrfsFive can ingest writes 8--10$\times$ faster.
+In our experiments, XFS hits an occasional stutter.
+
+Other than cloning time, the other primary degradation comes in read time.
+XFS and ZFS degrade severely---after 6 clones the grep time is nearly doubled.
+For XFS, there appears to be some work that temporarily improves locality;
+the degradation trend resumes after more iterations.
+n comparison, read time for \betrfsFive is roughly constant---40\% slower than
+the initial speed of Btrfs, and almost $2\times$ as fast as XFS.
+
+Finally, Figure~\ref{fig:clone:space} shows the change in space usage after each clone.
+For every file system except ZFS and \betrfsFive, the change is small and consistent.
+ZFS appears to allocate space for new clones in larger bursts, every few clones.
+In all cases, these are relatively empty file systems, and the changes are often consistent
+with adding one node; the nodes in \betrfsFive are an order of magnitude larger.
+At the last clone, \betrfsFive hits a point where we end up adding a level to the tree
+height and see a spike of cascading writes.
+Subsequent clone operations could amortize this space growth and absorb more
+writes without growing the file system, and these will be less frequent as the
+file system grows.
+
+In total, these results indicate that the state of the art in logical copy optimization
+keeps write costs and space usage relatively flat, at the cost of degrading subsequent file copies
+and subsequent reads.  We note that degrading subsequent reads is a persistent tax on future applications.
+\betrfsFive strikes a new point: flat clone, read, and write times, most of which are much faster
+than the state of the art.  We believe that space usage can be better tuned  in future work.
 
 \section{Macrobenchmarks}
 \label{sec:macro}
