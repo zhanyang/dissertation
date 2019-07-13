@@ -2,33 +2,50 @@
 \label{chap:eval}
 
 This chapter evaluates the performance of \betrfs with
-range-rename (\betrfsFour) and \betrfs with range-clone (\betrfsFive).
-The evaluation includes the following four aspects:
-(1) performance of single file-system operations;
-(2) performance of widely used applications;
-(3) performance of renames;
-(4) performance of clones.
+range-rename (\betrfsFour) and \betrfs with range-clone (\betrfsFive),
+comparing them with widely used file systems and \betrfsThree.
+The evaluation includes both micro and macro benchmarks.
 
 \paragraph{Experimental Setup.}
 
 All experimental results were collected on
 a Dell Optiplex 790 with a 4-core 3.40 GHz Intel Core i7-2600 CPU,
 4GB RAM,
-and a 500 GB, 7200 SATA disk with a 4096-byte block size(Seagate Barracuda ST500DM002).
-The system runs 64-bit Ubuntu server 14.04.05 on a USB stick to prevent
-interference form the root file system.
-\betrfsFour runs on a modified Linux-3.11.10 kernel that enlarges the size of the kernel stack,
+and a 128 GiB partition (the rest of the disk is not used)
+of a 500 GB, 7200 SATA disk with a 4096-byte block size(Seagate Barracuda ST500DM002).
+The system runs 64-bit Ubuntu server 14.04.6 on a USB stick to prevent
+interference from the root file system.
+\betrfsThree and \betrfsFour run on a modified Linux-3.11.10 kernel that
+enlarges the size of the kernel stack,
 while \betrfsFive and all other file systems run on Linux-4.9.142 kernel.
 The evaluation uses ZFS 0.6.5.11 from \url{zfsonlinx.org} and
 ext4, Btrfs, XFS and NILFS2 as parts of the Linux kernel.
-Each experiment runs a minimum of 5 times and reports the median number.
-Error bars indicate minimum and maximum numbers over all runs.
-Similarly, error $\pm$ terms bound minimum and maximum numbers over all runs.
+Each experiment runs a minimum of 5 times and reports the average number.
+Error bars indicate (95\%)confidence intervals over all runs.
+Similarly, error $\pm$ terms show confidence intervals over all runs.
 Unless noted, all benchmarks are cold-cache tests.
 
-\section{Microbenchmarks}
+We run each benchmark on a file system twice, one on an empty file system,
+the other on an aged file system.
+We age the file system by emulating user behaviors on the file system.
+First, we fill the file system with files and directories from the root file
+system, roughly taking up 31 GiB space.
+Then, we clone a the git repository of the Linux kernel with the release tag
+``v3.12'' to the home directory in the file system.
+Afterwards, we repeat the process of building the kernel and pull the next
+release of the repository
+until we build the Linux kernel with the release tag ``v4.20''.
+This process builds the kernel 240 times
+(though there are only 29 major releases, there are 7 to 9 release candidates
+between two consecutive major releases)
+and pulls 397481 git commits.
+The git repository itself takes up about 3.6 GiB space and
+after building the kernel, the directory takes up about 15 GiB space.
+Therefore, after the aging process, the whole file system takes up about 46 GiB
+space, about 36\% of the partition size.
 
-\textbf{TODO: on aged file systems.}
+\section{Microbenchmarks}
+\label{sec:micro}
 
 \newcommand{\addSeqPlot}[1]{
     \addplot[
@@ -43,40 +60,89 @@ Unless noted, all benchmarks are cold-cache tests.
     table[
         x=op,
         y=median,
-        y error plus expr=\thisrow{max}-\thisrow{median},
-        y error minus expr=\thisrow{median}-\thisrow{min},
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
     ]
     {./data/seq_io.csv};
 }
 
+\newcommand{\addSeqPlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=median,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/seq_io_aged.csv};
+}
+
 \begin{figure}[t]
-    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-        \begin{axis}[
-                ybar,
-                ymin=0,
-                ylabel={Bandwidth (MiB/sec)},
-                ymajorgrids=true,
-                symbolic x coords={seq.write,seq.read},
-                xtick={seq.write,seq.read},
-                xticklabels={write,read},
-                enlarge x limits=0.5,
-                visualization depends on=y \as \rawy,
-                xtick pos=right,
-                major tick length=0in,
-                xticklabel pos=right,
-                nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                height=.6\linewidth,
-                width=\linewidth,
-            ]
-            \addSeqPlot{ext4};
-            \addSeqPlot{btrfs};
-            \addSeqPlot{xfs};
-            \addSeqPlot{zfs};
-            \addSeqPlot{nilfs2};
-            \addSeqPlot{betrfs4};
-            \addSeqPlot{betrfs5};
-        \end{axis}
-    \end{tikzpicture}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    ybar,
+                    ymin=0,
+                    ylabel={Bandwidth (MiB/sec)},
+                    ymajorgrids=true,
+                    symbolic x coords={seq.write,seq.read},
+                    xtick={seq.write,seq.read},
+                    xticklabels={write,read},
+                    enlarge x limits=0.5,
+                    visualization depends on=y \as \rawy,
+                    xtick pos=right,
+                    major tick length=0in,
+                    xticklabel pos=right,
+                    nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addSeqPlot{ext4};
+                \addSeqPlot{btrfs};
+                \addSeqPlot{xfs};
+                \addSeqPlot{zfs};
+                \addSeqPlot{nilfs2};
+                \addSeqPlot{betrfs3};
+                \addSeqPlot{betrfs4};
+                \addSeqPlot{betrfs5};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Benchmarking on empty file systems.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    ybar,
+                    ymin=0,
+                    ylabel={Bandwidth (MiB/sec)},
+                    ymajorgrids=true,
+                    symbolic x coords={seq.write,seq.read},
+                    xtick={seq.write,seq.read},
+                    xticklabels={write,read},
+                    enlarge x limits=0.5,
+                    visualization depends on=y \as \rawy,
+                    xtick pos=right,
+                    major tick length=0in,
+                    xticklabel pos=right,
+                    nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addSeqPlotAged{ext4};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Benchmarking on aged file systems.}
+    \end{subfigure}
     \caption[Sequential-write and sequential-read benchmark]{\label{fig:seq_io}
         Bandwidth to sequentially read and write a 10 GiB file (higher is better).}
 \end{figure}
@@ -84,17 +150,36 @@ Unless noted, all benchmarks are cold-cache tests.
 \newcolumntype{.}{D{.}{.}{-1}}
 
 \begin{table}[t]
+    \begin{subtable}[b]{.5\textwidth}
     \centering
-    \begin{tabular}{l|.@{${}\pm{}$}.}
+        \begin{tabular}{l|.@{${}\pm{}$}.}
         \hline
         File system & \multicolumn{2}{c}{random write (sec)} \\
         \hline
         \hline
         \input{./data/rand_io.csv}
         \hline
-    \end{tabular}
+        \end{tabular}
+        \caption{Benchmarking on empty file systems.}
+    \end{subtable}
+    \begin{subtable}[b]{.5\textwidth}
+    \centering
+        \begin{tabular}{l|.@{${}\pm{}$}.}
+        \hline
+        File system & \multicolumn{2}{c}{random write (sec)} \\
+        \hline
+        \hline
+        \input{./data/rand_io_aged.csv}
+        \hline
+        \end{tabular}
+        \caption{Benchmarking on aged file systems.}
+    \end{subtable}
     \caption[Random-write benchmark]{\label{tab:rand_io}
         Time to perform 256Ki 4-Byte random writes one a 10GiB file (1 MiB total IO, lower is better).}
+\end{table}
+
+\begin{table}[t]
+    \centering
     \begin{tabular}{l|.@{${}\pm{}$}..@{${}\pm{}$}..@{${}\pm{}$}.}
     \hline
     File system & \multicolumn{2}{c}{find (sec)} & \multicolumn{2}{c}{grep (sec)} & \multicolumn{2}{c}{delete (sec)} \\
@@ -433,8 +518,7 @@ because as a log-structured file system, NILFS2 would have stable performance
 until the log (disk) is full.
 
 \section{Macrobenchmarks}
-
-\textbf{TODO: on aged file systems.}
+\label{sec:macro}
 
 We then measure the performance of file systems on four canonical applications.
 
@@ -499,13 +583,5 @@ existing mail with equal probabilities.
 Figure~\ref{fig:imap} shows the results.
 Because the benchmark performs random small writes, \betrfsFour and \betrfsFive
 are only slightly slower than NILFS2.
-
-\section{Rename benchmarks}
-
-\textbf{TODO}
-
-\section{Clone benchmarks}
-
-\textbf{TODO}
 
 \section{Summary}

@@ -1,0 +1,4 @@
+fs op median ci
+ext4 seq.write    129.408050 0.267147
+ext4 seq.read     137.123775 0.127047
+
