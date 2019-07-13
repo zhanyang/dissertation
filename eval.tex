@@ -15,9 +15,9 @@ and a 128 GiB partition (the rest of the disk is not used)
 of a 500 GB, 7200 SATA disk with a 4096-byte block size(Seagate Barracuda ST500DM002).
 The system runs 64-bit Ubuntu server 14.04.6 on a USB stick to prevent
 interference from the root file system.
-\betrfsThree and \betrfsFour run on a modified Linux-3.11.10 kernel that
+\betrfsThree and \betrfsFour run on a modified Linux 3.11.10 kernel that
 enlarges the size of the kernel stack,
-while \betrfsFive and all other file systems run on Linux-4.9.142 kernel.
+while \betrfsFive and all other file systems run on Linux 4.9.142 kernel.
 The evaluation uses ZFS 0.6.5.11 from \url{zfsonlinx.org} and
 ext4, Btrfs, XFS and NILFS2 as parts of the Linux kernel.
 Each experiment runs a minimum of 5 times and reports the average number.
@@ -25,22 +25,21 @@ Error bars indicate (95\%)confidence intervals over all runs.
 Similarly, error $\pm$ terms show confidence intervals over all runs.
 Unless noted, all benchmarks are cold-cache tests.
 
-We run each benchmark on a file system twice, one on an empty file system,
-the other on an aged file system.
-We age the file system by emulating user behaviors on the file system.
+We run benchmarks on empty file systems and aged file systems.
+We age the file system by emulating user behaviors.
 First, we fill the file system with files and directories from the root file
 system, roughly taking up 31 GiB space.
-Then, we clone a the git repository of the Linux kernel with the release tag
+Then, we clone the git repository of the Linux kernel with the release tag
 ``v3.12'' to the home directory in the file system.
-Afterwards, we repeat the process of building the kernel and pull the next
+Afterwards, we repeat the process of building the kernel and pulling the next
 release of the repository
 until we build the Linux kernel with the release tag ``v4.20''.
 This process takes about 5 days to complete, building the kernel 240 times
 (though there are only 29 major releases, there are 7 to 9 release candidates
 between two consecutive major releases)
 and pulling 397481 git commits.
-The git repository itself takes up about 3.6 GiB space and
-after building the kernel, the directory takes up about 15 GiB space.
+The directory of the git repository takes up about 3.6 GiB space and
+after building the kernel, it takes up about 15 GiB space.
 Therefore, after the aging process, the whole file system takes up about 46 GiB
 space, about 36\% of the partition size.
 
@@ -550,10 +549,12 @@ random offsets within the 10GiB file, followed by an \texttt{fsync}.
 Table~\ref{subtab:rand_io} shows the results of running the benchmark
 on empty file systems.
 Because \betrfs performs upserts, which doesn't read the old data, for random
-writes, performing the 1MiB random writes only takes about 5 seconds on
+writes, performing the 1MiB random writes only takes less than 4 seconds on
 \betrfsFour and \betrfsFive.
-However, it takes at least 2022 seconds on other file systems, which is
-more than 400 times slower.
+However, it takes at least 2000 seconds on other file systems, which is
+more than 500 times slower.
+The performance improvement from \betrfsThree comes from some code optimization
+in \fti.
 
 Table~\ref{subtab:rand_io_aged} shows the results of running the benchmark on
 aged file systems.
@@ -612,6 +613,9 @@ until the log (disk) is full.
 Figure~\ref{subfig:toku_aged} shows the results of running Tokubench on aged
 file systems.
 In this case, we run the benchmark in the directory of the aged git repository.
+
+\subsection{Namespace operations}
+
 
 \section{Macrobenchmarks}
 \label{sec:macro}
