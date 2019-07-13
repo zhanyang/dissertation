@@ -35,10 +35,10 @@ Then, we clone a the git repository of the Linux kernel with the release tag
 Afterwards, we repeat the process of building the kernel and pull the next
 release of the repository
 until we build the Linux kernel with the release tag ``v4.20''.
-This process builds the kernel 240 times
+This process takes about 5 days to complete, building the kernel 240 times
 (though there are only 29 major releases, there are 7 to 9 release candidates
 between two consecutive major releases)
-and pulls 397481 git commits.
+and pulling 397481 git commits.
 The git repository itself takes up about 3.6 GiB space and
 after building the kernel, the directory takes up about 15 GiB space.
 Therefore, after the aging process, the whole file system takes up about 46 GiB
@@ -46,6 +46,8 @@ space, about 36\% of the partition size.
 
 \section{Microbenchmarks}
 \label{sec:micro}
+
+\subsection{Non-namespace operations}
 
 \newcommand{\addSeqPlot}[1]{
     \addplot[
@@ -116,7 +118,7 @@ space, about 36\% of the partition size.
                 \addSeqPlot{betrfs5};
             \end{axis}
         \end{tikzpicture}
-        \caption{Benchmarking on empty file systems.}
+        \caption{\label{subfig:seq_io}Benchmarking on empty file systems.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -141,7 +143,7 @@ space, about 36\% of the partition size.
                 \addSeqPlotAged{ext4};
             \end{axis}
         \end{tikzpicture}
-        \caption{Benchmarking on aged file systems.}
+        \caption{\label{subfig:seq_io_aged}Benchmarking on aged file systems.}
     \end{subfigure}
     \caption[Sequential-write and sequential-read benchmark]{\label{fig:seq_io}
         Bandwidth to sequentially read and write a 10 GiB file (higher is better).}
@@ -160,7 +162,7 @@ space, about 36\% of the partition size.
         \input{./data/rand_io.csv}
         \hline
         \end{tabular}
-        \caption{Benchmarking on empty file systems.}
+        \caption{\label{subtab:rand_io}Benchmarking on empty file systems.}
     \end{subtable}
     \begin{subtable}[b]{.5\textwidth}
     \centering
@@ -172,10 +174,10 @@ space, about 36\% of the partition size.
         \input{./data/rand_io_aged.csv}
         \hline
         \end{tabular}
-        \caption{Benchmarking on aged file systems.}
+        \caption{\label{subtab:rand_io_aged}Benchmarking on aged file systems.}
     \end{subtable}
     \caption[Random-write benchmark]{\label{tab:rand_io}
-        Time to perform 256Ki 4-Byte random writes one a 10GiB file (1 MiB total IO, lower is better).}
+        Time to perform 256K (262,144) 4-Byte random writes one a 10GiB file (1 MiB total IO, lower is better).}
 \end{table}
 
 \begin{table}[t]
@@ -207,38 +209,87 @@ space, about 36\% of the partition size.
     \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
 }
 
+\newcommand{\addTokubenchPlotAged}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/toku_aged/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
 \begin{figure}[t]
-    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-        \begin{axis}[
-                xlabel={Files created},
-                ylabel={Throughput (files/sec)},
-                xmin=0,
-                xmax=3000000,
-                ymin=10,
-                ymax=50000,
-                mark repeat=10,
-                ytick={10000,20000,30000,40000,50000},
-                yticklabels={10k,20k,30k,40k,50k},
-                xtick={0,1000000,2000000,3000000},
-                xticklabels={0,1M,2M,3M},
-                grid=major,
-                scaled x ticks=false,
-                scaled y ticks=false,
-                legend columns=4,
-                legend cell align=left,
-                transpose legend,
-                height=.6\linewidth,
-                width=\linewidth,
-            ]
-            \addTokubenchPlot{ext4};
-            \addTokubenchPlot{btrfs};
-            \addTokubenchPlot{xfs};
-            \addTokubenchPlot{zfs};
-            \addTokubenchPlot{nilfs2};
-            \addTokubenchPlot{betrfs4};
-            \addTokubenchPlot{betrfs5};
-        \end{axis}
-    \end{tikzpicture}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    xlabel={Files created},
+                    ylabel={Throughput (files/sec)},
+                    xmin=0,
+                    xmax=3000000,
+                    ymin=10,
+                    ymax=50000,
+                    mark repeat=10,
+                    ytick={10000,20000,30000,40000,50000},
+                    yticklabels={10k,20k,30k,40k,50k},
+                    xtick={0,1000000,2000000,3000000},
+                    xticklabels={0,1M,2M,3M},
+                    grid=major,
+                    scaled x ticks=false,
+                    scaled y ticks=false,
+                    legend columns=4,
+                    legend cell align=left,
+                    transpose legend,
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addTokubenchPlot{ext4};
+                \addTokubenchPlot{btrfs};
+                \addTokubenchPlot{xfs};
+                \addTokubenchPlot{zfs};
+                \addTokubenchPlot{nilfs2};
+                \addTokubenchPlot{betrfs3};
+                \addTokubenchPlot{betrfs4};
+                \addTokubenchPlot{betrfs5};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{subfig:toku}Benchmarking on empty file systems.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    xlabel={Files created},
+                    ylabel={Throughput (files/sec)},
+                    xmin=0,
+                    xmax=3000000,
+                    ymin=10,
+                    ymax=50000,
+                    mark repeat=10,
+                    ytick={10000,20000,30000,40000,50000},
+                    yticklabels={10k,20k,30k,40k,50k},
+                    xtick={0,1000000,2000000,3000000},
+                    xticklabels={0,1M,2M,3M},
+                    grid=major,
+                    scaled x ticks=false,
+                    scaled y ticks=false,
+                    legend columns=4,
+                    legend cell align=left,
+                    transpose legend,
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addTokubenchPlotAged{ext4};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{subfig:toku_aged}Benchmarking on aged file systems.}
+    \end{subfigure}
     \caption[TokuBench benchmark]{\label{fig:toku}
         Cumulative file creation throughput during the Tokubench benchmark (higher is better).}
 \end{figure}
@@ -448,18 +499,21 @@ space, about 36\% of the partition size.
 \paragraph{Sequential writes and reads.}
 
 We measure the throughput of sequentially writing and reading a file.
-This benchmark first writes a 10-GiB file, 64 blocks at a time, with a
-\texttt{fsync} to flush the file to disk.
-Then, after cleaning the kernel page cache, the kernel reads the file from disk.
+This benchmark first writes a 10GiB file, 40MiB at a time, with a
+\texttt{fsync} to flush the file to the disk.
+Then, after clearing the kernel page cache, the benchmark reads the file from
+the disk.
 
-Figure~\ref{fig:seq_io} shows the results.
+Figure~\ref{subfig:seq_io} shows the results of running the benchmark on empty
+file systems, in which the 10GiB file is put directly under the root directory.
 Ext4, Btrfs, XFS performs sequential
 writes close to disk bandwidth, while \betrfsFive, similar to NILFS2, is about
 6.5\% slower than the fastest file system.
 The performance increase of \betrfsFive from \betrfsFour is from preferential
-splitting, which creates a pivot matching the maximum file data key the
+splitting (Section~\ref{sec:rcimp}),
+which creates a pivot matching the maximum file data key at the
 beginning of the workload, avoiding further node relifting in subsequent node
-splits.
+splits as the file grows.
 For sequential reads, Ext4, Btrfs, XFS run at disk bandwidth, while \betrfsFive
 is 19.1\% slower than the fastest file system, which is close to \betrfsFour
 and NILFS2.
@@ -467,26 +521,36 @@ and NILFS2.
 extent-based file systems can have extents whose size is more than 100 MiB.
 Thus, sequential reads results in more (and smaller) IOs on \betrfs.
 
+Figure~\ref{subfig:seq_io_aged} shows the results of running the benchmark on
+the ag4ed file systems, in whcih the 10GiB file is put under the aged git
+repository.
+
 \paragraph{Random writes.}
 
 We then measure the performance of random writes on the file generated by the
 sequential write benchmark.
-The benchmark issues 256Ki 4-Byte overwrites (in total 1 MiB data) at random
-offsets within the 10GiB file, followed by an \texttt{fsync}.
+The benchmark issues 256K (262,144) 4-Byte overwrites (in total 1 MiB data) at
+random offsets within the 10GiB file, followed by an \texttt{fsync}.
 
-Table~\ref{tab:rand_io} shows the results.
+Table~\ref{subtab:rand_io} shows the results of running the benchmark
+on empty file systems.
 Because \betrfs performs upserts, which doesn't read the old data, for random
 writes, performing the 1MiB random writes only takes about 5 seconds on
 \betrfsFour and \betrfsFive.
 However, it takes at least 2022 seconds on other file systems, which is
 more than 400 times slower.
 
+Table~\ref{subtab:rand_io_aged} shows the results of running the benchmark on
+aged file systems.
+
 \paragraph{Directory operations.}
 Next, we measure three common directory operations,
-\texttt{grep}, \texttt{find}, and ``rm -rf''.
-The benchmark measures the time to \texttt{grep} keyword cpu\_to\_be64 and
-\texttt{find} file wait.c on a copy of the Linux 3.11.10 source directory.
-Also, it measure the time to recursively delete the directory with ``rm -rf''.
+\texttt{grep}, \texttt{find}, and \texttt{delete}.
+The grep benchmark measures the time to grep keyword cpu\_to\_be64 on th
+Linux source diretory.
+The find benchmark measures the time to find file wait.c on the same direcotry.
+And the delete benchmark measures the time to recursively delete the directory
+with ``rm -rf''.
 
 Table~\ref{tab:dir_ops} shows the results.
 Because full-path indexing ensures locality in \betrfs, \texttt{find} and
@@ -498,24 +562,28 @@ file systems.
 
 \paragraph{TokuBench.}
 
-TokuBench is a small-write-intensive benchmark that creates 3 million
-200-Byte files in a balanced tree directory.
+TokuBench~\citep{tokufs} is a small-write-intensive benchmark that creates 3
+million 200-Byte files in a balanced tree directory.
 The benchmark first creates the balanced tree directory with a fanout of 128,
 i.e., each directory has at most 128 directories or 128 files.
-Then, it creates files with 4 threads.
-And each thread iterates over the leaf directories, creating one file at a time.
+Then, it creates 4 threads.
+Each thread iterates over the leaf directories, creating one file at a time.
 The benchmark reports the cumulative throughput of the file creation each time
-10000 files are created.
+when 10,000 files are created.
 
-Figure~\ref{fig:toku} shows the results.
-Because Tokubench focus on small, random writes, \betrfsFour and \betrfsFive are
-significantly faster than ext4, Btrfs and XFS.
-\betrfsFive performance better than \betrfsFour because preferential splitting
+Figure~\ref{subfig:toku} shows the results of running Tokubench on empty file
+systems.
+Because Tokubench excercises small, random writes,
+\betrfsFour and \betrfsFive are significantly faster than ext4, Btrfs and XFS.
+\betrfsFive performs better than \betrfsFour because preferential splitting
 also avoids further relifting in the benchmark.
-We expect NILFS to performance better than \betrfsFive in TokuBench that creates
+We expect NILFS to perform better than \betrfsFive in TokuBench that creates
 more files,
 because as a log-structured file system, NILFS2 would have stable performance
 until the log (disk) is full.
+
+Figure~\ref{subfig:toku_aged} shows the results of running Tokubench on aged
+file systems.
 
 \section{Macrobenchmarks}
 \label{sec:macro}

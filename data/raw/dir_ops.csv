@@ -1,0 +1,127 @@
+fs, dir.op, time.s
+ext4, grep, 38.707
+ext4, grep, 44.870
+ext4, grep, 37.705
+ext4, grep, 36.992
+ext4, grep, 36.948
+
+ext4, find, 2.212
+ext4, find, 2.279
+ext4, find, 2.179
+ext4, find, 2.221
+ext4, find, 2.302
+
+ext4, rm.rf, 3.294
+ext4, rm.rf, 3.383
+ext4, rm.rf, 3.038
+ext4, rm.rf, 5.645
+ext4, rm.rf, 3.765
+
+btrfs, grep, 8.918
+btrfs, grep, 9.189
+btrfs, grep, 8.884
+btrfs, grep, 8.828
+btrfs, grep, 8.548
+
+btrfs, find, 1.001
+btrfs, find, 1.028
+btrfs, find, 1.074
+btrfs, find, 1.025
+btrfs, find, 1.085
+
+btrfs, rm.rf, 2.821
+btrfs, rm.rf, 2.924
+btrfs, rm.rf, 2.876
+btrfs, rm.rf, 2.973
+btrfs, rm.rf, 2.848
+
+xfs, grep, 68.213
+xfs, grep, 64.589
+xfs, grep, 57.788
+xfs, grep, 57.329
+xfs, grep, 57.638
+
+xfs, find, 6.762
+xfs, find, 6.815
+xfs, find, 6.810
+xfs, find, 6.568
+xfs, find, 6.966
+
+xfs, rm.rf, 10.196
+xfs, rm.rf, 10.330
+xfs, rm.rf, 10.869
+xfs, rm.rf, 11.497
+xfs, rm.rf, 8.875
+
+zfs, grep, 39.046
+zfs, grep, 38.381
+zfs, grep, 38.518
+zfs, grep, 38.694
+zfs, grep, 38.635
+
+zfs, find, 10.501
+zfs, find, 10.581
+zfs, find, 10.268
+zfs, find, 10.441
+zfs, find, 10.539
+
+zfs, rm.rf, 9.242
+zfs, rm.rf, 9.008
+zfs, rm.rf, 9.178
+zfs, rm.rf, 9.036
+zfs, rm.rf, 9.206
+
+nilfs2, grep, 8.870
+nilfs2, grep, 8.753
+nilfs2, grep, 8.805
+nilfs2, grep, 8.486
+nilfs2, grep, 8.655
+
+nilfs2, find, 6.752
+nilfs2, find, 6.723
+nilfs2, find, 6.718
+nilfs2, find, 6.687
+nilfs2, find, 6.882
+
+nilfs2, rm.rf, 9.272
+nilfs2, rm.rf, 9.858
+nilfs2, rm.rf, 9.431
+nilfs2, rm.rf, 9.015
+nilfs2, rm.rf, 9.409
+
+betrfs4, grep, 3.629
+betrfs4, grep, 3.898
+betrfs4, grep, 3.676
+betrfs4, grep, 3.711
+betrfs4, grep, 3.767
+
+betrfs4, find, 0.252
+betrfs4, find, 0.237
+betrfs4, find, 0.224
+betrfs4, find, 0.225
+betrfs4, find, 0.225
+
+betrfs4, rm.rf, 3.227
+betrfs4, rm.rf, 2.935
+betrfs4, rm.rf, 3.663
+betrfs4, rm.rf, 3.218
+betrfs4, rm.rf, 2.782
+
+betrfs5, grep, 4.002
+betrfs5, grep, 3.903
+betrfs5, grep, 3.856
+betrfs5, grep, 3.936
+betrfs5, grep, 3.826
+
+betrfs5, find, 0.251
+betrfs5, find, 0.243
+betrfs5, find, 0.248
+betrfs5, find, 0.235
+betrfs5, find, 0.249
+
+betrfs5, rm.rf, 3.199
+betrfs5, rm.rf, 3.160
+betrfs5, rm.rf, 3.286
+betrfs5, rm.rf, 2.354
+betrfs5, rm.rf, 3.107
+
