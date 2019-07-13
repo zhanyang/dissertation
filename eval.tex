@@ -1174,7 +1174,7 @@ We cover this behavior by measuring the volume case.
 we compare to both methods, either creating a volume with these contents and
 cloning it, or doing a reflink copy of each file.
 
-n terms of time to do a clone, both Btrfs and XFS file-level cloning degrade as
+In terms of time to do a clone, both Btrfs and XFS file-level cloning degrade as
 a function of the number of prior clones;
 after 8 iterations, the latency to do the clones is roughly doubled.
 In contrast, the time to clone a volume in Btrfs and ZFS is relatively flat.
@@ -1191,25 +1191,26 @@ Other than cloning time, the other primary degradation comes in read time.
 XFS and ZFS degrade severely---after 6 clones the grep time is nearly doubled.
 For XFS, there appears to be some work that temporarily improves locality;
 the degradation trend resumes after more iterations.
-n comparison, read time for \betrfsFive is roughly constant---40\% slower than
+In comparison, read time for \betrfsFive is roughly constant---40\% slower than
 the initial speed of Btrfs, and almost $2\times$ as fast as XFS.
 
-Finally, Figure~\ref{fig:clone:space} shows the change in space usage after each clone.
-For every file system except ZFS and \betrfsFive, the change is small and consistent.
+Finally, Figure~\ref{fig:clone:space} shows the change in space usage after
+each clone.
+For every file system except ZFS and \betrfsFive, the change is small an
+consistent.
 ZFS appears to allocate space for new clones in larger bursts, every few clones.
-In all cases, these are relatively empty file systems, and the changes are often consistent
-with adding one node; the nodes in \betrfsFive are an order of magnitude larger.
-At the last clone, \betrfsFive hits a point where we end up adding a level to the tree
-height and see a spike of cascading writes.
-Subsequent clone operations could amortize this space growth and absorb more
-writes without growing the file system, and these will be less frequent as the
-file system grows.
+The benchmark triggers a worst case space usage in \betrfsFive.
+A clone shares the LCA in the lifted \bedag, then, the next close flushes
+messages (small writes between clones) to the LCA, which breaks the sharing
+by cloning the LCA (a node can be as large as 4MiB in our implementation).
 
-In total, these results indicate that the state of the art in logical copy optimization
-keeps write costs and space usage relatively flat, at the cost of degrading subsequent file copies
-and subsequent reads.  We note that degrading subsequent reads is a persistent tax on future applications.
-\betrfsFive strikes a new point: flat clone, read, and write times, most of which are much faster
-than the state of the art.  We believe that space usage can be better tuned  in future work.
+In total, these results indicate that the state of the art in logical copy
+optimization keeps write costs and space usage relatively flat,
+at the cost of degrading subsequent file copies and subsequent reads.
+We note that degrading subsequent reads is a persistent tax on future
+applications.
+\betrfsFive strikes a new point: flat clone, read, and write times,
+most of which are much faster than the state of the art.
 
 \section{Macrobenchmarks}
 \label{sec:macro}
