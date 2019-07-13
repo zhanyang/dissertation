@@ -82,15 +82,3 @@ betrfs5, no, 52.18
 betrfs5, no, 49.86
 betrfs5, no, 45.49
 betrfs5, no, 47.18
-
-betrfs5-clone, yes, 52.68
-betrfs5-clone, yes, 48.31
-betrfs5-clone, yes, 48.96
-betrfs5-clone, yes, 51.75
-betrfs5-clone, yes, 50.53
-
-betrfs5-clone, no, 37.37
-betrfs5-clone, no, 40.89
-betrfs5-clone, no, 38.01
-betrfs5-clone, no, 37.53
-betrfs5-clone, no, 37.83
