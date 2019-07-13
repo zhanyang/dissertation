@@ -42,6 +42,8 @@ The directory of the git repository takes up about 3.6 GiB space and
 after building the kernel, it takes up about 15 GiB space.
 Therefore, after the aging process, the whole file system takes up about 46 GiB
 space, about 36\% of the partition size.
+Unless otherwise noted, when benchmarking on aged file systems,
+all operations are performed in the aged git repository.
 
 \section{Microbenchmarks}
 \label{sec:micro}
@@ -345,7 +347,7 @@ space, about 36\% of the partition size.
             \begin{axis}[
                     xlabel={File Size (log scale)},
                     x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
-                    ylabel={Throughput (renames per second)},
+                    ylabel={Throughput (renames/second)},
                     xmin=12,
                     xmax=26,
                     xtick={12,13,14,15,16,17,18,19,20,21,22,23,24,25,26},
@@ -373,7 +375,7 @@ space, about 36\% of the partition size.
             \begin{axis}[
                     xlabel={File Size (log scale)},
                     x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
-                    ylabel={Throughput (renames per second)},
+                    ylabel={Throughput (renames/second)},
                     xmin=12,
                     xmax=26,
                     xtick={12,13,14,15,16,17,18,19,20,21,22,23,24,25,26},
@@ -397,6 +399,97 @@ space, about 36\% of the partition size.
     \end{subfigure}
     \caption[File rename benchmark]{\label{fig:file_rename}
         Throughput of renaming a file of different sizes (higher is better).}
+\end{figure}
+
+\newcommand{\addDirRenamePlot}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=fs,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/dir_rename.csv};
+}
+
+\newcommand{\addDirRenamePlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=fs,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/dir_rename_aged.csv};
+}
+
+\begin{figure}[t]
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    ybar=0pt,
+                    /pgf/bar shift=0pt,
+                    ymin=0,
+                    ylabel={Throughput (op/s)},
+                    ymajorgrids=true,
+                    symbolic x coords={ext4},
+                    xticklabels={},
+                    xtick pos=right,
+                    major tick length=0in,
+                    xticklabel pos=right,
+                    visualization depends on=y \as \rawy,
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addDirRenamePlot{ext4};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{subfig:dir_rename}Benchmarking on empty file systems.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+            \begin{axis}[
+                    ybar=0pt,
+                    /pgf/bar shift=0pt,
+                    ymin=0,
+                    ylabel={Throughput (op/s)},
+                    ymajorgrids=true,
+                    symbolic x coords={ext4},
+                    xticklabels={},
+                    xtick pos=right,
+                    major tick length=0in,
+                    xticklabel pos=right,
+                    visualization depends on=y \as \rawy,
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                    height=.5\linewidth,
+                    width=\linewidth,
+                ]
+                \addDirRenamePlotAged{ext4};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{subfig:dir_rename_aged}Benchmarking on aged file systems.}
+    \end{subfigure}
+    \caption[Directory rename benchmark]{\label{fig:dir_rename}
+         Throughput of renaming a directory (higher is better).}
 \end{figure}
 
 \newcommand{\addGitPlot}[1]{
@@ -802,7 +895,7 @@ Then, after clearing the kernel page cache, the benchmark reads the file from
 the disk.
 
 Figure~\ref{subfig:seq_io} shows the results of running the benchmark on empty
-file systems, in which the 10GiB file is put directly under the root directory.
+file systems.
 Ext4, Btrfs, XFS performs sequential
 writes close to disk bandwidth, while \betrfsFive, similar to NILFS2, is about
 6.5\% slower than the fastest file system.
@@ -819,8 +912,7 @@ extent-based file systems can have extents whose size is more than 100 MiB.
 Thus, sequential reads results in more (and smaller) IOs on \betrfs.
 
 Figure~\ref{subfig:seq_io_aged} shows the results of running the benchmark on
-the ag4ed file systems, in whcih the 10GiB file is put under the aged git
-repository.
+aged file systems.
 
 \paragraph{Random writes.}
 
@@ -895,7 +987,6 @@ until the log (disk) is full.
 
 Figure~\ref{subfig:toku_aged} shows the results of running Tokubench on aged
 file systems.
-In this case, we run the benchmark in the directory of the aged git repository.
 
 \subsection{Namespace operations}
 
@@ -905,6 +996,26 @@ different sizes.
 The benchmark first creates a file filled with random data.
 Then, the benchmark renames the file 100 times and reports the throughput,
 that is, rames per second.
+
+Figure~\ref{subfig:file_rename} shows the results of running the benchmark on
+empty file systems.
+
+Figure~\ref{subfig:file_rename_aged} shows the results of running the benchmark
+on aged file systems.
+
+\paragraph{Directory renames.}
+The directory rename benchmark measures the throughput of renaming a directory.
+The benchmark renames a directory 100 times and reports the throughput.
+
+Figure~\ref{subfig:dir_rename} shows the results of running the benchmark on
+empty file systems.
+The benchmark clones the git repository of the Linux kernel with release tag
+``v4.20'' and then renames the directory of the repository 100 times.
+
+Figure~\ref{subfig:dir_rename_aged} shows the results of running the benchmark on
+aged file systems.
+Before renaming, we use ``make clean'' to remove files generated by kernel
+building and then renames the direcotyr of the repository 100 times.
 
 \section{Macrobenchmarks}
 \label{sec:macro}
@@ -931,8 +1042,6 @@ locality in directory traversals.
 
 Figure~\ref{subfig:git_aged} shows the results of running the benchmark on aged
 file systems.
-In this case, we clone the git repository under the directory that contains the
-aged git repository.
 
 \paragraph{Tar.}
 
@@ -952,8 +1061,6 @@ Taring traverse the directory and sequentially writes the tar ball.
 
 Figure~\ref{subfig:tar_aged} shows the results of running the benchmark on aged
 file systems.
-In this case, the benchmark copies the tar ball under the aged git repository
-and performs untar and tar there.
 
 \paragraph{Rsync.}
 
@@ -977,7 +1084,6 @@ because part of the job is to traverse the old directory.
 
 Figure~\ref{subfig:rsync_aged} shows the results of running the benchmark on
 aged file systems.
-In this case, the benchmark is performed under the aged git repository.
 
 \paragraph{Mailserver.}
 
