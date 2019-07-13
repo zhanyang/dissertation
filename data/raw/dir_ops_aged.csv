@@ -2,14 +2,14 @@ fs, dir.op, time.s
 ext4, grep, 282.419
 ext4, grep, 267.151
 ext4, grep, 266.657
-ext4, grep, 
-ext4, grep, 
+ext4, grep, 266.546
+ext4, grep, 266.760
 
-ext4, find, 
-ext4, find, 
-ext4, find, 
-ext4, find, 
-ext4, find, 
+ext4, find, 14.614
+ext4, find, 14.492
+ext4, find, 14.388
+ext4, find, 14.869
+ext4, find, 14.577
 
 ext4, rm.rf, 
 ext4, rm.rf, 
