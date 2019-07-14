@@ -450,7 +450,7 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (op/s)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4},
+                    symbolic x coords={ext4,btrfs},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
@@ -461,6 +461,7 @@ all operations are performed in the aged git repository.
                     width=\linewidth,
                 ]
                 \addDirRenamePlot{ext4};
+                \addDirRenamePlot{btrfs};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:dir_rename}Benchmarking on empty file systems.}
