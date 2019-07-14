@@ -11,17 +11,17 @@ ext4, no, 29.02
 ext4, no, 24.55
 ext4, no, 30.05
 
-btrfs, yes, 15.52
-btrfs, yes, 15.31
-btrfs, yes, 15.38
-btrfs, yes, 15.30
-btrfs, yes, 15.45
+btrfs, yes, 16.11
+btrfs, yes, 15.47
+btrfs, yes, 16.09
+btrfs, yes, 16.03
+btrfs, yes, 15.34
 
-btrfs, no, 31.70
-btrfs, no, 32.12
-btrfs, no, 31.19
-btrfs, no, 30.61
-btrfs, no, 31.09
+btrfs, no, 31.54
+btrfs, no, 32.19
+btrfs, no, 30.67
+btrfs, no, 32.94
+btrfs, no, 31.80
 
 xfs, yes, 3.43
 xfs, yes, 3.15
