@@ -1,15 +1,15 @@
 fs, op, time.s
-ext4, untar, 8.516
-ext4, untar, 10.003
-ext4, untar, 8.365
-ext4, untar, 8.993
-ext4, untar, 9.714
+ext4, untar, 8.362
+ext4, untar, 8.465
+ext4, untar, 8.494
+ext4, untar, 8.542
+ext4, untar, 8.338
 
-ext4, tar, 44.643
-ext4, tar, 53.972
-ext4, tar, 41.338
-ext4, tar, 45.329
-ext4, tar, 48.905
+ext4, tar, 44.842
+ext4, tar, 43.748
+ext4, tar, 42.919
+ext4, tar, 42.595
+ext4, tar, 42.419
 
 btrfs, untar, 6.067
 btrfs, untar, 6.405
