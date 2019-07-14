@@ -17,23 +17,23 @@ ext4, rm.rf, 6.431
 ext4, rm.rf, 5.706
 ext4, rm.rf, 5.616
 
-btrfs, grep, 8.918
-btrfs, grep, 9.189
-btrfs, grep, 8.884
-btrfs, grep, 8.828
-btrfs, grep, 8.548
+btrfs, grep, 23.865
+btrfs, grep, 20.854
+btrfs, grep, 20.661
+btrfs, grep, 20.877
+btrfs, grep, 20.923
 
-btrfs, find, 1.001
-btrfs, find, 1.028
-btrfs, find, 1.074
-btrfs, find, 1.025
-btrfs, find, 1.085
+btrfs, find, 1.561
+btrfs, find, 1.494
+btrfs, find, 1.513
+btrfs, find, 1.509
+btrfs, find, 1.504
 
-btrfs, rm.rf, 2.821
-btrfs, rm.rf, 2.924
-btrfs, rm.rf, 2.876
-btrfs, rm.rf, 2.973
-btrfs, rm.rf, 2.848
+btrfs, rm.rf, 4.334
+btrfs, rm.rf, 4.302
+btrfs, rm.rf, 4.453
+btrfs, rm.rf, 4.363
+btrfs, rm.rf, 4.402
 
 xfs, grep, 68.213
 xfs, grep, 64.589
