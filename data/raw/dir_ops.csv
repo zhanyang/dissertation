@@ -1,21 +1,21 @@
 fs, dir.op, time.s
-ext4, grep, 38.707
-ext4, grep, 44.870
-ext4, grep, 37.705
-ext4, grep, 36.992
-ext4, grep, 36.948
+ext4, grep, 78.235
+ext4, grep, 67.575
+ext4, grep, 68.254
+ext4, grep, 67.394
+ext4, grep, 67.092
 
-ext4, find, 2.212
-ext4, find, 2.279
-ext4, find, 2.179
-ext4, find, 2.221
-ext4, find, 2.302
+ext4, find, 3.426
+ext4, find, 3.434
+ext4, find, 3.551
+ext4, find, 3.506
+ext4, find, 3.496
 
-ext4, rm.rf, 3.294
-ext4, rm.rf, 3.383
-ext4, rm.rf, 3.038
-ext4, rm.rf, 5.645
-ext4, rm.rf, 3.765
+ext4, rm.rf, 4.937
+ext4, rm.rf, 4.733
+ext4, rm.rf, 6.431
+ext4, rm.rf, 5.706
+ext4, rm.rf, 5.616
 
 btrfs, grep, 8.918
 btrfs, grep, 9.189
