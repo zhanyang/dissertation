@@ -53,23 +53,23 @@ xfs, rm.rf, 26.560
 xfs, rm.rf, 28.892
 xfs, rm.rf, 27.965
 
-zfs, grep, 39.046
-zfs, grep, 38.381
-zfs, grep, 38.518
-zfs, grep, 38.694
-zfs, grep, 38.635
+zfs, grep, 70.662
+zfs, grep, 69.942
+zfs, grep, 69.599
+zfs, grep, 69.739
+zfs, grep, 69.478
 
-zfs, find, 10.501
-zfs, find, 10.581
-zfs, find, 10.268
-zfs, find, 10.441
-zfs, find, 10.539
+zfs, find, 16.316
+zfs, find, 14.868
+zfs, find, 13.383
+zfs, find, 13.473
+zfs, find, 13.458
 
-zfs, rm.rf, 9.242
-zfs, rm.rf, 9.008
-zfs, rm.rf, 9.178
-zfs, rm.rf, 9.036
-zfs, rm.rf, 9.206
+zfs, rm.rf, 13.505
+zfs, rm.rf, 13.766
+zfs, rm.rf, 13.136
+zfs, rm.rf, 13.006
+zfs, rm.rf, 13.278
 
 nilfs2, grep, 8.870
 nilfs2, grep, 8.753
