@@ -35,17 +35,17 @@ xfs, tar, 52.837
 xfs, tar, 51.970
 xfs, tar, 55.840
 
-zfs, untar, 9.808
-zfs, untar, 10.271
-zfs, untar, 10.304
-zfs, untar, 10.229
-zfs, untar, 9.822
+zfs, untar, 8.689
+zfs, untar, 8.997
+zfs, untar, 8.581
+zfs, untar, 8.938
+zfs, untar, 9.322
 
-zfs, tar, 41.039
-zfs, tar, 40.783
-zfs, tar, 40.588
-zfs, tar, 39.260
-zfs, tar, 40.073
+zfs, tar, 21.975
+zfs, tar, 21.416
+zfs, tar, 21.585
+zfs, tar, 21.960
+zfs, tar, 21.255
 
 nilfs2, untar, 11.745
 nilfs2, untar, 11.719
