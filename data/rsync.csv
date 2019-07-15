@@ -3,8 +3,8 @@ ext4    yes  30.264 0.745
 ext4     no  28.228 1.891
 btrfs   yes  15.808 0.326
 btrfs    no  31.828 0.732
-xfs     yes   3.250 0.110
-xfs      no   1.814 0.143
+xfs     yes   6.678 0.149
+xfs      no   5.980 1.144
 zfs     yes  21.744 0.272
 zfs      no  21.698 0.383
 nilfs2  yes  20.624 0.196
