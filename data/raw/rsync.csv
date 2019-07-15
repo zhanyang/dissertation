@@ -35,17 +35,17 @@ xfs, no, 6.08
 xfs, no, 4.72
 xfs, no, 4.61
 
-zfs, yes, 21.45
-zfs, yes, 22.11
-zfs, yes, 21.55
-zfs, yes, 22.05
-zfs, yes, 21.56
+zfs, yes, 27.48
+zfs, yes, 28.28
+zfs, yes, 28.10
+zfs, yes, 27.25
+zfs, yes, 28.57
 
-zfs, no, 22.25
-zfs, no, 21.61
-zfs, no, 21.52
-zfs, no, 21.12
-zfs, no, 21.99
+zfs, no, 26.86
+zfs, no, 25.96
+zfs, no, 25.50
+zfs, no, 27.19
+zfs, no, 25.49
 
 nilfs2, yes, 20.23
 nilfs2, yes, 20.69

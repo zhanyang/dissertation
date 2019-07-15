@@ -5,8 +5,8 @@ btrfs   yes  15.808 0.326
 btrfs    no  31.828 0.732
 xfs     yes   6.678 0.149
 xfs      no   5.980 1.144
-zfs     yes  21.744 0.272
-zfs      no  21.698 0.383
+zfs     yes  27.936 0.485
+zfs      no  26.200 0.688
 nilfs2  yes  20.624 0.196
 nilfs2   no  20.722 0.195
 betrfs3 yes  45.668 1.569
