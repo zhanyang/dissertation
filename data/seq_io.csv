@@ -3,8 +3,8 @@ ext4    seq.write 122.549041 0.880780
 ext4    seq.read  137.043596 0.233618
 btrfs   seq.write 127.155461 0.489330
 btrfs   seq.read  136.865748 0.036787
-xfs     seq.write 124.778253 0.363675
-xfs     seq.read  137.568225 0.111252
+xfs     seq.write 124.712215 1.785829
+xfs     seq.read  137.267650 0.414081
 zfs     seq.write  92.921266 1.150511
 zfs     seq.read  118.224072 2.999012
 nilfs2  seq.write 118.203327 0.251720
