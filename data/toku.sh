@@ -3,7 +3,7 @@
 in_dir=raw/toku
 out_dir=toku
 
-for fs in ext4 btrfs xfs
+for fs in ext4 btrfs xfs zfs
 do
     in_file=${in_dir}/${fs}.csv
     out_file=${out_dir}/${fs}.csv
