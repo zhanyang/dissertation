@@ -71,23 +71,23 @@ zfs, rm.rf, 13.136
 zfs, rm.rf, 13.006
 zfs, rm.rf, 13.278
 
-nilfs2, grep, 8.870
-nilfs2, grep, 8.753
-nilfs2, grep, 8.805
-nilfs2, grep, 8.486
-nilfs2, grep, 8.655
+nilfs2, grep, 22.265
+nilfs2, grep, 22.509
+nilfs2, grep, 22.367
+nilfs2, grep, 22.313
+nilfs2, grep, 22.537
 
-nilfs2, find, 6.752
-nilfs2, find, 6.723
-nilfs2, find, 6.718
-nilfs2, find, 6.687
-nilfs2, find, 6.882
+nilfs2, find, 9.101
+nilfs2, find, 9.177
+nilfs2, find, 9.183
+nilfs2, find, 9.234
+nilfs2, find, 9.252
 
-nilfs2, rm.rf, 9.272
-nilfs2, rm.rf, 9.858
-nilfs2, rm.rf, 9.431
-nilfs2, rm.rf, 9.015
-nilfs2, rm.rf, 9.409
+nilfs2, rm.rf, 19.353
+nilfs2, rm.rf, 18.757
+nilfs2, rm.rf, 19.052
+nilfs2, rm.rf, 19.063
+nilfs2, rm.rf, 18.966
 
 betrfs4, grep, 3.629
 betrfs4, grep, 3.898
