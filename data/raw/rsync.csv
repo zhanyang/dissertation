@@ -26,14 +26,14 @@ btrfs, no, 31.80
 xfs, yes, 6.68
 xfs, yes, 6.86
 xfs, yes, 6.40
-xfs, yes, 
-xfs, yes, 
+xfs, yes, 6.72
+xfs, yes, 6.73
 
-xfs, no, 2.10
-xfs, no, 1.70
-xfs, no, 1.79
-xfs, no, 1.74
-xfs, no, 1.74
+xfs, no, 
+xfs, no, 
+xfs, no, 
+xfs, no, 
+xfs, no, 
 
 zfs, yes, 21.45
 zfs, yes, 22.11
