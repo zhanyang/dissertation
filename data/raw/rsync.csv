@@ -59,6 +59,18 @@ nilfs2, no, 22.81
 nilfs2, no, 22.88
 nilfs2, no, 22.99
 
+betrfs3, yes, 48.24
+betrfs3, yes, 52.39
+betrfs3, yes, 52.67
+betrfs3, yes, 51.05
+betrfs3, yes, 55.03
+
+betrfs3, no, 41.83
+betrfs3, no, 39.63
+betrfs3, no, 41.73
+betrfs3, no, 39.04
+betrfs3, no, 43.03
+
 betrfs4, yes, 55.44
 betrfs4, yes, 55.63
 betrfs4, yes, 54.39
