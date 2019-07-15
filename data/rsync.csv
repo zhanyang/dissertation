@@ -7,8 +7,8 @@ xfs     yes   6.678 0.149
 xfs      no   5.980 1.144
 zfs     yes  27.936 0.485
 zfs      no  26.200 0.688
-nilfs2  yes  20.624 0.196
-nilfs2   no  20.722 0.195
+nilfs2  yes  22.750 0.182
+nilfs2   no  22.858 0.078
 betrfs3 yes  45.668 1.569
 betrfs3  no  37.564 1.214
 betrfs4 yes  55.688 0.820
