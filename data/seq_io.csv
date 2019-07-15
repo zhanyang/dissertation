@@ -5,8 +5,8 @@ btrfs   seq.write 127.155461 0.489330
 btrfs   seq.read  136.865748 0.036787
 xfs     seq.write 124.712215 1.785829
 xfs     seq.read  137.267650 0.414081
-zfs     seq.write  92.921266 1.150511
-zfs     seq.read  118.224072 2.999012
+zfs     seq.write  93.211023 2.194416
+zfs     seq.read  119.849897 0.883352
 nilfs2  seq.write 118.203327 0.251720
 nilfs2  seq.read  113.506157 0.262799
 betrfs3 seq.write 108.703811 6.140297
