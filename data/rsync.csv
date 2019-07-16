@@ -13,5 +13,6 @@ betrfs3 yes  51.876 2.180
 betrfs3  no  41.052 1.457
 betrfs4 yes  55.840 1.354
 betrfs4  no  45.254 1.377
-betrfs5 yes  55.434 1.494
-betrfs5  no  48.286 2.366
+betrfs5 yes  56.104 0.868
+betrfs5  no  50.122 0.645
+

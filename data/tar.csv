@@ -13,5 +13,5 @@ betrfs3 untar  9.475 0.313
 betrfs3 tar   17.733 0.305
 betrfs4 untar  8.835 0.155
 betrfs4 tar   16.361 0.060
-betrfs5 untar  8.701 0.198
-betrfs5 tar   16.140 0.094
+betrfs5 untar  8.779 0.103
+betrfs5 tar   16.114 0.101
