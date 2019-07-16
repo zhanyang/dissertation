@@ -9,8 +9,8 @@ zfs     clone 58.281 0.595
 zfs     diff  54.632 1.862
 nilfs2  clone 55.631 0.152
 nilfs2  diff  57.043 0.456
-betrfs3 clone 57.182 1.313
-betrfs3 diff  41.952 0.481
+betrfs3 clone 39.644 0.856
+betrfs3 diff  42.304 0.345
 betrfs4 clone 38.754 0.478
 betrfs4 diff  41.710 0.391
 betrfs5 clone 39.876 0.273
