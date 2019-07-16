@@ -11,7 +11,7 @@ nilfs2  yes  22.750 0.182
 nilfs2   no  22.858 0.078
 betrfs3 yes  51.876 2.180
 betrfs3  no  41.052 1.457
-betrfs4 yes  55.688 0.820
-betrfs4  no  44.540 1.605
+betrfs4 yes  55.840 1.354
+betrfs4  no  45.254 1.377
 betrfs5 yes  55.434 1.494
 betrfs5  no  48.286 2.366

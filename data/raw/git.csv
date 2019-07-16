@@ -71,17 +71,17 @@ betrfs3, diff, 42.815
 betrfs3, diff, 41.699
 betrfs3, diff, 41.542
 
-betrfs4, clone, 42.035
-betrfs4, clone, 40.094
-betrfs4, clone, 42.905
-betrfs4, clone, 41.685
-betrfs4, clone, 40.149
+betrfs4, clone, 39.102
+betrfs4, clone, 39.495
+betrfs4, clone, 38.662
+betrfs4, clone, 38.337
+betrfs4, clone, 38.172
 
-betrfs4, diff, 40.867
-betrfs4, diff, 41.037
-betrfs4, diff, 41.392
-betrfs4, diff, 41.362
-betrfs4, diff, 41.503
+betrfs4, diff, 41.440
+betrfs4, diff, 42.420
+betrfs4, diff, 41.693
+betrfs4, diff, 41.246
+betrfs4, diff, 41.753
 
 betrfs5, clone, 40.247
 betrfs5, clone, 39.480

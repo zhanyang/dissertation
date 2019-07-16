@@ -97,8 +97,8 @@ betrfs3, grep, 15.980
 
 betrfs3, find, 0.331
 betrfs3, find, 0.306
-betrfs3, find, 0.299
-betrfs3, find, 0.296
+betrfs3, find, 0.339
+betrfs3, find, 0.306
 betrfs3, find, 0.314
 
 betrfs3, rm.rf, 10.842
@@ -107,23 +107,23 @@ betrfs3, rm.rf, 10.757
 betrfs3, rm.rf, 13.835
 betrfs3, rm.rf, 10.653
 
-betrfs4, grep, 3.629
-betrfs4, grep, 3.898
-betrfs4, grep, 3.676
-betrfs4, grep, 3.711
-betrfs4, grep, 3.767
+betrfs4, grep, 15.162
+betrfs4, grep, 15.425
+betrfs4, grep, 15.356
+betrfs4, grep, 15.364
+betrfs4, grep, 15.221
 
-betrfs4, find, 0.252
-betrfs4, find, 0.237
-betrfs4, find, 0.224
-betrfs4, find, 0.225
-betrfs4, find, 0.225
+betrfs4, find, 0.327
+betrfs4, find, 0.288
+betrfs4, find, 0.304
+betrfs4, find, 0.293
+betrfs4, find, 0.302
 
-betrfs4, rm.rf, 3.227
-betrfs4, rm.rf, 2.935
-betrfs4, rm.rf, 3.663
-betrfs4, rm.rf, 3.218
-betrfs4, rm.rf, 2.782
+betrfs4, rm.rf, 36.259
+betrfs4, rm.rf, 37.083
+betrfs4, rm.rf, 37.139
+betrfs4, rm.rf, 38.123
+betrfs4, rm.rf, 35.692
 
 betrfs5, grep, 4.002
 betrfs5, grep, 3.903

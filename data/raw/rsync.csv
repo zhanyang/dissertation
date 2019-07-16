@@ -71,17 +71,17 @@ betrfs3, no, 41.73
 betrfs3, no, 39.04
 betrfs3, no, 43.03
 
-betrfs4, yes, 55.44
-betrfs4, yes, 55.63
-betrfs4, yes, 54.39
-betrfs4, yes, 56.01
-betrfs4, yes, 56.97
+betrfs4, yes, 55.22
+betrfs4, yes, 57.90
+betrfs4, yes, 56.55
+betrfs4, yes, 55.79
+betrfs4, yes, 53.74
 
-betrfs4, no, 47.51
-betrfs4, no, 43.01
-betrfs4, no, 43.50
-betrfs4, no, 45.08
-betrfs4, no, 43.60
+betrfs4, no, 44.88
+betrfs4, no, 46.15
+betrfs4, no, 42.66
+betrfs4, no, 46.46
+betrfs4, no, 46.12
 
 betrfs5, yes, 53.34
 betrfs5, yes, 57.76
