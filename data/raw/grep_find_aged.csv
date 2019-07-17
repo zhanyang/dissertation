@@ -22,3 +22,28 @@ ext4, find, yes, 8.631
 ext4, find, yes, 8.724
 ext4, find, yes, 8.781
 ext4, find, yes, 8.631
+
+xfs, grep, no, 25.863
+xfs, grep, no, 20.819
+xfs, grep, no, 20.844
+xfs, grep, no, 21.469
+xfs, grep, no, 21.105
+
+xfs, grep, yes, 312.165
+xfs, grep, yes, 284.616
+xfs, grep, yes, 284.944
+xfs, grep, yes, 285.203
+xfs, grep, yes, 286.486
+
+xfs, find, no, 1.541
+xfs, find, no, 1.532
+xfs, find, no, 1.517
+xfs, find, no, 1.533
+xfs, find, no, 1.516
+
+xfs, find, yes, 34.090
+xfs, find, yes, 34.122
+xfs, find, yes, 34.108
+xfs, find, yes, 34.056
+xfs, find, yes, 34.037
+
