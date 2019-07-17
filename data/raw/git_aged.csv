@@ -11,6 +11,18 @@ ext4, diff, 66.941
 ext4, diff, 65.200
 ext4, diff, 64.481
 
+btrfs, clone, 132.218
+btrfs, clone, 120.606
+btrfs, clone, 125.329
+btrfs, clone, 123.545
+btrfs, clone, 120.003
+
+btrfs, diff, 117.177
+btrfs, diff, 116.274
+btrfs, diff, 114.673
+btrfs, diff, 116.296
+btrfs, diff, 113.283
+
 xfs, clone, 101.731
 xfs, clone, 103.463
 xfs, clone, 103.796
