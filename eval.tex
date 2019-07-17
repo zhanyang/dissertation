@@ -372,6 +372,7 @@ all operations are performed in the aged git repository.
                 \addFileRenamePlot{nilfs2};
                 \addFileRenamePlot{betrfs3};
                 \addFileRenamePlot{betrfs4};
+                \addFileRenamePlot{betrfs5};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:file_rename}Benchmarking on empty file systems.}
@@ -457,7 +458,7 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (renames/sec)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4},
+                    symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
@@ -474,6 +475,7 @@ all operations are performed in the aged git repository.
                 \addDirRenamePlot{nilfs2};
                 \addDirRenamePlot{betrfs3};
                 \addDirRenamePlot{betrfs4};
+                \addDirRenamePlot{betrfs5};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:dir_rename}Benchmarking on empty file systems.}
