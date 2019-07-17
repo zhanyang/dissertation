@@ -1,97 +1,97 @@
 fs, op, time.s
-ext4, clone, 48.423
-ext4, clone, 47.089
-ext4, clone, 47.234
-ext4, clone, 47.802
-ext4, clone, 47.636
+ext4, clone, 33.882
+ext4, clone, 34.117
+ext4, clone, 33.800
+ext4, clone, 34.225
+ext4, clone, 34.051
 
-ext4, diff, 62.180
-ext4, diff, 63.947
-ext4, diff, 60.736
-ext4, diff, 64.970
-ext4, diff, 66.619
+ext4, diff, 67.068
+ext4, diff, 67.860
+ext4, diff, 61.818
+ext4, diff, 63.360
+ext4, diff, 68.452
 
-btrfs, clone, 41.400
-btrfs, clone, 41.010
-btrfs, clone, 41.194
-btrfs, clone, 40.677
-btrfs, clone, 41.229
+btrfs, clone, 33.293
+btrfs, clone, 33.165
+btrfs, clone, 32.336
+btrfs, clone, 33.195
+btrfs, clone, 32.693
 
-btrfs, diff, 36.767
-btrfs, diff, 36.851
-btrfs, diff, 37.593
-btrfs, diff, 36.650
-btrfs, diff, 36.534
+btrfs, diff, 38.425
+btrfs, diff, 38.759
+btrfs, diff, 39.037
+btrfs, diff, 38.476
+btrfs, diff, 38.448
 
-xfs, clone, 54.834
-xfs, clone, 56.195
-xfs, clone, 54.898
-xfs, clone, 56.309
-xfs, clone, 54.796
+xfs, clone, 40.387
+xfs, clone, 40.979
+xfs, clone, 42.532
+xfs, clone, 40.717
+xfs, clone, 40.102
 
-xfs, diff, 86.767
-xfs, diff, 88.374
-xfs, diff, 89.335
-xfs, diff, 87.124
-xfs, diff, 91.767
+xfs, diff, 94.903
+xfs, diff, 90.003
+xfs, diff, 102.773
+xfs, diff, 97.231
+xfs, diff, 91.028
 
-zfs, clone, 58.456
-zfs, clone, 57.729
-zfs, clone, 57.485
-zfs, clone, 58.564
-zfs, clone, 59.171
+zfs, clone, 41.414
+zfs, clone, 41.990
+zfs, clone, 39.938
+zfs, clone, 42.630
+zfs, clone, 42.064
 
-zfs, diff, 52.979
-zfs, diff, 53.708
-zfs, diff, 55.474
-zfs, diff, 57.973
-zfs, diff, 53.024
+zfs, diff, 49.237
+zfs, diff, 48.736
+zfs, diff, 50.381
+zfs, diff, 49.810
+zfs, diff, 50.849
 
-nilfs2, clone, 55.811
-nilfs2, clone, 55.591
-nilfs2, clone, 55.496
-nilfs2, clone, 55.814
-nilfs2, clone, 55.444
+nilfs2, clone, 41.991
+nilfs2, clone, 42.008
+nilfs2, clone, 41.906
+nilfs2, clone, 42.227
+nilfs2, clone, 41.866
 
-nilfs2, diff, 56.886
-nilfs2, diff, 57.279
-nilfs2, diff, 56.249
-nilfs2, diff, 57.643
-nilfs2, diff, 57.159
+nilfs2, diff, 59.874
+nilfs2, diff, 59.332
+nilfs2, diff, 59.989
+nilfs2, diff, 58.811
+nilfs2, diff, 59.582
 
-betrfs3, clone, 40.492
-betrfs3, clone, 38.696
-betrfs3, clone, 38.509
-betrfs3, clone, 39.991
-betrfs3, clone, 40.532
+betrfs3, clone, 40.899
+betrfs3, clone, 41.849
+betrfs3, clone, 44.114
+betrfs3, clone, 42.831
+betrfs3, clone, 44.751
 
-betrfs3, diff, 42.458
-betrfs3, diff, 42.069
-betrfs3, diff, 42.869
-betrfs3, diff, 41.834
-betrfs3, diff, 42.292
+betrfs3, diff, 41.423
+betrfs3, diff, 41.652
+betrfs3, diff, 41.415
+betrfs3, diff, 41.436
+betrfs3, diff, 41.949
 
-betrfs4, clone, 39.102
-betrfs4, clone, 39.495
-betrfs4, clone, 38.662
-betrfs4, clone, 38.337
-betrfs4, clone, 38.172
+betrfs4, clone, 41.829
+betrfs4, clone, 41.524
+betrfs4, clone, 41.940
+betrfs4, clone, 41.573
+betrfs4, clone, 42.433
 
-betrfs4, diff, 41.440
-betrfs4, diff, 42.420
-betrfs4, diff, 41.693
-betrfs4, diff, 41.246
-betrfs4, diff, 41.753
+betrfs4, diff, 41.430
+betrfs4, diff, 40.778
+betrfs4, diff, 41.598
+betrfs4, diff, 41.328
+betrfs4, diff, 41.810
 
-betrfs5, clone, 57.762
-betrfs5, clone, 55.769
-betrfs5, clone, 52.577
-betrfs5, clone, 53.658
-betrfs5, clone, 58.352
+betrfs5, clone, 40.449
+betrfs5, clone, 39.721
+betrfs5, clone, 39.809
+betrfs5, clone, 39.254
+betrfs5, clone, 39.497
 
-betrfs5, diff, 37.122
-betrfs5, diff, 37.443
-betrfs5, diff, 37.123
-betrfs5, diff, 37.223
-betrfs5, diff, 36.779
+betrfs5, diff, 36.820
+betrfs5, diff, 36.261
+betrfs5, diff, 36.893
+betrfs5, diff, 36.730
+betrfs5, diff, 37.079
 
