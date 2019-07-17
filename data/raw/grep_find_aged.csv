@@ -1,9 +1,21 @@
 fs, dir.ops, aged, time.s
+ext4, grep, no, 42.374
+ext4, grep, no, 43.778
+ext4, grep, no, 40.096
+ext4, grep, no, 40.842
+ext4, grep, no, 40.784
+
 ext4, grep, yes, 271.603
 ext4, grep, yes, 261.380
 ext4, grep, yes, 260.000
 ext4, grep, yes, 260.104
 ext4, grep, yes, 260.632
+
+ext4, find, no, 2.200
+ext4, find, no, 2.216
+ext4, find, no, 2.181
+ext4, find, no, 2.263
+ext4, find, no, 2.211
 
 ext4, find, yes, 8.571
 ext4, find, yes, 8.631
