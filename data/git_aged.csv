@@ -1,4 +1,7 @@
 fs      op    avg     ci
 ext4    clone  47.135 0.273
 ext4    diff   65.667 1.664
+xfs     clone 102.718 0.793
+xfs     diff  200.958 7.263
+
 

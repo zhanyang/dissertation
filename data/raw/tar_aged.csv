@@ -11,3 +11,15 @@ ext4, tar, 53.006
 ext4, tar, 51.777
 ext4, tar, 54.429
 
+xfs, untar, 20.871
+xfs, untar, 17.548
+xfs, untar, 17.460
+xfs, untar, 18.137
+xfs, untar, 18.255
+
+xfs, tar, 204.758
+xfs, tar, 189.616
+xfs, tar, 191.840
+xfs, tar, 183.205
+xfs, tar, 197.123
+
