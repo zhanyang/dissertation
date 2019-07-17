@@ -387,7 +387,7 @@ all operations are performed in the aged git repository.
                     xticklabels={4KiB,8KiB,16KiB,32KiB,64KiB,128KiB,256KiB,512KiB,1MiB,2MiB,4MiB,8MiB,16MiB,32MiB,64MiB},
                     xticklabel style={rotate=270, anchor=west},
                     ymin=0,
-                    ymax=100,
+                    ymax=150,
                     grid=major,
                     scaled x ticks=false,
                     scaled y ticks=false,
@@ -398,6 +398,7 @@ all operations are performed in the aged git repository.
                     width=\linewidth,
                 ]
                 \addFileRenamePlotAged{ext4};
+                \addFileRenamePlotAged{xfs};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:file_rename_aged}Benchmarking on aged file systems.}
@@ -484,17 +485,18 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (renames/sec)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4},
+                    symbolic x coords={ext4,xfs},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
                     height=.5\linewidth,
                     width=\linewidth,
                 ]
                 \addDirRenamePlotAged{ext4};
+                \addDirRenamePlotAged{xfs};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:dir_rename_aged}Benchmarking on aged file systems.}
