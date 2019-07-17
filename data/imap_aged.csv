@@ -1,4 +1,4 @@
-fs         avg    ci
+fs      avg    ci
 ext4    64.125 1.078
-
+xfs     31.813 6.916
 

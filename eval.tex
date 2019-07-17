@@ -929,6 +929,7 @@ all operations are performed in the aged git repository.
                     width=\linewidth,
                 ]
             \addRsyncPlotAged{ext4};
+            \addRsyncPlotAged{xfs};
         \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:rsync_aged}Benchmarking on aged file systems.}
@@ -1016,7 +1017,7 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (op/s)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4},
+                    symbolic x coords={ext4,xfs},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
@@ -1027,6 +1028,7 @@ all operations are performed in the aged git repository.
                     width=\linewidth,
                 ]
                 \addIMAPPlotAged{ext4};
+                \addIMAPPlotAged{xfs};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:imap_aged}Benchmarking on aged file systems.}
