@@ -490,7 +490,7 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (renames/sec)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4,xfs},
+                    symbolic x coords={ext4,btrfs,xfs},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
@@ -501,6 +501,7 @@ all operations are performed in the aged git repository.
                     width=\linewidth,
                 ]
                 \addDirRenamePlotAged{ext4};
+                \addDirRenamePlotAged{btrfs};
                 \addDirRenamePlotAged{xfs};
             \end{axis}
         \end{tikzpicture}
