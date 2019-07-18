@@ -11,6 +11,18 @@ ext4, no, 14.69
 ext4, no, 13.26
 ext4, no, 15.08
 
+btrfs, yes, 2.90
+btrfs, yes, 2.91
+btrfs, yes, 2.90
+btrfs, yes, 3.04
+btrfs, yes, 3.07
+
+btrfs, no, 3.22
+btrfs, no, 3.21
+btrfs, no, 3.21
+btrfs, no, 3.22
+btrfs, no, 3.21
+
 xfs, yes, 1.68
 xfs, yes, 1.67
 xfs, yes, 1.63
