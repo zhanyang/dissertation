@@ -23,6 +23,30 @@ ext4, find, yes, 8.724
 ext4, find, yes, 8.781
 ext4, find, yes, 8.631
 
+btrfs, grep, no, 14.901
+btrfs, grep, no, 13.075
+btrfs, grep, no, 13.108
+btrfs, grep, no, 12.968
+btrfs, grep, no, 13.259
+
+btrfs, grep, yes, 322.212
+btrfs, grep, yes, 303.202
+btrfs, grep, yes, 303.699
+btrfs, grep, yes, 304.054
+btrfs, grep, yes, 305.695
+
+btrfs, find, no, 1.120
+btrfs, find, no, 1.193
+btrfs, find, no, 1.174
+btrfs, find, no, 1.168
+btrfs, find, no, 1.152
+
+btrfs, find, yes, 5.861
+btrfs, find, yes, 5.819
+btrfs, find, yes, 5.817
+btrfs, find, yes, 5.817
+btrfs, find, yes, 5.814
+
 xfs, grep, no, 25.863
 xfs, grep, no, 20.819
 xfs, grep, no, 20.844
