@@ -53,3 +53,21 @@ xfs, rm.rf, 26.998
 xfs, rm.rf, 28.691
 xfs, rm.rf, 26.330
 
+betrfs4, grep, 5.276
+betrfs4, grep, 4.815
+betrfs4, grep, 5.397
+betrfs4, grep, 4.741
+betrfs4, grep, 4.887
+
+betrfs4, find, 0.380
+betrfs4, find, 0.340
+betrfs4, find, 0.332
+betrfs4, find, 0.346
+betrfs4, find, 0.371
+
+betrfs4, rm.rf, 31.838
+betrfs4, rm.rf, 42.099
+betrfs4, rm.rf, 34.321
+betrfs4, rm.rf, 42.132
+betrfs4, rm.rf, 41.594
+
