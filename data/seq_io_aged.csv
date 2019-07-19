@@ -1,8 +1,10 @@
-fs    op           avg        ci
-ext4  seq.write    129.408050 0.267147
-ext4  seq.read     137.123775 0.127047
-btrfs seq.write    124.941273 0.782676
-btrfs seq.read     125.533679 0.984283
-xfs   seq.write    129.932718 0.685522
-xfs   seq.read     137.344561 0.079044
+fs      op        avg        ci
+ext4    seq.write 129.408050 0.267147
+ext4    seq.read  137.123775 0.127047
+btrfs   seq.write 124.941273 0.782676
+btrfs   seq.read  125.533679 0.984283
+xfs     seq.write 129.932718 0.685522
+xfs     seq.read  137.344561 0.079044
+betrfs4 seq.write 103.171147 1.472002
+betrfs4 seq.read  108.300356 1.372493
 
