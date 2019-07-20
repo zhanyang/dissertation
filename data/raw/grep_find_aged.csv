@@ -77,11 +77,11 @@ betrfs4, grep, no, 8.059
 betrfs4, grep, no, 8.736
 betrfs4, grep, no, 8.121
 
-betrfs4, grep, yes, 
-betrfs4, grep, yes, 
-betrfs4, grep, yes, 
-betrfs4, grep, yes, 
-betrfs4, grep, yes, 
+betrfs4, grep, yes, 75.694
+betrfs4, grep, yes, 68.903
+betrfs4, grep, yes, 68.297
+betrfs4, grep, yes, 68.423
+betrfs4, grep, yes, 65.446
 
 betrfs4, find, no, 0.352
 betrfs4, find, no, 0.318
@@ -89,8 +89,8 @@ betrfs4, find, no, 0.309
 betrfs4, find, no, 0.317
 betrfs4, find, no, 0.357
 
-betrfs4, find, no, 
-betrfs4, find, no, 
-betrfs4, find, no, 
-betrfs4, find, no, 
-betrfs4, find, no, 
+betrfs4, find, no, 0.647
+betrfs4, find, no, 0.522
+betrfs4, find, no, 0.530
+betrfs4, find, no, 0.524
+betrfs4, find, no, 0.552
