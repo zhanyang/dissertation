@@ -306,6 +306,7 @@ all operations are performed in the aged git repository.
                 \addTokubenchPlotAged{ext4};
                 \addTokubenchPlotAged{btrfs};
                 \addTokubenchPlotAged{xfs};
+                \addTokubenchPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:toku_aged}Benchmarking on aged file systems.}
@@ -1037,7 +1038,7 @@ all operations are performed in the aged git repository.
                     major tick length=0in,
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
                     height=.45\linewidth,
                     width=\linewidth,
                 ]
