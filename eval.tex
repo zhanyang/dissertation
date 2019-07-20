@@ -1,4 +1,3 @@
-\chapter{Evaluation}
 \label{chap:eval}
 
 This chapter evaluates the performance of \betrfs with
@@ -106,7 +105,7 @@ all operations are performed in the aged git repository.
                     major tick length=0in,
                     xticklabel pos=right,
                     nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addSeqPlot{ext4};
@@ -138,7 +137,7 @@ all operations are performed in the aged git repository.
                     major tick length=0in,
                     xticklabel pos=right,
                     nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addSeqPlotAged{ext4};
@@ -265,7 +264,7 @@ all operations are performed in the aged git repository.
                     legend columns=4,
                     legend cell align=left,
                     transpose legend,
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addTokubenchPlot{ext4};
@@ -301,7 +300,7 @@ all operations are performed in the aged git repository.
                     legend columns=4,
                     legend cell align=left,
                     transpose legend,
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addTokubenchPlotAged{ext4};
@@ -365,7 +364,7 @@ all operations are performed in the aged git repository.
                     scaled y ticks=false,
                     legend columns=4,
                     legend cell align=left,
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addFileRenamePlot{ext4};
@@ -399,7 +398,7 @@ all operations are performed in the aged git repository.
                     scaled y ticks=false,
                     legend columns=4,
                     legend cell align=left,
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addFileRenamePlotAged{ext4};
@@ -468,7 +467,7 @@ all operations are performed in the aged git repository.
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addDirRenamePlot{ext4};
@@ -492,19 +491,20 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (renames/sec)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs},
+                    symbolic x coords={ext4,btrfs,xfs,betrfs4},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addDirRenamePlotAged{ext4};
                 \addDirRenamePlotAged{btrfs};
                 \addDirRenamePlotAged{xfs};
+                \addDirRenamePlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:dir_rename_aged}Benchmarking on aged file systems.}
@@ -702,7 +702,7 @@ all operations are performed in the aged git repository.
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addGitPlot{ext4};
@@ -734,12 +734,13 @@ all operations are performed in the aged git repository.
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addGitPlotAged{ext4};
                 \addGitPlotAged{btrfs};
                 \addGitPlotAged{xfs};
+                \addGitPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:git_aged}Benchmarking on aged file systems.}
@@ -802,7 +803,7 @@ all operations are performed in the aged git repository.
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addTarPlot{ext4};
@@ -833,12 +834,13 @@ all operations are performed in the aged git repository.
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addTarPlotAged{ext4};
                 \addTarPlotAged{btrfs};
                 \addTarPlotAged{xfs};
+                \addTarPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:tar_aged}Benchmarking on aged file systems.}
@@ -903,7 +905,7 @@ all operations are performed in the aged git repository.
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
             \addRsyncPlot{ext4};
@@ -935,18 +937,19 @@ all operations are performed in the aged git repository.
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
             \addRsyncPlotAged{ext4};
             \addRsyncPlotAged{btrfs};
             \addRsyncPlotAged{xfs};
+            \addRsyncPlotAged{betrfs4};
         \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:rsync_aged}Benchmarking on aged file systems.}
     \end{subfigure}
     \caption[Rsync benchmark]{\label{fig:rsync}
-        Throughput of using rsync to clone the Linux-3.11.10 source directory (higher is better).}
+        Throughput of cloning the Linux-3.11.10 source directory with rsync (higher is better).}
 \end{figure}
 
 \newcommand{\addIMAPPlot}[1]{
@@ -1004,7 +1007,7 @@ all operations are performed in the aged git repository.
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addIMAPPlot{ext4};
@@ -1028,19 +1031,20 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (op/s)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs},
+                    symbolic x coords={ext4,btrfs,xfs,betrfs4},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
                     nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
-                    height=.5\linewidth,
+                    height=.45\linewidth,
                     width=\linewidth,
                 ]
                 \addIMAPPlotAged{ext4};
                 \addIMAPPlotAged{btrfs};
                 \addIMAPPlotAged{xfs};
+                \addIMAPPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:imap_aged}Benchmarking on aged file systems.}

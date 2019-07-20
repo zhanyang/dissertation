@@ -35,3 +35,15 @@ xfs, no, 1.41
 xfs, no, 1.59
 xfs, no, 1.59
 
+betrfs4, yes, 44.97
+betrfs4, yes, 44.10
+betrfs4, yes, 44.37
+betrfs4, yes, 44.36
+betrfs4, yes, 41.67
+
+betrfs4, no, 40.08
+betrfs4, no, 40.12
+betrfs4, no, 37.97
+betrfs4, no, 38.63
+betrfs4, no, 35.78
+
