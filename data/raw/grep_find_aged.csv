@@ -118,3 +118,17 @@ betrfs4, find, no, 0.522
 betrfs4, find, no, 0.530
 betrfs4, find, no, 0.524
 betrfs4, find, no, 0.552
+
+betrfs5, grep, no, 8.332
+betrfs5, grep, no, 8.378
+betrfs5, grep, no, 8.762
+betrfs5, grep, no, 8.467
+betrfs5, grep, no, 8.459
+
+betrfs5, find, no, 0.319
+betrfs5, find, no, 0.307
+betrfs5, find, no, 0.302
+betrfs5, find, no, 0.310
+betrfs5, find, no, 0.298
+
+
