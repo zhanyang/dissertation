@@ -35,6 +35,18 @@ xfs, diff, 201.836
 xfs, diff, 206.079
 xfs, diff, 201.712
 
+betrfs3, clone, 43.649
+betrfs3, clone, 46.785
+betrfs3, clone, 43.778
+betrfs3, clone, 46.601
+betrfs3, clone, 45.956
+
+betrfs3, diff, 43.537
+betrfs3, diff, 44.415
+betrfs3, diff, 43.749
+betrfs3, diff, 43.823
+betrfs3, diff, 44.113
+
 betrfs4, clone, 48.105
 betrfs4, clone, 49.755
 betrfs4, clone, 46.705

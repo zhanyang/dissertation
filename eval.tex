@@ -143,6 +143,7 @@ all operations are performed in the aged git repository.
                 \addSeqPlotAged{ext4};
                 \addSeqPlotAged{btrfs};
                 \addSeqPlotAged{xfs};
+                \addSeqPlotAged{betrfs3};
                 \addSeqPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
@@ -405,6 +406,7 @@ all operations are performed in the aged git repository.
                 \addFileRenamePlotAged{ext4};
                 \addFileRenamePlotAged{btrfs};
                 \addFileRenamePlotAged{xfs};
+                \addFileRenamePlotAged{betrfs3};
                 \addFileRenamePlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
@@ -493,7 +495,7 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (renames/sec)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs,betrfs4},
+                    symbolic x coords={ext4,btrfs,xfs,betrfs3,betrfs4},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
@@ -506,6 +508,7 @@ all operations are performed in the aged git repository.
                 \addDirRenamePlotAged{ext4};
                 \addDirRenamePlotAged{btrfs};
                 \addDirRenamePlotAged{xfs};
+                \addDirRenamePlotAged{betrfs3};
                 \addDirRenamePlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
@@ -742,6 +745,7 @@ all operations are performed in the aged git repository.
                 \addGitPlotAged{ext4};
                 \addGitPlotAged{btrfs};
                 \addGitPlotAged{xfs};
+                \addGitPlotAged{betrfs3};
                 \addGitPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
@@ -842,6 +846,7 @@ all operations are performed in the aged git repository.
                 \addTarPlotAged{ext4};
                 \addTarPlotAged{btrfs};
                 \addTarPlotAged{xfs};
+                \addTarPlotAged{betrfs3};
                 \addTarPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
@@ -945,6 +950,7 @@ all operations are performed in the aged git repository.
             \addRsyncPlotAged{ext4};
             \addRsyncPlotAged{btrfs};
             \addRsyncPlotAged{xfs};
+            \addRsyncPlotAged{betrfs3};
             \addRsyncPlotAged{betrfs4};
         \end{axis}
         \end{tikzpicture}
@@ -1033,7 +1039,7 @@ all operations are performed in the aged git repository.
                     ymin=0,
                     ylabel={Throughput (op/s)},
                     ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs,betrfs4},
+                    symbolic x coords={ext4,btrfs,xfs,betrfs3,betrfs4},
                     xticklabels={},
                     xtick pos=right,
                     major tick length=0in,
@@ -1046,6 +1052,7 @@ all operations are performed in the aged git repository.
                 \addIMAPPlotAged{ext4};
                 \addIMAPPlotAged{btrfs};
                 \addIMAPPlotAged{xfs};
+                \addIMAPPlotAged{betrfs3};
                 \addIMAPPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}

@@ -5,6 +5,8 @@ btrfs   untar  79.270 2.833
 btrfs   tar   141.542 0.799
 xfs     untar  18.454 1.223
 xfs     tar   193.308 7.114
+betrfs3 untar   9.699 0.388
+betrfs3 tar    18.398 0.417
 betrfs4 untar   9.693 0.239
 betrfs4 tar    17.030 0.156
 
