@@ -94,6 +94,7 @@ all operations are performed in the aged git repository.
             \begin{axis}[
                     ybar,
                     ymin=0,
+                    ymax=150,
                     ylabel={Bandwidth (MiB/sec)},
                     ymajorgrids=true,
                     symbolic x coords={seq.write,seq.read},
@@ -126,6 +127,7 @@ all operations are performed in the aged git repository.
             \begin{axis}[
                     ybar,
                     ymin=0,
+                    ymax=150,
                     ylabel={Bandwidth (MiB/sec)},
                     ymajorgrids=true,
                     symbolic x coords={seq.write,seq.read},
@@ -307,6 +309,7 @@ all operations are performed in the aged git repository.
                 \addTokubenchPlotAged{ext4};
                 \addTokubenchPlotAged{btrfs};
                 \addTokubenchPlotAged{xfs};
+                \addTokubenchPlotAged{betrfs3};
                 \addTokubenchPlotAged{betrfs4};
             \end{axis}
         \end{tikzpicture}
@@ -462,6 +465,7 @@ all operations are performed in the aged git repository.
                     ybar=0pt,
                     /pgf/bar shift=0pt,
                     ymin=0,
+                    ymax=120,
                     ylabel={Throughput (renames/sec)},
                     ymajorgrids=true,
                     symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
@@ -493,6 +497,7 @@ all operations are performed in the aged git repository.
                     ybar=0pt,
                     /pgf/bar shift=0pt,
                     ymin=0,
+                    ymax=120,
                     ylabel={Throughput (renames/sec)},
                     ymajorgrids=true,
                     symbolic x coords={ext4,btrfs,xfs,betrfs3,betrfs4},
@@ -696,6 +701,7 @@ all operations are performed in the aged git repository.
             \begin{axis}[
                     ybar,
                     ymin=0,
+                    ymax=210,
                     ylabel={Time (sec)},
                     ymajorgrids=true,
                     symbolic x coords={clone, diff},
@@ -706,7 +712,7 @@ all operations are performed in the aged git repository.
                     major tick length=0in,
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
                     height=.45\linewidth,
                     width=\linewidth,
                 ]
@@ -728,6 +734,7 @@ all operations are performed in the aged git repository.
             \begin{axis}[
                     ybar,
                     ymin=0,
+                    ymax=210,
                     ylabel={Time (sec)},
                     ymajorgrids=true,
                     symbolic x coords={clone, diff},
@@ -799,6 +806,7 @@ all operations are performed in the aged git repository.
             \begin{axis}[
                     ybar,
                     ymin=0,
+                    ymax=210,
                     ylabel={Time (sec)},
                     ymajorgrids=true,
                     symbolic x coords={untar,tar},
@@ -808,7 +816,7 @@ all operations are performed in the aged git repository.
                     major tick length=0in,
                     xticklabel pos=right,
                     visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
                     height=.45\linewidth,
                     width=\linewidth,
                 ]
@@ -830,6 +838,7 @@ all operations are performed in the aged git repository.
             \begin{axis}[
                     ybar,
                     ymin=0,
+                    ymax=210,
                     ylabel={Time (sec)},
                     ymajorgrids=true,
                     symbolic x coords={untar,tar},
@@ -901,6 +910,7 @@ all operations are performed in the aged git repository.
             \begin{axis}[
                     ybar,
                     ymin=0,
+                    ymax=60,
                     ylabel={Bandwidth (MB/sec)},
                     ymajorgrids=true,
                     symbolic x coords={yes,no},
@@ -933,6 +943,7 @@ all operations are performed in the aged git repository.
             \begin{axis}[
                     ybar,
                     ymin=0,
+                    ymax=60,
                     ylabel={Bandwidth (MB/sec)},
                     ymajorgrids=true,
                     symbolic x coords={yes,no},
@@ -1006,6 +1017,7 @@ all operations are performed in the aged git repository.
                     ybar=0pt,
                     /pgf/bar shift=0pt,
                     ymin=0,
+                    ymax=210,
                     ylabel={Throughput (op/s)},
                     ymajorgrids=true,
                     symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
@@ -1037,6 +1049,7 @@ all operations are performed in the aged git repository.
                     ybar=0pt,
                     /pgf/bar shift=0pt,
                     ymin=0,
+                    ymax=210,
                     ylabel={Throughput (op/s)},
                     ymajorgrids=true,
                     symbolic x coords={ext4,btrfs,xfs,betrfs3,betrfs4},

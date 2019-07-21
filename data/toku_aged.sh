@@ -3,7 +3,7 @@
 in_dir=raw/toku_aged
 out_dir=toku_aged
 
-for fs in ext4 btrfs xfs betrfs4
+for fs in ext4 btrfs xfs betrfs3 betrfs4
 do
     in_file=${in_dir}/${fs}.csv
     out_file=${out_dir}/${fs}.csv
