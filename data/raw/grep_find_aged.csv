@@ -71,29 +71,29 @@ xfs, find, yes, 34.108
 xfs, find, yes, 34.056
 xfs, find, yes, 34.037
 
-betrfs3, grep, no, 8.547
-betrfs3, grep, no, 8.438
-betrfs3, grep, no, 8.456
-betrfs3, grep, no, 8.500
-betrfs3, grep, no, 8.399
+betrfs3, grep, no, 9.405
+betrfs3, grep, no, 9.349
+betrfs3, grep, no, 9.402
+betrfs3, grep, no, 9.268
+betrfs3, grep, no, 9.234
 
-betrfs3, grep, yes, 
-betrfs3, grep, yes, 
-betrfs3, grep, yes, 
-betrfs3, grep, yes, 
-betrfs3, grep, yes, 
+betrfs3, grep, yes, 88.950
+betrfs3, grep, yes, 88.191
+betrfs3, grep, yes, 87.144
+betrfs3, grep, yes, 87.575
+betrfs3, grep, yes, 85.660
 
-betrfs3, find, no, 0.333
-betrfs3, find, no, 0.311
-betrfs3, find, no, 0.293
-betrfs3, find, no, 0.325
-betrfs3, find, no, 0.317
+betrfs3, find, no, 0.304
+betrfs3, find, no, 0.295
+betrfs3, find, no, 0.287
+betrfs3, find, no, 0.271
+betrfs3, find, no, 0.271
 
-betrfs3, find, yes, 
-betrfs3, find, yes, 
-betrfs3, find, yes, 
-betrfs3, find, yes, 
-betrfs3, find, yes, 
+betrfs3, find, yes, 0.432
+betrfs3, find, yes, 0.393
+betrfs3, find, yes, 0.410
+betrfs3, find, yes, 0.395
+betrfs3, find, yes, 0.404
 
 betrfs4, grep, no, 8.528
 betrfs4, grep, no, 7.998
