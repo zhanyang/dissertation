@@ -59,3 +59,15 @@ betrfs4, diff, 44.579
 betrfs4, diff, 44.887
 betrfs4, diff, 44.078
 
+betrfs5, clone, 45.029
+betrfs5, clone, 45.306
+betrfs5, clone, 45.170
+betrfs5, clone, 45.955
+betrfs5, clone, 46.212
+
+betrfs5, diff, 37.459
+betrfs5, diff, 37.474
+betrfs5, diff, 37.397
+betrfs5, diff, 37.649
+betrfs5, diff, 37.426
+
