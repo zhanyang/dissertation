@@ -1,9 +1,21 @@
+\chapter{Evaluation}
 \label{chap:eval}
 
 This chapter evaluates the performance of \betrfs with
 range-rename (\betrfsFour) and \betrfs with range-clone (\betrfsFive),
 comparing them with widely used file systems and \betrfsThree.
+\betrfsThree is the relative-path-indexed \betrfs that taxes other file system
+operations for good namespace operations.
 The evaluation includes both micro and macro benchmarks.
+
+We seek to answer the following questions in the evaluation:
+\begin{itemize}
+\item How do non-namespace operations perform on \betrfsFour and \betrfsFive?
+\item How do namespace operations perform on \betrfsFour and \betrfsFive?
+\item Do applications perform well on \betrfsFour adn \betrfsFive?
+\item Do \betrfsFour and \betrfsFive maintain good performance against file
+    system aging?
+\end{itemize}
 
 \paragraph{Experimental Setup.}
 
@@ -11,7 +23,8 @@ All experimental results were collected on
 a Dell Optiplex 790 with a 4-core 3.40 GHz Intel Core i7-2600 CPU,
 4GB RAM,
 and a 128 GiB partition (the rest of the disk is not used)
-of a 500 GB, 7200 SATA disk with a 4096-byte block size(Seagate Barracuda ST500DM002).
+of a 500 GB, 7200 SATA disk with a 4096-byte block size
+(Seagate Barracuda ST500DM002).
 The system runs 64-bit Ubuntu server 14.04.6 on a USB stick to prevent
 interference from the root file system.
 \betrfsThree and \betrfsFour run on a modified Linux 3.11.10 kernel that
@@ -20,7 +33,7 @@ while \betrfsFive and all other file systems run on Linux 4.9.142 kernel.
 The evaluation uses ZFS 0.6.5.11 from \url{zfsonlinx.org} and
 ext4, Btrfs, XFS and NILFS2 as parts of the Linux kernel.
 Each experiment runs a minimum of 5 times and reports the average number.
-Error bars indicate (95\%)confidence intervals over all runs.
+Error bars indicate (95\%) confidence intervals over all runs.
 Similarly, error $\pm$ terms show confidence intervals over all runs.
 Unless noted, all benchmarks are cold-cache tests.
 
@@ -29,14 +42,15 @@ We age the file system by emulating user behaviors.
 First, we fill the file system with files and directories from the root file
 system, roughly taking up 31 GiB space.
 Then, we clone the git repository of the Linux kernel with the release tag
-``v3.12'' to the home directory in the file system.
+``v3.12'' (released on 2013/11/03) to the home directory in the file system.
 Afterwards, we repeat the process of building the kernel and pulling the next
 release of the repository
-until we build the Linux kernel with the release tag ``v4.20''.
-This process takes about 5 days to complete, building the kernel 240 times
+until we build the Linux kernel with the release tag ``v4.20''
+(released on 2018/12/13).
+This process takes several days to complete, building the kernel 240 times
 (though there are only 29 major releases, there are 7 to 9 release candidates
 between two consecutive major releases)
-and pulling 397481 git commits.
+and pulling 397,481 git commits.
 The directory of the git repository takes up about 3.6 GiB space and
 after building the kernel, it takes up about 15 GiB space.
 Therefore, after the aging process, the whole file system takes up about 46 GiB
@@ -47,7 +61,14 @@ all operations are performed in the aged git repository.
 \section{Microbenchmarks}
 \label{sec:micro}
 
+In this section we run file systems on microbenchmarks,
+each measures the performance of one file system operations.
+We divide file system operations into non-namespace operations
+(Section~\ref{sec:micro:nnso})
+and namespace operations (Section~\ref{sec:micro:nso}).
+
 \subsection{Non-namespace operations}
+\label{sec:micro:nnso}
 
 \newcommand{\addSeqPlot}[1]{
     \addplot[
@@ -1081,7 +1102,7 @@ We measure the throughput of sequentially writing and reading a file.
 This benchmark first writes a 10GiB file, 40MiB at a time, with a
 \texttt{fsync} to flush the file to the disk.
 Then, after clearing the kernel page cache, the benchmark reads the file from
-the disk.
+the disk using \texttt{dd} with 10MiB block size.
 
 Figure~\ref{subfig:seq_io} shows the results of running the benchmark on empty
 file systems.
@@ -1156,7 +1177,7 @@ TokuBench~\citep{tokufs} is a small-write-intensive benchmark that creates 3
 million 200-Byte files in a balanced tree directory.
 The benchmark first creates the balanced tree directory with a fanout of 128,
 i.e., each directory has at most 128 directories or 128 files.
-Then, it creates 4 threads.
+Then, the benchmark creates 4 threads.
 Each thread iterates over the leaf directories, creating one file at a time.
 The benchmark reports the cumulative throughput of the file creation each time
 when 10,000 files are created.
@@ -1178,13 +1199,14 @@ Figure~\ref{subfig:toku_aged} shows the results of running Tokubench on aged
 file systems.
 
 \subsection{Namespace operations}
+\label{sec:micro:nso}
 
 \paragraph{File renames.}
 The file rename benchmark measures the throughput of renaming files with
 different sizes.
 The benchmark first creates a file filled with random data.
 Then, the benchmark renames the file 100 times and reports the throughput,
-that is, rames per second.
+that is, renames per second.
 
 Figure~\ref{subfig:file_rename} shows the results of running the benchmark on
 empty file systems.
@@ -1213,7 +1235,7 @@ we wrote a simple microbenchmark that creates a directory hierarchy with 8
 directories, each of which has 8 files that are 4 MiB each.
 At each step, we measure the copy time (Figure~\ref{fig:clone:clone}),
 we measure the impact of copy-on-write by writing 16 bytes to each copied file
-and syncing the data (Figure~\ref{fig:clone:write}.
+and syncing the data (Figure~\ref{fig:clone:write}).
 We then clear the file system caches and measure the impact on read time by
 grepping the copied directory (Figure~\ref{fig:clone:grep}).
 Finally, we record the change in space utilization for the file system at each
@@ -1355,4 +1377,9 @@ are only slightly slower than NILFS2.
 
 Figure~\ref{subfig:imap_aged} shows the results of running the benchmark on
 aged file systems.
+
+\section{Conclusion}
+
+\betrfsFour and \betrfsFive show good performance on workloads that performs
+intensive directory scans and small randpm writes.
 
