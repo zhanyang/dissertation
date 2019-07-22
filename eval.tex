@@ -47,7 +47,8 @@ Afterwards, we repeat the process of building the kernel and pulling the next
 release of the repository
 until we build the Linux kernel with the release tag ``v4.20''
 (released on 2018/12/13).
-This process takes several days to complete, building the kernel 240 times
+This process takes several days to complete (about 5 days on ext4),
+building the kernel 240 times
 (though there are only 29 major releases, there are 7 to 9 release candidates
 between two consecutive major releases)
 and pulling 397,481 git commits.
@@ -168,6 +169,7 @@ and namespace operations (Section~\ref{sec:micro:nso}).
                 \addSeqPlotAged{xfs};
                 \addSeqPlotAged{betrfs3};
                 \addSeqPlotAged{betrfs4};
+                \addSeqPlotAged{betrfs5};
             \end{axis}
         \end{tikzpicture}
         \caption{\label{subfig:seq_io_aged}Benchmarking on aged file systems.}
