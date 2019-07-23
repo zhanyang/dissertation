@@ -89,3 +89,21 @@ betrfs4, rm.rf, 34.321
 betrfs4, rm.rf, 42.132
 betrfs4, rm.rf, 41.594
 
+betrfs5, grep, 4.527
+betrfs5, grep, 4.452
+betrfs5, grep, 4.772
+betrfs5, grep, 4.544
+betrfs5, grep, 4.508
+
+betrfs5, find, 0.392
+betrfs5, find, 0.358
+betrfs5, find, 0.349
+betrfs5, find, 0.356
+betrfs5, find, 0.360
+
+betrfs5, rm.rf, 2.630
+betrfs5, rm.rf, 2.565
+betrfs5, rm.rf, 2.644
+betrfs5, rm.rf, 2.791
+betrfs5, rm.rf, 2.689
+

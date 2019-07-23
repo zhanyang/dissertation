@@ -113,11 +113,11 @@ betrfs4, find, no, 0.309
 betrfs4, find, no, 0.317
 betrfs4, find, no, 0.357
 
-betrfs4, find, no, 0.647
-betrfs4, find, no, 0.522
-betrfs4, find, no, 0.530
-betrfs4, find, no, 0.524
-betrfs4, find, no, 0.552
+betrfs4, find, yes, 0.647
+betrfs4, find, yes, 0.522
+betrfs4, find, yes, 0.530
+betrfs4, find, yes, 0.524
+betrfs4, find, yes, 0.552
 
 betrfs5, grep, no, 8.332
 betrfs5, grep, no, 8.378
@@ -125,10 +125,21 @@ betrfs5, grep, no, 8.762
 betrfs5, grep, no, 8.467
 betrfs5, grep, no, 8.459
 
+betrfs5, grep, yes, 99.263
+betrfs5, grep, yes, 100.809
+betrfs5, grep, yes, 99.533
+betrfs5, grep, yes, 99.447
+betrfs5, grep, yes, 100.454
+
 betrfs5, find, no, 0.319
 betrfs5, find, no, 0.307
 betrfs5, find, no, 0.302
 betrfs5, find, no, 0.310
 betrfs5, find, no, 0.298
 
+betrfs5, find, yes, 0.466
+betrfs5, find, yes, 0.439
+betrfs5, find, yes, 0.453
+betrfs5, find, yes, 0.439
+betrfs5, find, yes, 0.448
 
