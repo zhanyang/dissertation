@@ -35,6 +35,18 @@ xfs, no, 1.41
 xfs, no, 1.59
 xfs, no, 1.59
 
+nilfs2, yes, 6.91
+nilfs2, yes, 10.70
+nilfs2, yes, 3.95
+nilfs2, yes, 4.38
+nilfs2, yes, 4.35
+
+nilfs2, no, 10.70
+nilfs2, no, 11.21
+nilfs2, no, 4.99
+nilfs2, no, 5.64
+nilfs2, no, 8.87
+
 betrfs3, yes, 48.20
 betrfs3, yes, 48.86
 betrfs3, yes, 46.15

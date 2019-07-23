@@ -53,6 +53,24 @@ xfs, rm.rf, 26.998
 xfs, rm.rf, 28.691
 xfs, rm.rf, 26.330
 
+nilfs2, grep, 9.943
+nilfs2, grep, 14.487
+nilfs2, grep, 20.239
+nilfs2, grep, 20.474
+nilfs2, grep, 23.759
+
+nilfs2, find, 7.467
+nilfs2, find, 7.223
+nilfs2, find, 7.528
+nilfs2, find, 7.962
+nilfs2, find, 8.215
+
+nilfs2, rm.rf, 10.537
+nilfs2, rm.rf, 10.150
+nilfs2, rm.rf, 10.200
+nilfs2, rm.rf, 11.039
+nilfs2, rm.rf, 12.708
+
 betrfs3, grep, 6.797
 betrfs3, grep, 6.766
 betrfs3, grep, 7.037

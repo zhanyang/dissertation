@@ -35,6 +35,18 @@ xfs, tar, 191.840
 xfs, tar, 183.205
 xfs, tar, 197.123
 
+nilfs2, untar, 16.653
+nilfs2, untar, 20.911
+nilfs2, untar, 19.689
+nilfs2, untar, 18.801
+nilfs2, untar, 21.001
+
+nilfs2, tar, 27.552
+nilfs2, tar, 55.218
+nilfs2, tar, 25.120
+nilfs2, tar, 37.669
+nilfs2, tar, 26.898
+
 betrfs3, untar, 9.497
 betrfs3, untar, 9.316
 betrfs3, untar, 10.435
