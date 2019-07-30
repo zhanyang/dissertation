@@ -5,6 +5,8 @@ btrfs   clone 124.340  4.304
 btrfs   diff  115.541  1.360
 xfs     clone 102.718  0.793
 xfs     diff  200.958  7.263
+zfs     clone  49.853  0.762
+zfs     diff   67.841  0.530
 nilfs2  clone  64.739  3.072
 nilfs2  diff   88.740 13.311
 betrfs3 clone  45.354  1.341

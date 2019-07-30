@@ -35,6 +35,18 @@ xfs, diff, 201.836
 xfs, diff, 206.079
 xfs, diff, 201.712
 
+zfs, clone, 49.103
+zfs, clone, 48.874
+zfs, clone, 49.923
+zfs, clone, 50.433
+zfs, clone, 50.932
+
+zfs, diff, 68.309
+zfs, diff, 68.299
+zfs, diff, 68.214
+zfs, diff, 67.348
+zfs, diff, 67.035
+
 nilfs2, clone, 67.620
 nilfs2, clone, 61.304
 nilfs2, clone, 61.902
