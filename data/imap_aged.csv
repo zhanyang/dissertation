@@ -1,6 +1,6 @@
-fs       avg    ci
+fs      avg     ci
 ext4     53.659 3.175
-btrfs    21.069 1.478
+btrfs    20.479 1.171
 xfs      31.813 6.916
 zfs      91.703 4.215
 nilfs2   31.678 8.110
