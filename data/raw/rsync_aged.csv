@@ -1,15 +1,15 @@
 fs, in.place, throughput.MBps
-ext4, yes, 15.78
-ext4, yes, 15.99
-ext4, yes, 13.38
-ext4, yes, 13.90
-ext4, yes, 13.70
+ext4, yes, 6.58
+ext4, yes, 6.23
+ext4, yes, 6.10
+ext4, yes, 5.44
+ext4, yes, 4.84
 
-ext4, no, 14.79
-ext4, no, 14.95
-ext4, no, 14.69
-ext4, no, 13.26
-ext4, no, 15.08
+ext4, no, 6.53
+ext4, no, 7.25
+ext4, no, 6.66
+ext4, no, 6.88
+ext4, no, 6.08
 
 btrfs, yes, 2.90
 btrfs, yes, 2.91
