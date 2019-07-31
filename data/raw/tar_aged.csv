@@ -11,17 +11,17 @@ ext4, tar, 78.048
 ext4, tar, 78.833
 ext4, tar, 73.712
 
-btrfs, untar, 75.196
-btrfs, untar, 83.718
-btrfs, untar, 80.058
-btrfs, untar, 77.254
-btrfs, untar, 80.122
+btrfs, untar, 80.379
+btrfs, untar, 81.581
+btrfs, untar, 77.303
+btrfs, untar, 74.477
+btrfs, untar, 77.643
 
-btrfs, tar, 140.931
-btrfs, tar, 141.012
-btrfs, tar, 140.702
-btrfs, tar, 142.581
-btrfs, tar, 142.482
+btrfs, tar, 145.400
+btrfs, tar, 143.680
+btrfs, tar, 142.108
+btrfs, tar, 139.552
+btrfs, tar, 142.645
 
 xfs, untar, 20.871
 xfs, untar, 17.548
