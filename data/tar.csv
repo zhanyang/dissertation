@@ -9,8 +9,8 @@ zfs     untar  8.905 0.254
 zfs     tar   21.638 0.283
 nilfs2  untar 11.670 0.075
 nilfs2  tar   18.659 0.055
-betrfs3 untar  9.475 0.313
-betrfs3 tar   17.733 0.305
+betrfs3 untar  9.765 0.216
+betrfs3 tar   17.781 0.165
 betrfs4 untar  8.835 0.155
 betrfs4 tar   16.361 0.060
 betrfs5 untar  8.779 0.103
