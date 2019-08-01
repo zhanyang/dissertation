@@ -61,15 +61,15 @@ nilfs2, diff, 113.108
 
 betrfs3, clone, 48.543
 betrfs3, clone, 46.198
-betrfs3, clone, 
-betrfs3, clone, 
-betrfs3, clone, 
+betrfs3, clone, 46.933
+betrfs3, clone, 45.371
+betrfs3, clone, 46.449
 
 betrfs3, diff, 44.123
 betrfs3, diff, 44.302
-betrfs3, diff, 
-betrfs3, diff, 
-betrfs3, diff, 
+betrfs3, diff, 44.883
+betrfs3, diff, 44.017
+betrfs3, diff, 44.339
 
 betrfs4, clone, 48.105
 betrfs4, clone, 49.755
