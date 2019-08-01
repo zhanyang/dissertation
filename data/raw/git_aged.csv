@@ -59,17 +59,17 @@ nilfs2, diff, 75.121
 nilfs2, diff, 93.446
 nilfs2, diff, 113.108
 
-betrfs3, clone, 43.649
-betrfs3, clone, 46.785
-betrfs3, clone, 43.778
-betrfs3, clone, 46.601
-betrfs3, clone, 45.956
+betrfs3, clone, 48.543
+betrfs3, clone, 46.198
+betrfs3, clone, 
+betrfs3, clone, 
+betrfs3, clone, 
 
-betrfs3, diff, 43.537
-betrfs3, diff, 44.415
-betrfs3, diff, 43.749
-betrfs3, diff, 43.823
-betrfs3, diff, 44.113
+betrfs3, diff, 44.123
+betrfs3, diff, 44.302
+betrfs3, diff, 
+betrfs3, diff, 
+betrfs3, diff, 
 
 betrfs4, clone, 48.105
 betrfs4, clone, 49.755
