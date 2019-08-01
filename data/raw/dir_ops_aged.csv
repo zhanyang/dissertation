@@ -89,23 +89,23 @@ nilfs2, rm.rf, 10.200
 nilfs2, rm.rf, 11.039
 nilfs2, rm.rf, 12.708
 
-betrfs3, grep, 6.797
-betrfs3, grep, 6.766
-betrfs3, grep, 7.037
-betrfs3, grep, 7.010
-betrfs3, grep, 6.848
+betrfs3, grep, 7.103
+betrfs3, grep, 7.078
+betrfs3, grep, 7.094
+betrfs3, grep, 7.122
+betrfs3, grep, 7.059
 
-betrfs3, find, 0.409
-betrfs3, find, 0.369
-betrfs3, find, 0.368
-betrfs3, find, 0.381
-betrfs3, find, 0.424
+betrfs3, find, 0.324
+betrfs3, find, 0.296
+betrfs3, find, 0.317
+betrfs3, find, 0.309
+betrfs3, find, 0.314
 
-betrfs3, rm.rf, 10.808
-betrfs3, rm.rf, 12.462
-betrfs3, rm.rf, 12.801
-betrfs3, rm.rf, 12.432
-betrfs3, rm.rf, 12.711
+betrfs3, rm.rf, 13.502
+betrfs3, rm.rf, 13.735
+betrfs3, rm.rf, 13.619
+betrfs3, rm.rf, 14.411
+betrfs3, rm.rf, 13.805
 
 betrfs4, grep, 5.276
 betrfs4, grep, 4.815
