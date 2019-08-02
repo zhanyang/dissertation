@@ -119,11 +119,11 @@ betrfs4, find, 0.345
 betrfs4, find, 0.340
 betrfs4, find, 0.341
 
-betrfs4, rm.rf, 31.838
-betrfs4, rm.rf, 42.099
-betrfs4, rm.rf, 34.321
-betrfs4, rm.rf, 42.132
-betrfs4, rm.rf, 41.594
+betrfs4, rm.rf, 32.743
+betrfs4, rm.rf, 41.831
+betrfs4, rm.rf, 32.871
+betrfs4, rm.rf, 31.894
+betrfs4, rm.rf, 33.006
 
 betrfs5, grep, 4.527
 betrfs5, grep, 4.452
