@@ -11,8 +11,8 @@ nilfs2  clone 42.000 0.123
 nilfs2  diff  59.518 0.413
 betrfs3 clone 43.696 4.660
 betrfs3 diff  41.165 0.509
-betrfs4 clone 41.860 0.319
-betrfs4 diff  41.389 0.339
+betrfs4 clone 69.234 2.480
+betrfs4 diff  55.760 0.151
 betrfs5 clone 39.746 0.393
 betrfs5 diff  36.757 0.268
 
