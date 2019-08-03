@@ -71,17 +71,17 @@ betrfs3, tar, 17.497
 betrfs3, tar, 17.840
 betrfs3, tar, 17.735
 
-betrfs4, untar, 8.549
-betrfs4, untar, 8.785
-betrfs4, untar, 8.901
-betrfs4, untar, 8.985
-betrfs4, untar, 8.953
+betrfs4, untar,  9.879
+betrfs4, untar,  9.315
+betrfs4, untar,  9.401
+betrfs4, untar, 10.059
+betrfs4, untar,  9.447
 
-betrfs4, tar, 16.387
-betrfs4, tar, 16.350
-betrfs4, tar, 16.420
-betrfs4, tar, 16.399
-betrfs4, tar, 16.248
+betrfs4, tar, 16.291
+betrfs4, tar, 16.278
+betrfs4, tar, 16.485
+betrfs4, tar, 16.289
+betrfs4, tar, 16.273
 
 betrfs5, untar, 8.946
 betrfs5, untar, 8.794
