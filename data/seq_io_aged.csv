@@ -11,8 +11,8 @@ nilfs2  seq.write  58.430505 10.453693
 nilfs2  seq.read   43.190429 12.420732
 betrfs3 seq.write 106.450150  1.143959
 betrfs3 seq.read  103.254026  1.685566
-betrfs4 seq.write 103.171147  1.472002
-betrfs4 seq.read  108.300356  1.372493
+betrfs4 seq.write 101.087057  2.531350
+betrfs4 seq.read  114.307300  0.662465
 betrfs5 seq.write 111.642590  0.688540
 betrfs5 seq.read  108.167225  0.353391
 

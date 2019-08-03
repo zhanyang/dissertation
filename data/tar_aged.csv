@@ -11,8 +11,8 @@ nilfs2  untar  19.411  1.570
 nilfs2  tar    34.491 11.029
 betrfs3 untar  10.213  0.675
 betrfs3 tar    19.150  0.390
-betrfs4 untar   9.693  0.239
-betrfs4 tar    17.030  0.156
+betrfs4 untar   9.571  0.285
+betrfs4 tar    17.279  0.384
 betrfs5 untar   9.801  0.385
 betrfs5 tar    16.243  0.137
 
