@@ -11,11 +11,11 @@ ext4, find, 2.355
 ext4, find, 2.214
 ext4, find, 2.140
 
-ext4, rm.rf, 2.622
-ext4, rm.rf, 2.666
-ext4, rm.rf, 2.796
-ext4, rm.rf, 2.667
-ext4, rm.rf, 2.553
+ext4, rm.rf, 3.655
+ext4, rm.rf, 2.709
+ext4, rm.rf, 2.669
+ext4, rm.rf, 3.175
+ext4, rm.rf, 2.739
 
 btrfs, grep, 9.534
 btrfs, grep, 9.208
