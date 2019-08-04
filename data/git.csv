@@ -13,6 +13,6 @@ betrfs3 clone 63.434 0.710
 betrfs3 diff  53.275 0.250
 betrfs4 clone 69.234 2.480
 betrfs4 diff  55.760 0.151
-betrfs5 clone 39.746 0.393
-betrfs5 diff  36.757 0.268
+betrfs5 clone 59.775 1.065
+betrfs5 diff  48.410 0.159
 

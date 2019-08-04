@@ -13,6 +13,6 @@ betrfs3 seq.write 114.756480 1.008544
 betrfs3 seq.read  110.155403 0.981416
 betrfs4 seq.write 105.409150 2.005991
 betrfs4 seq.read  110.130097 0.552091
-betrfs5 seq.write 118.500470 0.518513
-betrfs5 seq.read  111.003528 0.413759
+betrfs5 seq.write 118.538749 0.221761
+betrfs5 seq.read  110.923187 0.307156
 
