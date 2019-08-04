@@ -9,8 +9,8 @@ zfs     yes  27.936 0.485
 zfs      no  26.200 0.688
 nilfs2  yes  22.750 0.182
 nilfs2   no  22.858 0.078
-betrfs3 yes  50.968 3.020
-betrfs3  no  43.472 1.679
+betrfs3 yes  49.510 1.757
+betrfs3  no  41.134 0.646
 betrfs4 yes  53.538 2.490
 betrfs4  no  43.934 1.039
 betrfs5 yes  56.104 0.868

@@ -59,17 +59,17 @@ nilfs2, tar, 18.602
 nilfs2, tar, 18.592
 nilfs2, tar, 18.721
 
-betrfs3, untar, 10.036
-betrfs3, untar, 9.833
-betrfs3, untar, 9.433
-betrfs3, untar, 9.928
-betrfs3, untar, 9.597
+betrfs3, untar,  9.446
+betrfs3, untar,  8.974
+betrfs3, untar, 10.342
+betrfs3, untar,  9.964
+betrfs3, untar,  9.341
 
-betrfs3, tar, 18.015
-betrfs3, tar, 17.819
-betrfs3, tar, 17.497
-betrfs3, tar, 17.840
-betrfs3, tar, 17.735
+betrfs3, tar, 17.543
+betrfs3, tar, 17.757
+betrfs3, tar, 17.782
+betrfs3, tar, 17.273
+betrfs3, tar, 18.051
 
 betrfs4, untar,  9.879
 betrfs4, untar,  9.315
