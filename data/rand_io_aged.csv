@@ -5,4 +5,4 @@
  \pgfkeysvalueof{/fs-names/nilfs2}  &  2452.268 & 326.216 \\
  \pgfkeysvalueof{/fs-names/betrfs3} &     5.207 &   0.109 \\
  \pgfkeysvalueof{/fs-names/betrfs4} &     4.837 &   0.027 \\
- \pgfkeysvalueof{/fs-names/betrfs5} &     4.849 &   0.029 \\
+ \pgfkeysvalueof{/fs-names/betrfs5} &     4.593 &   0.058 \\
