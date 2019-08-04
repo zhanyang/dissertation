@@ -95,11 +95,11 @@ betrfs3, grep, 7.217
 betrfs3, grep, 7.148
 betrfs3, grep, 7.189
 
-betrfs3, find, 0.282
-betrfs3, find, 0.291
-betrfs3, find, 0.292
-betrfs3, find, 0.287
-betrfs3, find, 0.299
+betrfs3, find, 0.382
+betrfs3, find, 0.391
+betrfs3, find, 0.392
+betrfs3, find, 0.387
+betrfs3, find, 0.399
 
 betrfs3, rm.rf, 14.266
 betrfs3, rm.rf, 14.743

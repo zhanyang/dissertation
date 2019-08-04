@@ -9,8 +9,8 @@ zfs     seq.write  81.205677  2.811110
 zfs     seq.read   95.268969  5.196590
 nilfs2  seq.write  58.430505 10.453693
 nilfs2  seq.read   43.190429 12.420732
-betrfs3 seq.write 106.450150  1.143959
-betrfs3 seq.read  103.254026  1.685566
+betrfs3 seq.write 106.287372  1.567550
+betrfs3 seq.read  102.765098  1.575302
 betrfs4 seq.write 101.087057  2.531350
 betrfs4 seq.read  114.307300  0.662465
 betrfs5 seq.write 111.642590  0.688540
