@@ -1,15 +1,15 @@
 fs, op, time.s
-ext4, clone, 46.949
-ext4, clone, 45.218
-ext4, clone, 47.945
-ext4, clone, 51.299
-ext4, clone, 52.344
+ext4, clone, 66.845
+ext4, clone, 71.910
+ext4, clone, 71.200
+ext4, clone, 70.571
+ext4, clone, 71.109
 
-ext4, diff, 81.473
-ext4, diff, 82.539
-ext4, diff, 87.376
-ext4, diff, 85.639
-ext4, diff, 86.943
+ext4, diff, 86.733
+ext4, diff, 92.879
+ext4, diff, 94.610
+ext4, diff, 86.768
+ext4, diff, 98.290
 
 btrfs, clone, 108.920
 btrfs, clone, 106.954
