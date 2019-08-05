@@ -2,7 +2,7 @@
  \pgfkeysvalueof{/fs-names/btrfs}   & 138.787 &  0.683 &  2.675 & 0.127 &  5.700 & 0.397 \\
  \pgfkeysvalueof{/fs-names/xfs}     & 134.520 &  0.593 & 15.507 & 0.099 & 27.021 & 0.864 \\
  \pgfkeysvalueof{/fs-names/zfs}     & 452.775 & 15.318 & 10.219 & 0.718 & 10.381 & 0.645 \\
- \pgfkeysvalueof{/fs-names/nilfs2}  &  17.780 &  4.827 &  7.679 & 0.351 & 10.927 & 0.926 \\
+ \pgfkeysvalueof{/fs-names/nilfs2}  &  9.124  &  0.091 &  7.328 & 0.054 & 10.927 & 0.926 \\
  \pgfkeysvalueof{/fs-names/betrfs3} &   7.127 &  0.076 &  0.390 & 0.006 & 14.737 & 0.249 \\
  \pgfkeysvalueof{/fs-names/betrfs4} &   5.031 &  0.052 &  0.315 & 0.007 & 35.660 & 0.989 \\
  \pgfkeysvalueof{/fs-names/betrfs5} &   5.031 &  0.112 &  0.307 & 0.010 &  3.642 & 0.297 \\
