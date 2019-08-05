@@ -3,8 +3,8 @@ ext4    untar  19.527  1.520
 ext4    tar    76.556  3.101
 btrfs   untar  78.277  2.445
 btrfs   tar   142.677  1.886
-xfs     untar  18.454  1.223
-xfs     tar   193.308  7.114
+xfs     untar  11.922  1.413
+xfs     tar    87.129  2.006
 zfs     untar  10.175  0.648
 zfs     tar    26.240  1.908
 nilfs2  untar  14.489  0.593

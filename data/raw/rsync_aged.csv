@@ -23,17 +23,17 @@ btrfs, no, 3.55
 btrfs, no, 3.52
 btrfs, no, 3.51
 
-xfs, yes, 1.68
-xfs, yes, 1.67
-xfs, yes, 1.63
-xfs, yes, 1.56
-xfs, yes, 1.48
+xfs, yes, 3.40
+xfs, yes, 3.44
+xfs, yes, 2.91
+xfs, yes, 3.27
+xfs, yes, 3.42
 
-xfs, no, 1.44
-xfs, no, 1.50
-xfs, no, 1.41
-xfs, no, 1.59
-xfs, no, 1.59
+xfs, no, 3.30
+xfs, no, 3.45
+xfs, no, 3.07
+xfs, no, 3.31
+xfs, no, 3.32
 
 zfs, yes, 21.54
 zfs, yes, 21.29

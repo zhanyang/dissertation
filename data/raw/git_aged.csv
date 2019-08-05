@@ -23,17 +23,17 @@ btrfs, diff, 64.557
 btrfs, diff, 63.901
 btrfs, diff, 62.318
 
-xfs, clone, 101.731
-xfs, clone, 103.463
-xfs, clone, 103.796
-xfs, clone, 102.638
-xfs, clone, 101.960
+xfs, clone, 133.123
+xfs, clone, 133.115
+xfs, clone, 133.454
+xfs, clone, 132.665
+xfs, clone, 130.509
 
-xfs, diff, 186.992
-xfs, diff, 208.173
-xfs, diff, 201.836
-xfs, diff, 206.079
-xfs, diff, 201.712
+xfs, diff, 146.297
+xfs, diff, 146.647
+xfs, diff, 146.353
+xfs, diff, 147.438
+xfs, diff, 148.661
 
 zfs, clone, 49.103
 zfs, clone, 48.874

@@ -3,8 +3,8 @@ ext4    clone  70.327 1.757
 ext4    diff   91.856 4.430
 btrfs   clone 115.883 2.227
 btrfs   diff   61.788 2.297
-xfs     clone 102.718 0.793
-xfs     diff  200.958 7.263
+xfs     clone 132.573 1.041
+xfs     diff  147.079 0.872
 zfs     clone  49.853 0.762
 zfs     diff   67.841 0.530
 nilfs2  clone 101.605 0.573
