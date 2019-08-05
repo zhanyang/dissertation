@@ -35,23 +35,23 @@ btrfs, rm.rf, 2.869
 btrfs, rm.rf, 2.966
 btrfs, rm.rf, 2.974
 
-xfs, grep, 19.261
-xfs, grep, 18.595
-xfs, grep, 18.703
-xfs, grep, 18.549
-xfs, grep, 18.731
+xfs, grep, 47.814
+xfs, grep, 48.147
+xfs, grep, 48.280
+xfs, grep, 47.997
+xfs, grep, 48.414
 
-xfs, find, 1.691
-xfs, find, 1.670
-xfs, find, 1.692
-xfs, find, 1.624
-xfs, find, 1.670
+xfs, find, 5.347
+xfs, find, 5.356
+xfs, find, 5.319
+xfs, find, 4.840
+xfs, find, 5.433
 
-xfs, rm.rf, 12.864
-xfs, rm.rf, 14.979
-xfs, rm.rf, 12.015
-xfs, rm.rf, 13.684
-xfs, rm.rf, 11.341
+xfs, rm.rf, 14.547
+xfs, rm.rf, 14.698
+xfs, rm.rf, 15.705
+xfs, rm.rf, 16.569
+xfs, rm.rf, 15.597
 
 zfs, grep, 38.898
 zfs, grep, 38.366

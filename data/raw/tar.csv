@@ -23,17 +23,17 @@ btrfs, tar, 18.068
 btrfs, tar, 17.948
 btrfs, tar, 18.883
 
-xfs, untar, 11.187
-xfs, untar, 9.973
-xfs, untar, 9.983
-xfs, untar, 9.741
-xfs, untar, 9.941
+xfs, untar, 11.965
+xfs, untar, 10.129
+xfs, untar, 10.417
+xfs, untar, 10.331
+xfs, untar, 10.342
 
-xfs, tar, 51.914
-xfs, tar, 52.064
-xfs, tar, 52.837
-xfs, tar, 51.970
-xfs, tar, 55.840
+xfs, tar, 93.472
+xfs, tar, 94.544
+xfs, tar, 84.872
+xfs, tar, 95.744
+xfs, tar, 89.395
 
 zfs, untar, 8.689
 zfs, untar, 8.997
