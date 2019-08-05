@@ -29,11 +29,11 @@ btrfs, find, 1.143
 btrfs, find, 1.149
 btrfs, find, 1.153
 
-btrfs, rm.rf, 2.923
-btrfs, rm.rf, 2.904
-btrfs, rm.rf, 2.895
-btrfs, rm.rf, 2.877
-btrfs, rm.rf, 2.852
+btrfs, rm.rf, 3.085
+btrfs, rm.rf, 3.249
+btrfs, rm.rf, 2.869
+btrfs, rm.rf, 2.966
+btrfs, rm.rf, 2.974
 
 xfs, grep, 19.261
 xfs, grep, 18.595
