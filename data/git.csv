@@ -7,8 +7,8 @@ xfs     clone 40.943 0.831
 xfs     diff  95.188 4.512
 zfs     clone 41.607 0.901
 zfs     diff  49.803 0.745
-nilfs2  clone 42.000 0.123
-nilfs2  diff  59.518 0.413
+nilfs2  clone 63.371 0.207
+nilfs2  diff  73.813 0.286
 betrfs3 clone 63.434 0.710
 betrfs3 diff  53.275 0.250
 betrfs4 clone 69.234 2.480

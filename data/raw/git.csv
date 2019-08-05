@@ -47,17 +47,17 @@ zfs, diff, 50.381
 zfs, diff, 49.810
 zfs, diff, 50.849
 
-nilfs2, clone, 41.991
-nilfs2, clone, 42.008
-nilfs2, clone, 41.906
-nilfs2, clone, 42.227
-nilfs2, clone, 41.866
+nilfs2, clone, 63.138
+nilfs2, clone, 63.438
+nilfs2, clone, 63.399
+nilfs2, clone, 63.409
+nilfs2, clone, 63.472
 
-nilfs2, diff, 59.874
-nilfs2, diff, 59.332
-nilfs2, diff, 59.989
-nilfs2, diff, 58.811
-nilfs2, diff, 59.582
+nilfs2, diff, 74.385
+nilfs2, diff, 73.692
+nilfs2, diff, 73.681
+nilfs2, diff, 73.383
+nilfs2, diff, 73.924
 
 betrfs3, clone, 64.093
 betrfs3, clone, 62.518
