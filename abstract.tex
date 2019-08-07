@@ -1,7 +1,23 @@
 \begin{abstract}
 
-%Abstracts cannot exceed 150 words for a thesis or 350 words for a dissertation.
+Write-optimized file systems store metadata and data in write-optimized
+dictionaries for good random write performance.
+Prior write-optimized file systems also adopt full-path indexing for spacial
+locality,
+because full-path-indexing places metadata and data under the same directory
+close to each other on disk.
+However, prior works show that namespace operations can be prohibitively
+expensive on full-path-indexed file systems.
+For instance, renaming a directory requires prior file systems to update all
+data in that directory.
 
-abstract
+This dissertation shows that full-path-indexed, write-optimized file systems can
+implement namespace operations in an I/O-efficient way by directly operating on
+the underlying write-optimized dictionaries.
+In fact, full-path indexing creates more opportunities for efficient namespace
+operations.
+For instance, full-path-index file systems can clone a directory with a few
+operations in the underlying write-optimized dictionaries,
+without traversing all files in the directory.
 
 \end{abstract}
