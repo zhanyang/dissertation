@@ -38,7 +38,7 @@
     /fs-names/zfs/.initial=ZFS,
     /fs-names/nilfs2/.initial=NILFS2,
     /fs-names/betrfs3/.initial=\betrfsThree,
-    /fs-names/betrfs3-max/.initial=\betrfsThree with an infinite zone size,
+    /fs-names/betrfs3-max/.initial=full-path-indexed \betrfsThree,
     /fs-names/betrfs4/.initial=\betrfsFour,
     /fs-names/betrfs5/.initial=\betrfsFive,
 }
@@ -91,4 +91,18 @@
     }
 }
 
-\newtheorem{invariant}{Invariant}
+\newcommand{\addFileRenamePlot}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/file_rename/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+

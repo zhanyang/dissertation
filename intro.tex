@@ -22,15 +22,18 @@ Indirection simplifies the implementation of file systems, however,
 it doesn't impose any constraint on how metadata and data are placed on disk.
 In the worst case, the metadata of entries under a directory and the data of
 a file can end up scattered over the disk.
+Because random I/Os are much slower than sequential I/Os on disks,
+directory traversals and file creations can be extremely slow.
 Heuristics, such as cylinder groups~\citep{ffs1}, are designed to mitigate this
 problem.
-However, when the free space on disk becomes scattered, making such heuristics
+However, after disk space is allocated and freed over file system aging,
+the free space on disk becomes scattered, making such heuristics
 ineffective.
 
 One attempt to solve the problem of file creations is the log-structured file
 system~\citep{lfs}.
 The log-structured file system treats the disk as a log,
-and all write operations, including random writes, become log appends,
+and all write operations, including file creations, become log appends,
 which are written to the underlying disk sequentially.
 Therefore, file creations are much faster on the log-structured file system.
 However, the log cleaner in a log-structured file system has severe impact on
@@ -47,7 +50,7 @@ despite the fact that each write is written multiple times.
 Thus, file creations are much faster on WOD-based file systems, such as
 TableFS~\citep{tablefs}.
 
-However, these file systems are still inode-based
+However, these file systems are still inode-based.
 In other words, they use inode numbers as indexes for their metadata and data.
 Because the inode number of a file or directory doesn't change once allocated,
 files in the same directory can be assigned with inode numbers that
@@ -64,8 +67,45 @@ other in the key space, which, combined with the sorted order maintained by
 WODs, leads to good locality and fast directory traversals.
 Prior work~\citep{betrfs1,betrfs1tos,betrfs2,betrfs2tos,betrfs3} of this design
 realizes efficient implementation of many file-system operations, such as random
-writes, file creates and directory traversals,
-but a few operations still have prohibitively high overheads.
+writes, file creations and directory traversals,
+but a few operations have prohibitively high overheads.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+        \begin{axis}[
+                xlabel={File Size (log scale)},
+                x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
+                ylabel={Throughput (renames/sec)},
+                xmin=12,
+                xmax=26,
+                xtick={12,13,14,15,16,17,18,19,20,21,22,23,24,25,26},
+                xticklabels={4KiB,8KiB,16KiB,32KiB,64KiB,128KiB,256KiB,512KiB,1MiB,2MiB,4MiB,8MiB,16MiB,32MiB,64MiB},
+                xticklabel style={rotate=270, anchor=west},
+                ymin=0,
+                ymax=150,
+                grid=major,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=4,
+                legend cell align=left,
+                height=.45\linewidth,
+                width=\linewidth,
+            ]
+            \addFileRenamePlot{ext4};
+            \addFileRenamePlot{btrfs};
+            \addFileRenamePlot{xfs};
+            \addFileRenamePlot{zfs};
+            \addFileRenamePlot{nilfs2};
+            \addFileRenamePlot{betrfs3-max};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[File rename in full-path-indexed file systems]{\label{fig:file_rename_intro}
+        Throughput of renaming a file of different sizes (higher is better)
+        The performance of the full-path-indexed file system
+        (full-path-indexed \betrfsThree)
+        degrades when the file being renamed becomes larger.}
+\end{figure}
 
 The Achilles' heel of full-path indexing is the performance of namespace
 operations, in particular, renaming large files and directories.
@@ -83,12 +123,14 @@ However, prior work mainly focuses on the schema level of the file system, i.e.,
 how metadata and data are keyed and indexed in the WODs.
 Prior full-path-indexed file systems usually implement renames by
 fetching all related key/value pairs of metadata and data,
-inserting them back with updated keys, and deleting old key/value pairs.
+inserting them back with updated keys,
+and deleting old key/value pairs~\citep{betrfs1,betrfs1tos}.
 With this design, a file system rename needs to call several operations for each
 affected full-path names, leading to bad performance,
 especially when the file or directory being renamed is large.
 Or, the file system partly backs away from full-path indexing and adopts
-relative-path indexing, a hybrid of full-path indexing and indirection.
+relative-path indexing,
+a hybrid of full-path indexing and indirection~\citep{betrfs2,betrfs2tos}.
 This approach not only breaks the locality of full-path indexing, but also
 taxes other operations for efficient namespace operations.
 

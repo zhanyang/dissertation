@@ -347,21 +347,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
         Cumulative file creation throughput during the Tokubench benchmark (higher is better).}
 \end{figure}
 
-\newcommand{\addFileRenamePlot}[1]
-{
-    \addplot[
-        color=\pgfkeysvalueof{/fs-colors/#1},
-        line width=0.75pt,
-        mark=\pgfkeysvalueof{/fs-marks/#1},
-    ]
-    plot[
-    ]
-    table[
-    ]
-    {./data/file_rename/#1.csv};
-    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
-}
-
 \newcommand{\addFileRenamePlotAged}[1]
 {
     \addplot[
