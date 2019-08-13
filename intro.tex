@@ -7,63 +7,58 @@ Widely used inode-based file systems, such as ext4, XFS, and Btrfs, can write
 large files at near disk bandwidth,
 but typically create small files at less than 3\% of the disk bandwidth.
 Similarly, these file systems can read large files at near disk bandwidth,
-but scanning directories with many small files is slow, and the performance
+but traversing directories with many small files is slow, and the performance
 degrades when the file system ages~\citep{betrfs3}.
 
-At the heart of this issue is how data is organized on the disk.
+At the heart of this issue is how file systems organize metadata and data
+on disk.
 The most common design pattern for modern file systems is to use multiple layers
 of indirection.
 The inode number of a file or directory connects the name of an entry in the
-parent directory to its metadata location on the disk.
+parent directory to its metadata location on disk.
 The metadata of an inode contains extents that describe the physical location
 of data at different offsets.
-Indirection simplifies implementation of the file system, and makes some
-operations, such creating files and appending files, easy to implement.
-In particular, namespace operations are simple and flexible.
-For example, a rename is just a pointer swing, moving an entry from one
-directory to another directory, without touching the file or directory being
-renamed.
-However, indirection doesn't impose any constraint on how metadata and data
-are placed on the disk.
-In the worst case, the metadata of entries under a directory and the content of
+Indirection simplifies the implementation of file systems, however,
+it doesn't impose any constraint on how metadata and data are placed on disk.
+In the worst case, the metadata of entries under a directory and the data of
 a file can end up scattered over the disk.
 Heuristics, such as cylinder groups~\citep{ffs1}, are designed to mitigate this
 problem.
-However, on modern inode-based file systems, unless the metadata or data are
-modified, their location doesn't change.
-Therefore, after disk space is allocated and freed over file system aging,
-the free space on disk becomes scattered, making such heuristics ineffective.
+However, when the free space on disk becomes scattered, making such heuristics
+ineffective.
 
-One attempt to solve the problem of random writes is the log-structured file
+One attempt to solve the problem of file creations is the log-structured file
 system~\citep{lfs}.
 The log-structured file system treats the disk as a log,
 and all write operations, including random writes, become log appends,
 which are written to the underlying disk sequentially.
-Because sequential writes are much faster than random writes on disks,
-random writes on the log-structured file system are much faster than those on
-conventional file systems.
+Therefore, file creations are much faster on the log-structured file system.
 However, the log cleaner in a log-structured file system has severe impact on
 performance~\citep{lfsbsd}, especially when the log is full.
-Also, because file or directory modifications require the log-structured file
-system to keep track of both old and new writes,
-the log-structured file system still uses inode numbers and metadata as
-layers of indirection, resulting in slow directory traversals.
 
-An alternative design is to use full-path indexing upon write-optimized
-dictionaries (WODs) in a file system, known to have good performance on nearly
-all operations.
-On one hand, WODs have fast random write performance.
-A WOD divides its data into multiple levels whose sizes grow exponentially.
-Writes are put to the lowest level, and gradually merged to higher levels in
-batches.
+Alternatively, a file system can put its metadata and data in write-optimized
+dictionaries (WODs).
+A WOD consists of multiple levels whose sizes grow exponentially.
+Writes are treated as log appends to the lowest level, and gradually merged to
+higher levels in batches.
 Because all data are written in batches, the amortized cost of each write is
 much smaller in WODs,
 despite the fact that each write is written multiple times.
-Also, the merging process in a WOD keeps data sorted in a certain order at each
-level and acts as a cleaner to garbage-collect lower levels.
-On the other hand, full-path indexing ensures metadata and data in
-depth-first-search order, that is, lexicographic order by the full-path names
-of files and directories.
+Thus, file creations are much faster on WOD-based file systems, such as
+TableFS~\citep{tablefs}.
+
+However, these file systems are still inode-based
+In other words, they use inode numbers as indexes for their metadata and data.
+Because the inode number of a file or directory doesn't change once allocated,
+files in the same directory can be assigned with inode numbers that
+are far away from each other.
+Therefore, in the worst case, a directory traversal still need to performance
+many random I/Os.
+
+An alternative design is to use full-path indexing upon WODs in a file system,
+known to have good performance on nearly all operations.
+Full-path indexing ensures metadata and data in depth-first-search order,
+that is, lexicographic order by the full-path names of files and directories.
 With full-path indexing, metadata and data under one directory are close to each
 other in the key space, which, combined with the sorted order maintained by
 WODs, leads to good locality and fast directory traversals.
@@ -72,11 +67,15 @@ realizes efficient implementation of many file-system operations, such as random
 writes, file creates and directory traversals,
 but a few operations still have prohibitively high overheads.
 
-The Achilles' heel of such design is the performance of namespace operations,
-in particular, renaming large files and directories.
-For instance, renaming a large directory changes the full-paths of all files
-and directories under it, which updates keys of the metadata and
-data and moves them in the key space.
+The Achilles' heel of full-path indexing is the performance of namespace
+operations, in particular, renaming large files and directories.
+In inode-based file systems,
+renaming a file or directory is just a pointer swing,
+moving an entry from one directory to another directory,
+without touching the file or directory being renamed.
+However, with full-path indexing, renaming a directory involves changing the
+full-paths of all files and directories under it,
+updating keys of the metadata and data and moving them in the key space.
 Competitive performance for namespace operations in full-path-indexed file
 systems should complete in an I/O-efficient manner.
 
@@ -88,24 +87,31 @@ inserting them back with updated keys, and deleting old key/value pairs.
 With this design, a file system rename needs to call several operations for each
 affected full-path names, leading to bad performance,
 especially when the file or directory being renamed is large.
-Or, the file system partly backs away from full-path-indexing and adopts
-relative-path-indexing, a hybrid of full-path-indexing and indirection.
-This approach not only breaks the locality of full-path-indexing, but also
+Or, the file system partly backs away from full-path indexing and adopts
+relative-path indexing, a hybrid of full-path indexing and indirection.
+This approach not only breaks the locality of full-path indexing, but also
 taxes other operations for efficient namespace operations.
 
 This dissertation presents I/O-efficient ways to do namespace operations in a
 full-path-indexed, write-optimized file system.
 Specifically, though full-path indexing limits possible changes on the schema
 level, we observe that it can make all full-path names under a directory
-contiguous in key space.
+contiguous in the key space.
 And the underlying WODs, \bets, have a tree structure, which makes it possible
 to move a contiguous key range in a subtree efficiently.
 Therefore, we dig into the underlying \bets, and implement a new operation,
 range-rename, that completes file system renames with a bounded number of I/Os.
-Moreover, the contiguity in key space enables namespace operations that are
+Moreover, the contiguity in the key space enables namespace operations that are
 difficulty in inode-based file systems.
 In particular, we expand the range-rename operation into the range-clone
 operation, which can complete file or directory clones efficiently.
+
+The primary contribution of this dissertation is to show that there is no
+trade-off between efficient namespace operations and locality.
+One can implement efficient renames in a full-path-indexed, write-optimized
+file system while keeping the locality ensured by full-path indexing.
+In fact, with full-path indexing, one can implement namespace operations that
+are difficult in inode-based file systems, such as directory clones.
 
 Chapter~\ref{chap:bg} talks about the necessary background of this dissertation.
 It starts with a presentation of the write-optimized \bets,
@@ -145,11 +151,4 @@ It organizes related work by topic, and talk in detail about work that is closel
 related to this work.
 
 Chapter~\ref{chap:conclusion} summarizes and concludes the dissertation.
-
-The primary contribution of this dissertation is to show that there is no
-trade-off between efficient namespace operations and locality.
-A full-path-indexed file system can implement efficient renames while keeping
-the locality.
-And full-path indexing creates more opportunities for namespace operations,
-such as directory clones.
 
