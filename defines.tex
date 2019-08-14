@@ -51,7 +51,7 @@
     /fs-colors/xfs/.initial=green,
     /fs-colors/zfs/.initial=purple,
     /fs-colors/nilfs2/.initial=cyan,
-    /fs-colors/betrfs3/.initial=yellow,
+    /fs-colors/betrfs3/.initial=yellow!80!black,
     /fs-colors/betrfs3-max/.initial=orange,
     /fs-colors/betrfs4/.initial=orange,
     /fs-colors/betrfs5/.initial=gray,
@@ -92,6 +92,8 @@
     }
 }
 
+\newcolumntype{.}{D{.}{.}{-1}}
+
 \newcommand{\addFileRenamePlot}[1]
 {
     \addplot[
@@ -104,6 +106,21 @@
     table[
     ]
     {./data/file_rename/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
+\newcommand{\addTokubenchPlot}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/toku/#1.csv};
     \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
 }
 

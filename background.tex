@@ -384,7 +384,7 @@ to $f(v,\Delta)$ when the \bet flushes the message to Node $D$.
 \betrfs~\citep{betrfs1,betrfs1tos} is a Linux in-kernel, full-path-indexed,
 write-optimized file system built upon \fti~\citep{fti},
 a key/value store that implements \bets and
-exposes a key/value interface similar to BerkelyDB.
+exposes a key/value interface similar to Berkeley DB.
 
 Figure~\ref{fig:betrfs} shows the \betrfs architecture.
 In Linux, applications interact with file systems through system calls,
@@ -399,7 +399,7 @@ store operations in \fti.
 \betrfs also uses the transaction interface of \fti to execute multiple
 operations atomically in one transaction.
 A redo log and periodic checkpoints (every 60 seconds) in \fti ensure that
-changes can be made persistent on the disk.
+changes are made persistent on the disk.
 
 \Fti cannot be integrated into a Linux kernel module easily because
 it is a userspace library that assumes libc functions and system calls.
@@ -473,7 +473,7 @@ Deleting and renaming a Linux source directory take 46.14 and 21.17 seconds,
 respectively, because the file system has to call one or more key/value store
 operations for each key.
 
-Later, we fixed the delete problem with range-delete messages.
+Later, we fixed the delete problem with range-delete messages~\citep{betrfs2,betrfs2tos}.
 A range-delete message invalidates all key/value pairs within its key range.
 When flushing a range-delete message, the \bet injects the message into all
 children whose key ranges overlap with the range-delete message.
@@ -554,21 +554,6 @@ Similarly, the file system notices the key for directory ``/foo/bar'' is
 (3, ``/'').
 Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
 
-\newcommand{\addTokubenchZonePlot}[1]
-{
-    \addplot[
-        color=\pgfkeysvalueof{/fs-colors/#1},
-        line width=0.75pt,
-        mark=\pgfkeysvalueof{/fs-marks/#1},
-    ]
-    plot[
-    ]
-    table[
-    ]
-    {./data/tokuzone/#1.csv};
-    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
-}
-
 Relative-path indexing tries to balance locality and rename performance through
 a target zone size.
 On one hand, full-path indexing is still maintained within a zone,
@@ -590,12 +575,95 @@ updating all affected keys with the new zone ID and relative-paths.
 When the counter of a zone root becomes too small (1/4 of the maximum
 size), relative-path indexing merges it to the parent zone.
 
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+        \begin{axis}[
+                xlabel={File Size (log scale)},
+                x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
+                ylabel={Throughput (renames/sec)},
+                xmin=12,
+                xmax=26,
+                xtick={12,13,14,15,16,17,18,19,20,21,22,23,24,25,26},
+                xticklabels={4KiB,8KiB,16KiB,32KiB,64KiB,128KiB,256KiB,512KiB,1MiB,2MiB,4MiB,8MiB,16MiB,32MiB,64MiB},
+                xticklabel style={rotate=270, anchor=west},
+                ymin=0,
+                ymax=150,
+                grid=major,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=4,
+                legend cell align=left,
+                height=.618\linewidth,
+                width=\linewidth,
+            ]
+            \addFileRenamePlot{ext4};
+            \addFileRenamePlot{btrfs};
+            \addFileRenamePlot{xfs};
+            \addFileRenamePlot{zfs};
+            \addFileRenamePlot{nilfs2};
+            \addFileRenamePlot{betrfs3};
+            \addFileRenamePlot{betrfs3-max};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[The performance of file renames in relative-path-indexed file systems]{\label{fig:file_rename_rpi}
+        Throughput of renaming a file of different sizes (higher is better).
+        The performance of relative-path-indexed \betrfsThree doesn't
+        degrade when the file being renamed becomes larger.}
+\end{figure}
+
 The implementation of relative-path-indexed \betrfs, \betrfsTwo, adopts a
-default zone size 128KiB.
+512KiB default zone size.
 This default zone size is small enough that renames on \betrfsTwo are almost
 as fast as on inode-based file systems.
 At the same time, the default zone size is large enough that directory
 traversals are almost as fast as \betrfsOne.
+
+Figure~\ref{fig:file_rename_rpi} shows the results of running the file rename
+benchmark on \betrfsThree (\betrfsThree is \betrfsTwo with some bug fixes).
+The benchmark renames a file of different sizes 100 times, each followed by a
+\texttt{fsync} of the parent directory.
+We run the benchmark on \betrfsThree twice,
+one on \betrfsThree (with the default zone size),
+the other on full-path-indexed \betrfsThree,
+that is, \betrfsThree with an infinite zone size.
+As shown in the graph, before reaching the target zone size, 512KiB,
+the performance of relative-path-indexed \betrfsThree is similar to
+full-path-indexed \betrfsThree.
+However, when the file size reaches the target zone size, the file forms its
+own zone and file renames become pointer swings.
+Therefore, after the target zone size,
+the performance of file renames in relative-path-indexed \betrfsThree
+doesn't degrade when the file size becomes larger.
+
+\begin{table}[t]
+    \centering
+    \begin{tabular}{l|.@{${}\pm{}$}.}
+    \hline
+    File system & \multicolumn{2}{c}{grep (sec)}  \\
+    \hline
+    \hline
+    \pgfkeysvalueof{/fs-names/ext4}        &  37.795 &  1.145 \\
+    \pgfkeysvalueof{/fs-names/btrfs}       &   9.265 &  0.139 \\
+    \pgfkeysvalueof{/fs-names/xfs}         &  48.130 &  0.206 \\
+    \pgfkeysvalueof{/fs-names/zfs}         & 463.184 & 33.878 \\
+    \pgfkeysvalueof{/fs-names/nilfs2}      &   8.318 &  0.107 \\
+    \pgfkeysvalueof{/fs-names/betrfs3}     &   5.070 &  0.078 \\
+    \pgfkeysvalueof{/fs-names/betrfs3-max} &   4.022 &  0.055 \\
+    \hline
+    \end{tabular}
+    \caption[The performnace of directory traversals in relative-path-indexed file systems]{\label{tab:dir_ops_rpi}
+        Time to perform recursive grep of the Linux source directory (lower is better).
+        The performance of relative-path-indexed \betrfsThree is still better than
+        conventional file systems.}
+\end{table}
+
+Table~\ref{tab:dir_ops_rpi} shows the performance of directory traversals on
+different file systems.
+The benchmark measures the time to \texttt{grep} the  Linux 3.11.10 source
+directory.
+Relative-path-indexed \betrfsThree is slightly slower than full-path-indexed
+\betrfsThree, but still faster than other file systems.
 
 \begin{figure}[t]
     \centering
@@ -620,14 +688,14 @@ traversals are almost as fast as \betrfsOne.
             height=.618\linewidth,
             width=\linewidth,
         ]
-        \addTokubenchZonePlot{betrfs3};
-        \addTokubenchZonePlot{betrfs3-max};
+        \addTokubenchPlot{betrfs3};
+        \addTokubenchPlot{betrfs3-max};
         \end{axis}
     \end{tikzpicture}
     \caption[Zone maintainance cost in TokuBench benchmark]{
         Cumulative file creation throughput during the Tokubench benchmark (higher is better).
-        Compared to \betrfsThree with an infinite zone size,
-        \betrfsThree with the default zone size has a sudden
+        Compared to full-path-indexed \betrfsThree,
+        relative-path-indexed \betrfsThree has a sudden
         performance drop because of zone splits.}
     \label{fig:tokuzone}
 \end{figure}
@@ -639,12 +707,7 @@ in addition to the costs of the operation itself,
 relative-path indexing charges the zone split or merge to that operations.
 For instance, Figure~\ref{fig:tokuzone} shows the results of running Tokubench,
 which creates 3 million small files in a balanced tree structure,
-on \betrfsThree
-(\betrfsThree is \betrfsTwo with some bug fixes).
-The experiment runs Tokubench twice,
-one on \betrfsThree (with the default zone size),
-the other on \betrfsThree with an infinite zone size
-(the same as full-path indexing).
+on \betrfsThree.
 On the graph, two-thirds of the way through the TokuBench benchmark,
 \betrfsThree with the default zone size shows a sudden,
 precipitous drop in cumulative throughput for small file creation,

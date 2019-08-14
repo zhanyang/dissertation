@@ -180,8 +180,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
         Bandwidth to sequentially read and write a 10 GiB file (higher is better).}
 \end{figure}
 
-\newcolumntype{.}{D{.}{.}{-1}}
-
 \begin{table}[t]
     \begin{subtable}[b]{.5\textwidth}
     \centering
@@ -239,21 +237,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
     \caption[Directory operation benchmark]{\label{tab:dir_ops}
         Time to perform recursive grep, find and delete of the Linux source directory (lower is better).}
 \end{table}
-
-\newcommand{\addTokubenchPlot}[1]
-{
-    \addplot[
-        color=\pgfkeysvalueof{/fs-colors/#1},
-        line width=0.75pt,
-        mark=\pgfkeysvalueof{/fs-marks/#1},
-    ]
-    plot[
-    ]
-    table[
-    ]
-    {./data/toku/#1.csv};
-    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
-}
 
 \newcommand{\addTokubenchPlotAged}[1]
 {

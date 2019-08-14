@@ -89,6 +89,12 @@ nilfs2, rm.rf, 9.451
 nilfs2, rm.rf, 10.232
 nilfs2, rm.rf, 9.697
 
+betrfs3-max, grep, 3.937
+betrfs3-max, grep, 4.093
+betrfs3-max, grep, 4.017
+betrfs3-max, grep, 4.073
+betrfs3-max, grep, 3.989
+
 betrfs3, grep, 5.010
 betrfs3, grep, 5.141
 betrfs3, grep, 4.952
