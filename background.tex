@@ -1,38 +1,41 @@
 \chapter{Background}
 \label{chap:bg}
 
-This chapter gives the background of \betrfs.
+This chapter gives the background of \betrfs~\citep{betrfs1,betrfs1tos,betrfs2,betrfs2tos,betrfs3}.
 \betrfs is a file system based on write-optimized \bets.
 Also, \betrfs adopts full-path indexing or relative-path indexing for locality.
 
-Section~\ref{sec:bet} introduces the underlying data structure, the \bet.
+Section~\ref{sec:bg:bet} introduces the underlying data structure in \betrfs,
+the \bet.
 The \bet is a WOD that treats writes as messages and cascades messages in
 batches.
-Then, Section~\ref{sec:fpi} describes full-path-indexed \betrfs.
+Then, Section~\ref{sec:bg:fpi} describes full-path-indexed \betrfs.
 Full-path indexing keeps metadata and data under one directory close to each
 other in the key space,
 but makes the simple implementation of file system renames expensive.
-At last, Section~\ref{sec:rpi} discusses relative-path indexing,
+Next, Section~\ref{sec:bg:rpi} discusses relative-path indexing,
 the previous approach that taxes other operations to mitigate the rename issue
+in \betrfs.
+At last, Section~\ref{sec:bg:impl} talks about implementation details
 in \betrfs.
 
 \section{\bets}
-\label{sec:bet}
+\label{sec:bg:bet}
 
 \bets~\citep{bet,betlogin} are \btrees, augmented with buffers in non-leaf
 nodes.
 New writes are injected as messages into the buffer of the root node of a \bet.
 When a node's buffer becomes full, messages are flushed from that node's buffer
 to one of its children.
-If the child is a non-leaf node, the message is injected into the child's
+If the child is a non-leaf node, messages are injected into the child's
 buffer.
-Otherwise, the message takes effects on the leaf node.
-If it is an insert message,
-the message becomes a key/value pair in the leaf node,
-overwriting the old key/value pair with the same key if it exists.
-If it is a delete message, the message deletes the old key/value pair with the
-same key if it exists.
-Therefore, in a \bets, leaf nodes only store key/value pairs, as in a \btree.
+Otherwise, messages take effect on the leaf node.
+An insert message becomes a key/value pair in the leaf node.
+If there is an old/key/value pair with the same key in the leaf node,
+the insert message overwrites the old/key value pair;
+A delete message removes the old key/value pair with the same key in the leaf
+node.
+Therefore, in a \bet, leaf nodes only store key/value pairs, as in a \btree.
 Because writes can be messages in non-leaf nodes, point and range queries on a
 \bet must check the buffers along the root-to-leaf path,
 as well as key/value pairs in leaf nodes.
@@ -131,15 +134,16 @@ as well as key/value pairs in leaf nodes.
         \draw[->, >=stealth] (-.0625\textwidth, .242\textwidth) -- (-.195\textwidth, .192\textwidth);
         \draw[->, >=stealth] (-.0025\textwidth, .242\textwidth) -- (.13\textwidth, .192\textwidth);
     \end{tikzpicture}
-    \caption[A \bet example]{\label{fig:bet} A \bet stores key/value pairs in
-        a leaf node, and keeps pivots, parent-to-child pointers and a message
-        buffer in a non-leaf node.}
+    \caption[A \bet example]{\label{fig:bet}
+        In a \bet, a leaf nodes stores key/value pairs, while a non-leaf node
+        has pivots, parent-to-child pointers and a message buffer.}
 \end{figure}
 
 Figure~\ref{fig:bet} shows a \bet example.
 Node $D$, $E$, $F$, $G$ and $H$ are leaf nodes that store key/value pairs.
-Each leaf node shows a key/value pair in a row, with the left part as the key
-and the right part as the value.
+Each leaf node shows key/value pairs in rows,
+and each row represents a key/value pair, with the left part as the key and
+the right part as the value.
 We use different colors to indicate keys with different prefixes and omit the
 content of the value as dots throughout the dissertation.
 Node $A$, $B$ and $C$ are non-leaf nodes that contains pivots, parent-to-child
@@ -147,7 +151,7 @@ pointers and messages in buffers.
 Parent-to-child pointers connect all nodes into a tree, and the left and right
 pivots of a parent-to-child pointer bound the key range of the child node.
 Messages in the buffers of non-leaf nodes are write operations that have been
-applied to the \bet but have not taken effects on leaf nodes.
+applied to the \bet but have not taken effect on leaf nodes.
 For example, the message \delm(``/G/c'') in Node $B$ indicates that the key
 ``/G/c'' has been deleted.
 Therefore, though a query for ``/G/c'' can find the key/value pair with the
@@ -193,14 +197,17 @@ $0 < \varepsilon \leq 1$.
 Therefore, pivot keys in a non-leaf node consume $B^{\varepsilon}$ space and
 the remaining $(B - B^{\varepsilon})$ space is used for the message buffer.
 As a result, the \bet has height $O(log_{B}{N}/\varepsilon)$.
-A point query fetches all nodes along the root-to-leaf path with
-$O(log_{B}{N}/\varepsilon)$ I/Os and a range query for $k$ key/value pairs
+A point query fetches all nodes along the root-to-leaf path,
+inspecting messages in the buffers of non-leaf nodes and key/value pairs in the
+leaf node.
+Therefore, the total I/O cost is $O(log_{B}{N}/\varepsilon)$.
+Likewise,  a range query for $k$ key/value pairs
 requires $O({log_{B}{N}}/{\varepsilon} + k/B)$ I/Os.
 On the other hand, the cost of an insert consists of injecting the message into
-the root node with $O(1)$ I/O and flushing the message down at each level.
+the root node with $O(1)$ I/Os and flushing the message down at each level.
 In each flush, \bets has $O(B - B^{\varepsilon})$ messages and $B^{\varepsilon}$
 children.
-Thus, at leave one child can receive at least
+Thus, at least one child can receive no less than
 $O((B - B^{\varepsilon})/B^{\varepsilon}) = O(B^{1 - \varepsilon})$ messages.
 Therefore, the amortized cost of an insert in one flush is
 $O(1/B^{1 - \varepsilon})$.
@@ -215,30 +222,140 @@ factor of $\sqrt{B}$.
 
 One important change in \bets from \btrees is the asymmetric I/O costs for
 point queries and inserts.
-In \btrees, if an application wants to update the old value associated with a
-key, it performs a point query to get the old value and then issues an insert
-with the updated value.
+If an application wants to update the old value associated with a key,
+a \btree will perform a point query to get the old value and then issue an
+insert with the updated value.
 Because both operations take $O(log_{B}{N})$ I/Os, the total cost remains
 $O(log_{B}{N})$.
 However, in \bets, the query cost is $O(log_{B}{N}/\varepsilon)$ I/Os while the
 insert cost is $O({log_{B}{N}}/{\varepsilon B^{1 - \varepsilon}})$.
-Performing a query before an insert degrades the write cost to
+A query for the old value degrades the update cost to
 $O(log_{B}{N}/\varepsilon)$ I/Os.
 
-To avoid this read-before-write problem, \bets support ``upsert'' operations.
-An upsert operation injects a upsert message with the key and a delta into the
+To avoid this read-before-write problem, \bets introduce ``upsert'' operations.
+An upsert operation injects an \upsertm message with the key and a delta into the
 buffer of the root node.
-When the upsert message is flushed to the leaf, it updates the old value
+When the \upsertm message is flushed to the leaf, it updates the old value
 associated with the key with a user-specified function and the delta in the
 message.
-With the introduction of upsert messages, queries need to compute the new value
-on the fly if upsert messages have not reached the leaf node,
+With the introduction of \upsertm messages,
+queries need to compute the new value on the fly if \upsertm messages have not
+reached the leaf node,
 however, this doesn't change the I/O costs of queries.
 On the other hand, updating an old value becomes as fast as an insert operation,
 because it doesn't need to fetch the old value.
 
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}[xscale=0.95, yscale=0.95]
+        \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (0, 0) {};
+        \node[anchor=south, font=\tiny] at (0, .036\textwidth) {Node $F$};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (-.025\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.025\textwidth, 0) {/R/a};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.028\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.028\textwidth, 0) {...};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={orange!60}] at (-.025\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.025\textwidth, .018\textwidth) {/O/c};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.028\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.028\textwidth, .018\textwidth) {...};
+
+        \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.13\textwidth, 0) {};
+        \node[anchor=south, font=\tiny] at (.13\textwidth, .036\textwidth) {Node $G$};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.105\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.105\textwidth, 0) {/R/o};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.158\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.158\textwidth, 0) {...};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.105\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.105\textwidth, .018\textwidth) {/R/n};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.158\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.158\textwidth, .018\textwidth) {...};
+
+        \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.26\textwidth, 0) {};
+        \node[anchor=south, font=\tiny] at (.26\textwidth, .036\textwidth) {Node $H$};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={yellow!60}] at (.235\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.235\textwidth, 0) {/Y/x};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.288\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.288\textwidth, 0) {...};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.235\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.235\textwidth, .018\textwidth) {/R/t};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.288\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.288\textwidth, .018\textwidth) {...};
+
+        \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (-.13\textwidth, 0) {};
+        \node[anchor=south, font=\tiny] at (-.13\textwidth, .036\textwidth) {Node $E$};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={orange!60}] at (-.155\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.155\textwidth, 0) {/O/a};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.102\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.102\textwidth, 0) {...};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={green!60}] at (-.155\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.155\textwidth, .018\textwidth) {/G/c};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.102\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.102\textwidth, .018\textwidth) {...};
+
+        \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (-.26\textwidth, 0) {};
+        \node[anchor=south, font=\tiny] at (-.26\textwidth, .036\textwidth) {Node $D$};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={green!60}] at (-.285\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.285\textwidth, 0) {/G/a};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.232\textwidth, .005\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.232\textwidth, 0) {...};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={blue!60}] at (-.285\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.285\textwidth, .018\textwidth) {/B/a};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.232\textwidth, .023\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.232\textwidth, .018\textwidth) {...};
+
+        \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.195\textwidth, .1\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.195\textwidth, .163\textwidth) {Node $B$};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={green!60}] at (-.195\textwidth, .105\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.195\textwidth, .1\textwidth) {/G/b};
+        \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.195\textwidth, .125\textwidth) {};
+
+        \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $C$};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.1\textwidth, .105\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.1\textwidth, .1\textwidth) {/R/m};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.16\textwidth, .105\textwidth) {};
+        \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {/R/s};
+        \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
+
+        \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={orange!60}] at (-.0325\textwidth, .234\textwidth) {};
+        \node[anchor=south, font=\tiny] at (-.0325\textwidth, .229\textwidth) {/O/b};
+        \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
+        \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .276\textwidth) {};
+        \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\upsertm(/B/a,...)};
+
+        \draw[->, >=stealth] (-.225\textwidth, .113\textwidth) -- (-.26\textwidth, .063\textwidth);
+        \draw[->, >=stealth] (-.165\textwidth, .113\textwidth) -- (-.13\textwidth, .063\textwidth);
+        \draw[->, >=stealth] (.13\textwidth, .113\textwidth) -- (.13\textwidth, .063\textwidth);
+        \draw[->, >=stealth] (.19\textwidth, .113\textwidth) -- (.26\textwidth, .063\textwidth);
+        \draw[->, >=stealth] (.07\textwidth, .113\textwidth) -- (0, .063\textwidth);
+        \draw[->, >=stealth] (-.0625\textwidth, .242\textwidth) -- (-.195\textwidth, .192\textwidth);
+        \draw[->, >=stealth] (-.0025\textwidth, .242\textwidth) -- (.13\textwidth, .192\textwidth);
+    \end{tikzpicture}
+    \caption[An example of an upsert in a \bet]{\label{fig:upsert}
+        An upsert message stores the description of modification on the old
+        value associated with the key.}
+\end{figure}
+
+Figure~\ref{fig:upsert} shows an example of an \upsertm message in the \bet.
+In the example, the application wants to update the value associated with
+the key ``/B/a''.
+Instead of querying the \bet for the old value and then inserting the new value,
+the application calls the upsert operation that injects an \upsertm message into
+the root node, Node $A$.
+Assume the old value associated with the key ``/B/a'' in Node $D$ is $v$,
+the delta in the \upsertm message is $\Delta$,
+and the user-specified function is $f$.
+The \upsertm message essentially updates the value associated with the key
+``/B/a'' to $f(v,\Delta)$.
+Queries for the key ``/B/a'' need to calculate $f(v,\Delta)$ on the fly.
+And the \upsertm message will update the value associated with the key ``/B/a''
+to $f(v,\Delta)$ when the \bet flushes the message to Node $D$.
+
 \section{Full-path-indexed \betrfs}
-\label{sec:fpi}
+\label{sec:bg:fpi}
 
 \begin{figure}[t]
     \centering
@@ -313,7 +430,7 @@ implementation of \betrfs), 4KiB is the natural block size
 because it is the same as the page size in the Linux page cache.
 
 \betrfs can write to a block without fetching the old block to memory, avoiding
-expensive read-before-write described in Section~\ref{sec:bet}.
+expensive read-before-write described in Section~\ref{sec:bg:bet}.
 Conventional file systems must read the old block from the disk to the page
 cache before writing to that block (a complete overwrite can be done without
 fetching the old block, but it is not implemented in any file system).
@@ -368,7 +485,7 @@ because a rename needs to update all affected keys in the \bets,
 an operation that is uncommon in key/value stores.
 
 \section{Relative-path-indexed \betrfs}
-\label{sec:rpi}
+\label{sec:bg:rpi}
 
 \begin{figure}[t]
     \begin{subfigure}[t]{.5\textwidth}
@@ -562,7 +679,10 @@ timestamp updates.
 And, as we will eventually see with the range-clone operations, we can clone the
 whole directory with one operation.
 
-\section{Summary}
+\section{Implementation}
+\label{sec:bg:impl}
+
+\section{Conclusion}
 
 \betrfs is a general file system designed for all operations, with a particular
 focus on random writes and locality.
