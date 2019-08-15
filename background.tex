@@ -794,6 +794,47 @@ since the node split fetches and dirties the parent and the child anyway.
 Similarly, a node merge also flushes the parent partitions to the children being
 merged.
 
+\subsection{Transactions}
+\label{sec:bg:impl:txn}
+
+\Fti performs multiple operations atomically in transactions.
+To avoid transactions from touching the same key, \fti maintains locks for key
+ranges in an interval tree.
+Before querying a key, the operation should read-lock the specific key range so
+that no other transaction can modify keys in the key range.
+Likewise, before modifying a key, the operation should write-lock the specific
+key range.
+The key locks are released only when the transaction commits or aborts.
+When a transaction fails to lock a key range for its operation, it should
+abort.
+
+Transaction commits or aborts are implemented with transaction-commit or
+transaction-abort messages.
+When a transaction commits or aborts, it injects one transaction-commit or
+transaction-abort message for each operation it performs.
+For example, consider an insert for key $k$ in a transaction.
+During the transaction, the insert injects an \putm message with key $k$
+to the lifted \bet.
+When the transaction commits, the transaction injects a transaction-commit
+message with key $k$ for the insert, finalizing the insert.
+If the transaction aborts, the transaction injects a transaction-abort message
+with key $k$ for the insert, invalidating the insert.
+Queries need to ignore uncommitted or aborted messages.
+
+\subsection{Recovery}
+\label{sec:bg:impl:recover}
+
+\Fti ensures crash consistency by keeping a redo log of pending messages and
+applying messages to \betrfs nodes with copy-on-write.
+At periodic intervals (60 seconds in \betrfs), \fti checkpoints its lifted
+\bets by writing all dirty nodes to the disk.
+Then, \fti can discards the redo log that stores operations after previous
+checkpoint.
+Application can ensure all changes are persistent on the disk by force a log
+flush.
+When a machine fails, after rebooting, \fti simply replays the redo log on the
+lifted \bets at the last checkpoint.
+
 \section{Conclusion}
 
 \betrfs is a general file system designed for all operations, with a particular
