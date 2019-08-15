@@ -15,7 +15,7 @@ in an I/O-efficient way on \bets.
 In particular, the range-rename operation introduces two key techniques,
 \textbf{tree surgery} (Section~\ref{sec:rr:op:surgery}) and
 \textbf{key lifting} (Section~\ref{sec:rr:op:lift}).
-At last, Section~\ref{sec:rr:imp} talks about implementation details of
+At last, Section~\ref{sec:rr:impl} talks about implementation details of
 the range-rename operation in \fti and \betrfs.
 
 \section{The range-rename interface}
@@ -1182,6 +1182,9 @@ keys of a certain prefix,
 in which the node being split can be nearly undersized and
 the two slicing keys can split the node unevenly.
 Therefore, tree surgery can generate nodes that are undersized.
+Moreover, to make the source and destination subtree at the same height,
+tree surgery keeps slicing the subtree with a lower LCA,
+which creates empty non-leaf nodes with only one child.
 
 The range-rename operation handles this situation by
 triggering a rebalancing within the tree.
@@ -1213,42 +1216,20 @@ the height of the tree.
 In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
 
 \section{Implementation}
-\label{sec:rr:imp}
+\label{sec:rr:impl}
 
 This section discusses implementation details of the range-rename operation.
 
-\subsection{The message buffer}
+\subsection{Re-lifting a non-leaf node}
 
-\Fti stores messages in a non-leaf node in multiple buffers, called partitions,
-rather than keeping them in a single large buffer.
-A non-leaf node in \fti with $n$ children has $n$ partitions, each corresponds
-to a child of the node, and each partition stores message in a list, sorted
-by the logical timestamps of messages.
-When a message is injected or flushed to a non-leaf node, it is placed at the
-tail the partition
-that corresponds to the child the message will be flushed to later.
-The benefit of such a design is that a query doesn't need to fetch the whole
-non-leaf node,
-because only one partition can contain messages with the query key.
-Therefore, the amount of I/Os a query needs to perform is reduced.
-Moreover, because messages are sorted in the timestamp order, the flushing
-process can simply iterate the list in the parent buffer.
-
-\paragraph{Splitting fringe nodes.}
-Because each partition keeps messages in the timestamp order, it is difficult
-to separate messages targeting two resulting children.
-Therefore, before splitting a node, \fti first flushes all messages in the
-parent partition to the child node.
-Thus, in the splitting process of tree surgery, before splitting fringe nodes
-from bottom up, all messages along the root-to-leaf path are flushed to the
-leaf nodes.
-
-\paragraph{Re-lifting a non-leaf node.}
 Re-lifting a node requires updating prefixes of all keys in the node.
 Because \fti has a large node size (4 MiB),
 re-lifting a node can cause a large amount of computation.
 
-However, with partitions, we can lift the prefixes of keys in a partition by the
+However, as described in Section~\ref{sec:bg:impl:partition},
+\fti stores messages in a non-leaf node in partitions,
+each corresponds to a child.
+Therefore, we can lift the prefixes of keys in a partition by the
 LCP of two pivots bounding it in the non-leaf node.
 In other words, keys in the partition are not only lifted by pivots in ancestors
 but also the two pivots in the node.
@@ -1270,6 +1251,21 @@ lifted for keys in the partition is still $(p+q)$.
 Therefore, re-lifting a non-leaf node only needs to update pivots.
 It is not necessary to touch any message in partitions.
 However, re-lifting a leaf node still requires updating all keys.
+
+\subsection{Splitting fringe nodes}
+
+As discussed in Section~\ref{sec:bg:impl:partition},
+because partitions store messages in the timestamp order,
+a node split needs to empty the parent partition through flushing
+before splitting the child.
+Since tree surgery splits fringe nodes from bottom up,
+all partitions involved must be empty.
+To this end, in the process that identifies all fringe nodes,
+after flushing all related messages to the LCA,
+tree surgery keeps flushing messages along the two root-to-leaf paths
+that contain fringe nodes.
+Because tree surgery holds the write lock of the parent of the LCA,
+no message will be injected into the partitions involved in tree surgery.
 
 \subsection{Transactions}
 
