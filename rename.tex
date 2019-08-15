@@ -8,18 +8,18 @@ range-rename operation on the \bet.
 The range-rename operation will then update all related key/value pairs in
 the file system rename efficiently.
 
-Section~\ref{sec:rrint} describes the range-rename interface and shows how
+Section~\ref{sec:rr:int} describes the range-rename interface and shows how
 \betrfs can implement file system renames by calling range-rename operations.
-Then, Section~\ref{sec:rr} discusses how to implement the range-rename operation
+Then, Section~\ref{sec:rr:op} discusses how to implement the range-rename operation
 in an I/O-efficient way on \bets.
 In particular, the range-rename operation introduces two key techniques,
-\textbf{tree surgery} (Section~\ref{sec:rr:surgery}) and
-\textbf{key lifting} (Section~\ref{sec:rr:lift}).
-At last, Section~\ref{sec:rrimp} talks about implementation details of
+\textbf{tree surgery} (Section~\ref{sec:rr:op:surgery}) and
+\textbf{key lifting} (Section~\ref{sec:rr:op:lift}).
+At last, Section~\ref{sec:rr:imp} talks about implementation details of
 the range-rename operation in \fti and \betrfs.
 
 \section{The range-rename interface}
-\label{sec:rrint}
+\label{sec:rr:int}
 
 Range-rename is a new key/value store operation defined as
 range-rename(\spre, \dpre).
@@ -105,7 +105,7 @@ range-rename implementation, that is, a range-rename implementation that
 completes in a bounded number of I/Os.
 
 \section{The range-rename operation}
-\label{sec:rr}
+\label{sec:rr:op}
 
 This section describes the range-rename implementation on the
 \bet with a bounded number of I/Os.
@@ -119,18 +119,18 @@ in the \bet.
 The prefixes of keys in the subtree are updated automatically through
 \textbf{key lifting}, which transforms \bets into lifted \bets.
 
-Section~\ref{sec:rr:surgery} describes tree surgery, which splits nodes in the
+Section~\ref{sec:rr:op:surgery} describes tree surgery, which splits nodes in the
 \bet to create an isolated subtree of a prefix.
 Tree surgery also flushes messages in the \bet to push all related messages into
 the isolated subtree.
-Then, Section~\ref{sec:rr:lift} introduces key lifting, which transforms the
+Then, Section~\ref{sec:rr:op:lift} introduces key lifting, which transforms the
 \bets into lifted \bets that update prefixes of keys in a subtree
 automatically when the subtree is moved to another location.
-At last, Section~\ref{sec:rr:rr} combines the two techniques and shows how
+At last, Section~\ref{sec:rr:op:rr} combines the two techniques and shows how
 to implement the efficient range-rename operation on lifted \bets.
 
 \subsection{Tree surgery}
-\label{sec:rr:surgery}
+\label{sec:rr:op:surgery}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -531,7 +531,7 @@ To avoid such case, we create a new root node as the parent of the old root
 node before slicing.
 
 \subsection{Key lifting}
-\label{sec:rr:lift}
+\label{sec:rr:op:lift}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -836,7 +836,7 @@ store.
 just with a slightly different data structure.
 
 \subsection{The range-rename operation on lifted \bets}
-\label{sec:rr:rr}
+\label{sec:rr:op:rr}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -1140,9 +1140,9 @@ range-delete message for source keys.
 The range-delete message leverages the existing garbage collection mechanism
 to reclaim the space of the destination subtree.
 
-An invariant the \bet inherits from the \btree is that all leaf nodes should be
-at the same distance from the root node.
-Otherwise, the \bet or \btree is unbalanced, breaking the asymptotic I/O cost
+Similar to a \btree, a \bet should keep all leaf nodes at the same distance
+from the root node.
+Otherwise, the \bet becomes unbalanced, breaking the asymptotic I/O cost
 analysis.
 In order to keep all leaf nodes at the same distance after transplanting,
 the range-rename operation requires the source and destination subtrees to be at
@@ -1170,26 +1170,32 @@ the range-delete message, and all keys with prefix ``/R/'' in
 Figure~\ref{subfig:rr-1} now have prefix ``/B/''.
 
 \paragraph{Healing.}
-The lifted \bets maintains the invariant that each non-leaf node should have
-$O(log_{B}{N})$ children, which bounds the height of the tree.
-However, tree surgery might break the constraint because it splits nodes with
-its own keys.
+Tree surgery may create undersized \bet nodes,
+i.e., non-leaf nodes without enough children or leaf nodes without enough
+key/value pairs.
+In a normal node split, the \bet evenly splits a node that is oversized
+(a non-leaf node with too many children or
+a leaf node with too many key/value pairs),
+so the resulting two nodes will not be undersized.
+However, tree surgery splits normal nodes with the minimum and maximum
+keys of a certain prefix,
+in which the node being split can be nearly undersized and
+the two slicing keys can split the node unevenly.
+Therefore, tree surgery can generate nodes that are undersized.
 
-This situation is handled by triggering a rebalancing within the tree after
-the range-rename operation.
+The range-rename operation handles this situation by
+triggering a rebalancing within the tree.
 Specifically, if a node has only one child, the slicing process will merge
-it after completing the work of the range-rename operation.
+the node after completing the work of the range-rename operation.
 After the transplant completes, there may be a number of \bet nodes in memory at
 the fringe around the source and destination that have fewer children than
 desired.
 The healing process merges these smaller nodes back together,
 using the same approach as a typical \bet node merge.
-At this point, it is also possible that this could trigger a rebalancing within
-the tree.
 
 \paragraph{Complexity.}
 During tree surgery, at most 4 root-to-leaf paths
-(2 for source and 2 for destination)are traversed, dirtying all
+(2 for source and 2 for destination) are traversed, dirtying all
 nodes along the paths.
 These nodes will need to be read, if not in cache, and written back to disk as
 part of the checkpointing process.
@@ -1207,7 +1213,7 @@ the height of the tree.
 In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
 
 \section{Implementation}
-\label{sec:rrimp}
+\label{sec:rr:imp}
 
 This section discusses implementation details of the range-rename operation.
 
