@@ -107,19 +107,22 @@ completes in a bounded number of I/Os.
 \section{The range-rename operation}
 \label{sec:rr}
 
-This section describes the approach to perform the range-rename operation on the
+This section describes the range-rename implementation on the
 \bet with a bounded number of I/Os.
 The efficient range-rename operation requires lexicographic key order so that
 keys with the same prefix are contiguous in the key space.
-With contiguous keys, it is possible to have an isolated subtree that contains
-and only contains all keys of a certain prefix in the \bet.
-The range-rename operation performs \textbf{tree surgery} to slice out such an
-isolated subtree, which are then moved to another locations in the \bet.
+With contiguous keys, the range-rename operation can create an isolated subtree,
+which contains and only contains all keys of a certain prefix,
+in the \bet through \textbf{tree surgery}.
+Then, the range-rename operation moves the isolated subtree to another location
+in the \bet.
 The prefixes of keys in the subtree are updated automatically through
 \textbf{key lifting}, which transforms \bets into lifted \bets.
 
 Section~\ref{sec:rr:surgery} describes tree surgery, which splits nodes in the
 \bet to create an isolated subtree of a prefix.
+Tree surgery also flushes messages in the \bet to push all related messages into
+the isolated subtree.
 Then, Section~\ref{sec:rr:lift} introduces key lifting, which transforms the
 \bets into lifted \bets that update prefixes of keys in a subtree
 automatically when the subtree is moved to another location.
@@ -485,14 +488,15 @@ Therefore, tree surgery can perform two root-to-leaf traversals with two keys,
 $p_{min}$ and $p_{max}$, to identify all fringe nodes.
 
 An important fringe node for tree surgery is the \textbf{LCA}
-(Lowest Common Ancestor) of the two traversing keys: the lowest \bet node
-whose key range includes both keys.
+(Lowest Common Ancestor) of the two traversing keys, that is, the lowest
+(the most distant from the root node)
+\bet node whose key range includes both keys.
 For example, in Figure~\ref{subfig:slice-1}, Node $C$ is the LCA of prefix
 ``/R/''.
 The subtree rooted at the LCA is the lowest subtree in the \bet that covers
 the whole range $(p_{min}, p_{max})$.
-Therefore, this subtree is the lowest subtree tree surgery can use to slice out
-its target subtree.
+Therefore, to generate the smallest subtree of range $(p_{min}, p_{max})$,
+tree surgery slices out the subtree rooted at the LCA.
 In order to push all related messages into the subtree, before reaching the LCA,
 tree surgery also performs parent-to-child flushes for fringe nodes.
 
@@ -500,11 +504,11 @@ tree surgery also performs parent-to-child flushes for fringe nodes.
 With all related messages and key/value pairs in the subtree rooted at the LCA,
 tree surgery starts slicing out the isolated subtree
 by splitting fringe nodes from bottom up.
-The goal of slicing to separate unrelated keys in the fringe nodes
+The goal of slicing is to separate unrelated keys in the fringe nodes
 from keys in the key range (thus with prefix $p$).
-Slicing uses the same code used for standard \bet node splits, but
-divides the node at one of the slicing keys, $p_{min}$ or $p_{max}$, rather than
-picking a key in the middle of the node.
+Slicing uses the same code as standard \bet node splits, but,
+rather than picking a key in the middle of the node,
+divides the node at one of the slicing keys, $p_{min}$ or $p_{max}$.
 
 Figure~\ref{subfig:slice-2} shows the \bet after the bottom-up slicing splits
 leaf nodes.
@@ -523,7 +527,7 @@ only contains all keys with the prefix ``/R/''.
 
 A special case in tree surgery is when the LCA is the root node of the \bet.
 In such a scenario, splitting the root node divides the tree into a forest.
-To avoid such case, we creates a new root node as the parent of the old root
+To avoid such case, we create a new root node as the parent of the old root
 node before slicing.
 
 \subsection{Key lifting}
@@ -748,11 +752,11 @@ After tree surgery, one can move the isolated subtree to another location on
 the \bet.
 However, the keys in the subtree will not be coherent with the new location in
 the tree.
-Also, as a part of the range-rename operation, the prefixes of keys in this
+Thus, as a part of the range-rename operation, the prefixes of keys in this
 subtree need to be updated.
 A naive approach will traverse the subtree and update all keys.
-However, this process costs a lot of I/Os, touching nodes that would otherwise
-be untouched by tree surgery.
+However, this process costs a lot of I/Os, rewriting every node in the source
+subtree.
 The particularly concerning case is when the subtree is very large.
 
 Key lifting eliminates the need to update prefixes of keys in the subtree by
@@ -783,7 +787,7 @@ Therefore, all keys in the subtree must have prefix ``/R/'' and key lifting
 removes this prefix from the subtree
 (we show the lifted prefix on the parent-to-child pointer and mark the lifted
 prefix as strike-through in the subtree).
-Because now keys in Node $B$ doesn't have prefix ``/R/'' physically in the node,
+Because now keys in Node $B$ don't have prefix ``/R/'' physically in the node,
 we show transparent keys in the node.
 Likewise, Node $D$ is bounded by ``m/a'' and ``m/z'' in Node $B$
 (note ``/R/'' is already lifted from the sutbree rooted at Node $B$),
@@ -796,17 +800,17 @@ becomes ``/B/'', all keys in the subtree have prefix ``/B/'' instead.
 For examples in the rest of the dissertation, we will not show lifted prefixes
 in keys.
 
-A query on a lifted \bet needs to memorize lifted prefixes during the
+A query on a lifted \bet needs to track lifted prefixes during the
 root-to-leaf traversal and reconstruct the full key by concatenating these
 prefixes and the suffix in the leaf.
 For example, consider a query for key ``/R/m/1'' in Figure~\ref{subfig:lift-1}.
-When the query follows the parent-to-child pointer from Node $A$ to Node $B$,
-it notices the lifted prefix ``/R/''.
-Therefore, it search for key ``m/1'' in Node $B$ and follows the parent-to-child
-pointer to Node $D$.
-Again, it removes the lifted prefix, ``m/'', from its search key.
-After it finds the key/value pair of key ``1'' in Node $D$, it prepends prefixes
-lifted long the root-to-leaf path and recover the full key ``/R/m/1''.
+When following the parent-to-child pointer from Node $A$ to Node $B$,
+the query notices the lifted prefix ``/R/''.
+Therefore, the query searches for key ``m/1'' in Node $B$ and follows the
+parent-to-child pointer to Node $D$.
+Again, the query removes the lifted prefix, ``m/'', from the search key.
+After fetching the key/value pair of key ``1'' in Node $D$, the query prepends
+prefixes lifted long the root-to-leaf path and recovers the full key ``/R/m/1''.
 Note the recovering process is not necessary for point queries because they know
 their keys beforehand, but range queries must reconstruct the resulting keys.
 
@@ -828,8 +832,8 @@ Therefore, key lifting doesn't incur additional I/Os for other \bet operations.
 
 Key lifting is completely transparent to the application using the key/value
 store.
-From \betrfs's perspective, it is still storing key/value pairs with
-full-path keys, just with a slightly different data structure.
+\betrfs still stores key/value pairs with full-path keys,
+just with a slightly different data structure.
 
 \subsection{The range-rename operation on lifted \bets}
 \label{sec:rr:rr}
