@@ -1220,6 +1220,20 @@ In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
 
 This section discusses implementation details of the range-rename operation.
 
+\subsection{Synchronization}
+
+The range-rename operation synchronizes with other \bet operations using
+the readers-writer locks of \bet nodes (Section~\ref{sec:bg:impl:sync}).
+Starting from the root node, the range-rename operation
+write-locks \bet nodes hand-over-hand until reaching the LCAs.
+To avoid newer messages being flushed to the subtrees rooted at the LCAs,
+the write locks of the LCAs and the parents of the LCAs are held until the
+range-rename operation completes.
+Then, the range-rename operation write-locks all fringe nodes below the LCAs
+and releases the write locks after the bottom-up node splits.
+After transplanting, the range-rename operation finally releases the write locks
+of the LCAs and the parents of the LCAs.
+
 \subsection{Re-lifting a non-leaf node}
 
 Re-lifting a node requires updating prefixes of all keys in the node.
@@ -1328,22 +1342,13 @@ last checkpoint.
 
 \subsection{Latency}
 
-\Fti maintains a readers-writer lock for each \bet node.
-A query needs to read-lock all nodes along its root-to-leaf path, while a
-write operation needs to write-lock the root node.
-To avoid contentions on the root lock, \fti has a promotion mechanism.
-Specifically, if the partition the message should be injected into is empty,
-the message can be directly injected into the child.
-In such a scenario, the write operation only needs to write-lock the node it is
-going to inject its message and read-lock its ancestors.
-
 The range-rename operation returns to the user once the range-rename and its
 transaction commit entry is in the log and the root node of the \bet is
 write-locked.
-no other operation on the \bet can proceed before the range-rename operation
-releases the root lock.
-The rest of the range-rename work is handed off to background threads, which
-performing slicing, transplanting and healing.
+No read or write operation to the \bet can start before the range-rename
+operation releases the root lock.
+The rest of the range-rename work is handed off to background threads that
+perform slicing, transplanting and healing.
 
 \subsection{\betrfs key order}
 

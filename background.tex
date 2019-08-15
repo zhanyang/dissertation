@@ -747,6 +747,17 @@ whole directory with one operation.
 
 This section discusses implementation details of \fti.
 
+\subsection{Synchronization}
+\label{sec:bg:impl:sync}
+
+\Fti maintains a readers-writer lock for each \bet node to synchronize
+operations in the \bet.
+In \fti, a query grabs the read locks of all nodes along the root-to-leaf path,
+while a write operation grabs the write lock of the root node.
+A node split or merge grabs the write locks of the parents and children
+involved in the rebalancing process.
+Similarly, the flushing process write-locks the parent and the child.
+
 \subsection{The message buffer}
 \label{sec:bg:impl:partition}
 
