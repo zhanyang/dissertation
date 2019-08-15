@@ -2,10 +2,11 @@
 \label{chap:rename}
 
 This chapter describes the range-rename operation~\citep{betrfs4,betrfs4tos}
-on \bets that makes efficient renames possible on full-path-indexed \betrfs.
-To perform a file system rename, \betrfs simply invokes the range-rename
-operation on \bets,
-which updates all related key/value pairs in an I/O-efficient way.
+on \bets.
+Full-path-indexed \betrfs can implement a file system rename by invoking the
+range-rename operation on the \bet.
+The range-rename operation will then update all related key/value pairs in
+the file system rename efficiently.
 
 Section~\ref{sec:rrint} describes the range-rename interface and shows how
 \betrfs can implement file system renames by calling range-rename operations.
@@ -22,16 +23,19 @@ the range-rename operation in \fti and \betrfs.
 
 Range-rename is a new key/value store operation defined as
 range-rename(\spre, \dpre).
-Define a key/value pair whose key has prefix \spre as a source key/value pair
-and a key/value pair whose key has prefix \dpre as a destination key/value pair.
+The range-rename operation takes two prefixes, \spre and \dpre, as arguments
+and updates source and destination key/value pairs
+(a source/destination key/value pair has the prefix \spre/\dpre in its key).
 Range-rename(\spre, \dpre) does three things:
 \begin{itemize}
-\item it deletes all destination key/value pairs from the key/value store;
+\item the range-rename operation deletes all destination key/value pairs
+    from the key/value store
 \item then, for each source key/value pair $(k,v)$ in the key/value store,
-it inserts a key/value pair $(k',v)$ to the key/value store,
-where $k$ is the concatenation of \spre and some suffix $s$ and $k'$ is the
-concatenation of \dpre and the same suffix $s$;
-\item at last, it deletes all source key/value pairs from the key/value store.
+    the range-rename operation inserts a key/value pair $(k',v)$
+    to the key/value store, where $k$ is the concatenation of \spre and some
+    suffix $s$ and $k'$ is the concatenation of \dpre and the same suffix $s$;
+\item at last, the range-rename operation deletes all source key/value pairs
+    from the key/value store.
 \end{itemize}
 In other words, the range-rename deletes all destination key/value pairs and
 updates all source key/value pairs, changing the key prefix from \spre to \dpre.
@@ -88,8 +92,17 @@ invoking three operations on \bets: an insert, a delete and a range-rename
 operation.
 And a directory rename can be done with an insert, a delete and two
 range-rename operations.
-Therefore, efficient renames are possible in full-path-indexed \betrfs if
-the \bet can complete the range-rename operation efficiently.
+
+In fact, previous full-path-indexed \betrfs unconsciously implemented the
+range-rename operation with existing \bet operations,
+\texttt{del}, \texttt{get} and \texttt{put}.
+However, this range-rename implementation touches all source and destination
+key/value pairs.
+The I/O-cost of this range-rename implementation increases
+when the number of source and destination key/value pairs grows.
+Efficient file system renames in full-phat-indexed \betrfs require an efficient
+range-rename implementation, that is, a range-rename implementation that
+completes in a bounded number of I/Os.
 
 \section{The range-rename operation}
 \label{sec:rr}

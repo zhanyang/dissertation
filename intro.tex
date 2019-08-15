@@ -139,8 +139,8 @@ because the file system needs to update more key/value pairs
 (full-path-indexed \betrfsThree stores each 4KiB block of a file as
 a key/value pair).
 
-This dissertation presents I/O-efficient ways to do namespace operations in a
-full-path-indexed, write-optimized file system.
+This dissertation presents I/O-efficient implementations of namespace operations
+in a full-path-indexed, write-optimized file system.
 Specifically, though full-path indexing limits possible changes on the schema
 level, we observe that it can make all full-path names under a directory
 contiguous in the key space.
@@ -151,7 +151,7 @@ range-rename, that completes file system renames with a bounded number of I/Os.
 Moreover, the contiguity in the key space enables namespace operations that are
 difficult in inode-based file systems.
 In particular, we expand the range-rename operation into the range-clone
-operation, which can complete file or directory clones in an efficient way.
+operation, which can complete file or directory clones efficiently.
 
 The primary contribution of this dissertation is to show that there is no
 trade-off between efficient namespace operations and locality.
@@ -175,7 +175,7 @@ have keys with another prefix after the range-rename operation.
 This is done efficiently through two techniques,
 \textbf{key lifting} and \textbf{tree surgery}.
 And with efficient range-rename, full-path-indexed \betrfs can implement file
-system renames in an efficient way.
+system renames efficiently.
 
 Chapter~\ref{chap:clone} expands the range-rename operation into the
 range-clone operation.
