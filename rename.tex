@@ -1133,19 +1133,23 @@ On a lifted \bet, range-rename(\spre, \dpre) can be done with two steps:
 \paragraph{Tree Surgery.}
 The range-rename operation first slices out two isolated subtrees in the lifted
 \bet simultaneously, one of \spre and the other of \dpre.
-The range-rename operation requires the source and destination subtrees to be at
-the same height,
-therefore, for the subtree with a lower LCA, the range-rename operation keeps
-slicing its ancestors by adding nodes with only one child.
 
 \paragraph{Transplant.}
 Then, the range-rename operation swaps these two subtrees and injects a
 range-delete message for source keys.
-Because the source and destination subtree are at the same height, the swap
-doesn't violate the \bet invariant that all leaf nodes should be at the same
-distance from the root node.
 The range-delete message leverages the existing garbage collection mechanism
 to reclaim the space of the destination subtree.
+
+An invariant the \bet inherits from the \btree is that all leaf nodes should be
+at the same distance from the root node.
+Otherwise, the \bet or \btree is unbalanced, breaking the asymptotic I/O cost
+analysis.
+In order to keep all leaf nodes at the same distance after transplanting,
+the range-rename operation requires the source and destination subtrees to be at
+the same height.
+Therefore, in tree surgery, for the subtree with a lower LCA,
+the range-rename operation keeps slicing its ancestors by adding empty nodes
+with only one child.
 
 Figure~\ref{fig:rr} shows an example of range-rename(``/R/'', ``/B/'') on the
 \bet.
@@ -1372,7 +1376,7 @@ Now, ``/foo'' and ``/foo/bar'' become ``//foo'' and ``/foo//bar'', respectively
 With the new full-path keys, \betrfs can use \texttt{memcmp} as the key
 comparison function while satisfying the readdir constraint.
 
-\section{Summary}
+\section{Conclusion}
 
 This chapter presents the new range-rename operation on \bets.
 File system renames in full-path-indexed \betrfs can be done with an insert,
