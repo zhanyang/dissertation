@@ -1,10 +1,12 @@
 \chapter{Conclusion}
 \label{chap:conclusion}
 
-File systems faced trade-offs between the performance of namespace
+File systems faces trade-offs between the performance of namespace
 operations and spatial locality.
-On one hand, traditional inode-based file systems have good performance for namespace
-operations because of the indirection between a directory and entries under it.
+On one hand,
+traditional inode-based file systems have good performance for namespace
+operations because of the indirection between a directory and entries in the
+directory.
 However, this indirection stops these file systems from grouping metadat and data
 under one directory close to each other on disk,
 especially when the file system ages.
