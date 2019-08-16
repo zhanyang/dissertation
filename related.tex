@@ -1,16 +1,17 @@
 \chapter{Related Work}
 \label{chap:related}
 
-This chapter discusses related work to differentiate the contribution of \betrfs
+This chapter discusses related work to differentiate the contribution of
+this dissertation
 over previous research on write-optimization, full-path indexing in file
 systems, tree surgery and clones in file systems.
 
 \section{Write-optimization}
 
-\paragraph{Write-optimized dictionaries.}
-The most common write-optimized dictionaries is the LSM-tree~\citep{lsm}.
+\paragraph{WODs.}
+The most commonly used WOD is the log-structured merge tree (LSM-tree)~\cite{lsm}.
 Different from a \bet, a LSM-tree partitions key/value pairs into levels, with
-newer messages in higher levels.
+newer key/value pairs in higher levels.
 A level in a LSM-tree can be viewed as consisting of all nodes at one height in
 a \bet.
 
@@ -19,12 +20,13 @@ cascading~\citep{fcascading} to match the performance of \bets for both
 insertions and queries.
 
 xDict~\citep{xdict} is a cache-oblivious write-optimized dictionary with
-asymptotic behavior similar to a \bet
+asymptotic behavior similar to a \bet.
 
 \paragraph{Key/value stores.}
-LSM-trees are widely used in key/value stores, including
+Many key/value stores use WODs as the underlying data structures.
 BigTable~\citep{bigtable}, Cassandra~\citep{cassandra}, HBase~\citep{hbase},
-LevelDB~\citep{leveldb}, RocksDB~\citep{rocksdb}
+LevelDB~\citep{leveldb} and RocksDB~\citep{rocksdb} implement LSM-trees,
+while \fti~\cite{fti} and Tucana~\cite{tucana} implement \bets.
 
 Many research focus on optimizing different aspects of the LSM-tree on LevelDB.
 LOCS~\citep{locs} optimizes LSM-trees for multi-channel SSDs.
@@ -86,15 +88,16 @@ different from keeping logically contiguous data physically contiguous on disk.
 Some systems, such as the Google File System, also do not support common POSIX
 operations, such as listing a directory.
 
-The dcache optimization~\citep{dcache} demonstrates that indexing the in-memory
-kernel cache by full-paths can improve several lookup operations, such as
-\texttt{open}.
+The dcache optimization proposed by Tsai et al. demonstrates that
+indexing the in-memory kernel cache by full-path names can improve several
+lookup operations, such as \texttt{open}~\citep{dcache}.
 
 \section{Tree surgery}
 
 Most tress used in storage systems only modify or rebalance node as the result
 of insertions and deletions.
-Violent changes, such as tree surgery, are uncommon.
+Operations, such as slicing out or relocating a subtree in tree surgery,
+are uncommon.
 
 Order Indexes~\citep{orderindex} introduces relocation updates which moves nodes
 in the tree, to support dynamic indexing.
@@ -104,7 +107,50 @@ directory tree to adaptively distribute metadata to different metadata servers.
 
 \section{Clones in file systems}
 
-\paragraph{file systems with snapshots.}
+\begin{table}[t]
+    \centering
+    \begin{tabular}{l | c c c }
+        \hline
+        File System & Whole File System Clone & File Clone & Directory Clone \\
+        \hline
+        \hline
+        WAFL~\cite{wafl,wafl-flexvol} & Writable & No & No \\
+        \hline
+        FFS~\cite{ffs1,ffs2} & Read-only & No & No \\
+        \hline
+        NILFS2~\cite{nilfs2} & Read-only & No & No \\
+        \hline
+        ZFS~\cite{zfs} & Read-only & No & No \\
+        \hline
+        GCTree~\cite{gctree} & Read-only & No & No \\
+        \hline
+        NOVA-Fortis~\citep{nova} & Read-only & No & No \\
+        \hline
+        The Episode file system~\cite{episode} & No & No & Writable$^{*}$ \\
+        \hline
+        Ext3cow~\cite{ext3cow} & No & Writable & No \\
+        \hline
+        Btrfs~\citep{btrfs,cowbtree} & Writable & Writable & Writable$^{*}$ \\
+        \hline
+        EFS~\cite{efs} & No & Read-only & Read-only \\
+        \hline
+        CVFS~\cite{cvfs} & No & Read-only & Read-only \\
+        \hline
+        Versionfs~\citep{versionfs} & No & Read-only & Read-only \\
+        \hline
+        \betrfs & Writable & Writable & Writable \\
+        \hline
+    \end{tabular}
+    \caption[Clones in file systems]{\label{tab:clonefs}
+        Clones in file systems
+        ($^{*}$ to enable directory clones, users need to mark the
+        directory as a subvolume (Btrfs) or a fileset (the Episode file system)
+        before putting anything to the directory).}
+\end{table}
+
+Table~\ref{tab:clonefs} summarizes the support of clones in file systems.
+
+\paragraph{File systems with snapshots.}
 
 Many modern file systems provide snapshot mechanism, making read-only copies of
 the whole file system.

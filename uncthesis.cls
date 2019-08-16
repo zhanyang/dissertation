@@ -71,8 +71,8 @@
 \RequirePackage{ragged2e}
 
 % Citation style
-\RequirePackage{natbib}
-\RequirePackage{apalike}
+\RequirePackage[numbers, sort]{natbib}
+%\RequirePackage{apalike}
 
 % include citations inline
 \RequirePackage{bibentry}
