@@ -103,8 +103,8 @@ This implementation shows all the work in the range-clone operation and
 helps the understanding of the write-optimized implementation described in
 later sections.
 Then, Section~\ref{sec:rc:goto} introduces \goto messages.
-A range-rename operation can return to application immediately after injecting
-a \goto message into the root node,
+the range-rename operation can return to application immediately after injecting
+a \goto message into the root node after reaching the source LCA,
 without slicing out the subtrees.
 Finally, Section~\ref{sec:rc:flush} shows how \goto messages are flushed in
 the data structure, gradually finishing the range-clone work.
@@ -674,48 +674,61 @@ includes Node $C$.
 \subsection{Range-clone with \goto messages}
 \label{sec:rc:goto}
 
-Instead of performing all works on the critical path, range-clone can use a
-new type of messages, the \goto message, that delays tree surgery
+Instead of completing all work on the critical path, range-clone can use a
+new type of message, the \goto message, that delays tree surgery
 in the lifted \bedag.
+
+This subsection describes the \goto message and how the range-clone operation
+can return to the user by injecting a \goto message into the root node.
+The next subsection (Section~\ref{sec:rc:flush}) shows how the \bet flushes
+a \goto message,
+completing all work in the range-clone operation.
 
 \paragraph{The \goto message.}
 A \goto message consists of 3 parts: a \dpre, a \spre, a node ID
 (with its height in the \bedag).
-When a query visits a node during its root-to-leaf traversal, it must check
-\goto messages.
-If the \dpre of a \goto message matches the search key, the query should follow
-the \goto message, instead of the parent-to-child pointer in the node.
-In other words, the next node this query visit should be the node whose node ID
-is in the \goto message.
-Also, the query should update its search key by changing the prefix from \dpre
-to \spre.
-If the query finds multiple \goto messages matching its search key, it follows
-the \goto message with the latest timestamp.
+Generally speaking, a \goto message serves as an additional parent-to-child
+pointer in the \bet node with an \xf (translate-and-filter) function.
+Rather than following normal parent-to-child pointers in the node,
+a query whose search key falls in the key range (\dpre$_{min}$, \dpre$_{max}$)
+must follow the \goto message, that is, the next node the query visits
+should be the node whose node ID is in the \goto message.
+Also, the query should update its search key by replacing prefix \dpre with
+prefix \spre.
+Later, the query needs to reconstruct the result by replacing prefix \spre
+with prefix \dpre in the key.
+Therefore, the \goto message should filters out keys that are not in the
+key range (\spre$_{min}$, \spre$_{max}$) in the subsequent search.
 
-A \goto message serves as an additional parent-to-child pointer in the node with
-a \xf (translate-and-filter) function.
-The \xf function not only translates search keys for queries by updating their
-prefix, but also filters out out-of-range keys in nodes that would be visited
-following the \goto message.
-
-For example, in Figure~\ref{subfig:goto-2}, consider a query for key ``/B/b''.
-The query first visits the root node, Node $A$ and finds a \goto message,
+For example, in Figure~\ref{subfig:goto-2}, consider a query for key ``/B/a''.
+The query first visits the root node, Node $A$, and finds a \goto message,
 \goto(``/B/'', ``/R'', $C$).
 This query should follow the \goto message and visit Node $C$,
 instead of the normal parent-to-child pointer to Node $B$..
-Additionally, the \goto message acts as a \xf function that translates the
-search key from ``/B/b'' to ``/R/b'' and bounds the query result to
-(``/R/$_{min}$'', ``/R/$_{max}$''),
-i.e., the query should not fetch a key without prefix ``/R/'' in the subtree
-(a range query for key ``/R/b'' may return a key/value pair whose key doesn't
-have prefix ``/R/'').
+Additionally, the \goto message acts as an \xf function that translates the
+search key from ``/B/a'' to ``/R/a'' and bounds the query result to
+(``/R/$_{min}$'', ``/R/$_{max}$'').
+After fetching the key/value pair with key ``/R/a'' in Node $F$,
+the query reconstructs the key by replacing prefix ``/R/'' with prefix ``/B/''.
+Therefore, the query returns the key/value pair with key ``/B/a''.
+To see why the \goto message needs bound the query result,
+consider a range query for a key that is greater than ``/B/z''.
+The \goto message in Node $A$ translates the search key to ``/R/z''.
+However, searching for a key greater than ``/R/z'' in the subtree rooted at
+Node $C$ returns key ``/Y/x'',
+which the query cannot reconstruct by replacing prefix ``/R/'' with prefix
+``/B/''.
+In fact, the \goto message is only for results whose keys falls in the key
+range (``/B/$_{min}$'', ``/B/$_{max}$''),
+therefore, any key that is not in the key range
+(``/R/$_{min}$'', ``/R/$_{max}$'') is invalid after following the \goto message.
 
 Because a \goto message redirects queries whose search keys have a certain
 prefix, it also acts as a range-delete message that invalidates all old messages
 and key/value pairs following other pointers (normal parent-to-child pointers
 and older \goto messages).
 Thus, if we set the node ID in a \goto message to a special value
-(e.g., 0), the \goto message acts as a range-delete message.
+(for example, 0), the \goto message acts as a range-delete message.
 Therefore, we can use \goto messages to implement range-delete.
 
 \begin{figure}
@@ -800,10 +813,8 @@ Therefore, we can use \goto messages to implement range-delete.
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={orange!60}] at (-.0325\textwidth, .234\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (-.0325\textwidth, .256\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .25\textwidth) {\delm(/R/o)};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .276\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\putm(/B/b,...)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (-.0325\textwidth, .276\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\delm(/R/o)};
 
             \draw[->, >=stealth] (-.225\textwidth, .113\textwidth) -- (-.26\textwidth, .063\textwidth);
             \draw[->, >=stealth] (-.165\textwidth, .113\textwidth) -- (-.13\textwidth, .063\textwidth);
@@ -905,10 +916,8 @@ Therefore, we can use \goto messages to implement range-delete.
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={orange!60}] at (-.0325\textwidth, .234\textwidth) {};
             \node[anchor=south, font=\tiny] at (-.0325\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
-            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .256\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .25\textwidth) {\goto(/B/,/R/,$C$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (-.0325\textwidth, .276\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\putm(/B/b,...)};
+            \node[anchor=south, font=\tiny] at  (-.0325\textwidth, .27\textwidth) {\goto(/B/,/R/,$C$)};
 
             \draw[->, >=stealth] (-.225\textwidth, .113\textwidth) -- (-.26\textwidth, .063\textwidth);
             \draw[->, >=stealth] (-.165\textwidth, .113\textwidth) -- (-.13\textwidth, .063\textwidth);
