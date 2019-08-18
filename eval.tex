@@ -1103,7 +1103,7 @@ Ext4, Btrfs, XFS performs sequential
 writes close to disk bandwidth, while \betrfsFive, similar to NILFS2, is about
 6.5\% slower than the fastest file system.
 The performance increase of \betrfsFive from \betrfsFour is from preferential
-splitting (Section~\ref{sec:rcimp}),
+splitting (Section~\ref{sec:rc:impl}),
 which creates a pivot matching the maximum file data key at the
 beginning of the workload, avoiding further node relifting in subsequent node
 splits as the file grows.
