@@ -3,13 +3,15 @@
 
 This chapter describes the range-clone operation on \bets, which can be used
 to implement file or directory clones and renames in full-path-indexed \betrfs.
-Unlikely a range-rename operation, which completes all its work at once,
-a range-clone operation injects a new type of messages, \goto messages,
+Unlike a range-rename operation, which completes all its work at once,
+a range-clone operation injects a new type of message, \goto messages,
 into the root node of the \bet.
 The \bet then flushes \goto messages with other messages in batches, gradually
 finishing the range-clone work.
-Therefore, the range-clone operation fits into the write-optimized framework of
-\bets.
+Therefore,
+the range-clone operation fits into the write-optimized framework of \bets,
+and the I/O cost of a range-clone operation is amortized with other messages.
+
 
 Section~\ref{sec:rcint} describes the range-clone interface and how to implement
 file or directory renames and clones in full-path-index \betrfs by calling the
@@ -20,7 +22,7 @@ with techniques introduced by the range-rename operation,
 finishing all work on the critical path.
 Then, we introduces the \goto message that delays most of the range-clone work
 to the flushing process in the data structure.
-At last, Section~\ref{sec:rcimp} talks about some implementation details in the
+Finally, Section~\ref{sec:rcimp} explains some implementation details in the
 range-clone operation.
 
 \section{The range-clone interface}
@@ -1888,7 +1890,7 @@ We track the pending work with an in-memory work queue and an extra flag in the 
 the flag in the block table ensures that checkpointing the system is not obstructed by garbage collection,
 and ensures that pending garbage collection work and space is not lost upon a crash.
 
-\section{Summary}
+\section{Conclusion}
 
 This chapter presents the new range-clone operation.
 We first describe a range-clone implementation that finishes all works
