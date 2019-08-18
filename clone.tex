@@ -700,7 +700,7 @@ with prefix \dpre in the key.
 Therefore, the \goto message should filters out keys that are not in the
 key range (\spre$_{min}$, \spre$_{max}$) in the subsequent search.
 
-For example, in Figure~\ref{subfig:goto-2}, consider a query for key ``/B/a''.
+For example, in Figure~\ref{subfig:goto-3}, consider a query for key ``/B/a''.
 The query first visits the root node, Node $A$, and finds a \goto message,
 \goto(``/B/'', ``/R'', $C$).
 This query should follow the \goto message and visit Node $C$,
@@ -831,7 +831,110 @@ Therefore, we can use \goto messages to implement range-delete.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (-.15\textwidth, .099\textwidth) {};
             \node[anchor=north, font=\tiny] at (-.15\textwidth, .102\textwidth) {lift(/)};
         \end{tikzpicture}
-        \caption{\label{subfig:goto-1} The \bet before the range-clone.}
+        \caption{\label{subfig:goto-1} The \bet before the range-clone operation.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \begin{tikzpicture}[xscale=0.95, yscale=0.95]
+            \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (0, 0) {};
+            \node[anchor=south, font=\tiny] at (0, .036\textwidth) {Node $F$};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (-.025\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.025\textwidth, 0) {R/a};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.028\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.028\textwidth, 0) {...};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={orange!60}] at (-.025\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.025\textwidth, .018\textwidth) {O/c};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.028\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.028\textwidth, .018\textwidth) {...};
+
+            \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.13\textwidth, 0) {};
+            \node[anchor=south, font=\tiny] at (.13\textwidth, .036\textwidth) {Node $G$};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.105\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.105\textwidth, 0) {o};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.158\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.158\textwidth, 0) {...};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.105\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.105\textwidth, .018\textwidth) {n};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.158\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.158\textwidth, .018\textwidth) {...};
+
+            \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (.26\textwidth, 0) {};
+            \node[anchor=south, font=\tiny] at (.26\textwidth, .036\textwidth) {Node $H$};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={yellow!60}] at (.235\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.235\textwidth, 0) {/Y/x};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.288\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.288\textwidth, 0) {...};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.235\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.235\textwidth, .018\textwidth) {/R/t};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (.288\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.288\textwidth, .018\textwidth) {...};
+
+            \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (-.13\textwidth, 0) {};
+            \node[anchor=south, font=\tiny] at (-.13\textwidth, .036\textwidth) {Node $E$};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={orange!60}] at (-.155\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.155\textwidth, 0) {O/a};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.102\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.102\textwidth, 0) {...};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={green!60}] at (-.155\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.155\textwidth, .018\textwidth) {G/c};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.102\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.102\textwidth, .018\textwidth) {...};
+
+            \node[anchor=south, rectangle, rounded corners, minimum height=.06\textwidth, minimum width=.12\textwidth, draw=black] at (-.26\textwidth, 0) {};
+            \node[anchor=south, font=\tiny] at (-.26\textwidth, .036\textwidth) {Node $D$};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={green!60}] at (-.285\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.285\textwidth, 0) {/G/a};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.232\textwidth, .005\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.232\textwidth, 0) {...};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={blue!60}] at (-.285\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.285\textwidth, .018\textwidth) {/B/a};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black] at (-.232\textwidth, .023\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.232\textwidth, .018\textwidth) {...};
+
+            \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.195\textwidth, .1\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.195\textwidth, .163\textwidth) {Node $B$};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={green!60}] at (-.195\textwidth, .105\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.195\textwidth, .1\textwidth) {/G/b};
+            \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.195\textwidth, .125\textwidth) {};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (-.195\textwidth, .147\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (-.195\textwidth, .141\textwidth) {\delm(/G/c)};
+
+            \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.13\textwidth, draw=black] at (.13\textwidth, .1\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.13\textwidth, .163\textwidth) {Node $C$};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.1\textwidth, .105\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.1\textwidth, .1\textwidth) {/R/m};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={red!60}] at (.16\textwidth, .105\textwidth) {};
+            \node[anchor=south, font=\tiny] at (.16\textwidth, .1\textwidth) {/R/s};
+            \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.13\textwidth, .125\textwidth) {};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .147\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .141\textwidth) {\putm(/R/z,...)};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={red!60}] at (.13\textwidth, .127\textwidth) {};
+            \node[anchor=south, font=\tiny] at  (.13\textwidth, .121\textwidth) {\delm(R/o)};
+
+            \node[anchor=south, rectangle, rounded corners, minimum height=.087\textwidth, minimum width=.12\textwidth, draw=black] at (-.0325\textwidth, .229\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.0325\textwidth, .292\textwidth) {Node $A$};
+            \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, draw=black, fill={orange!60}] at (-.0325\textwidth, .234\textwidth) {};
+            \node[anchor=south, font=\tiny] at (-.0325\textwidth, .229\textwidth) {/O/b};
+            \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (-.0325\textwidth, .254\textwidth) {};
+
+            \draw[->, >=stealth] (-.225\textwidth, .113\textwidth) -- (-.26\textwidth, .063\textwidth);
+            \draw[->, >=stealth] (-.165\textwidth, .113\textwidth) -- (-.13\textwidth, .063\textwidth);
+            \draw[->, >=stealth] (.13\textwidth, .113\textwidth) -- (.13\textwidth, .063\textwidth);
+            \draw[->, >=stealth] (.19\textwidth, .113\textwidth) -- (.26\textwidth, .063\textwidth);
+            \draw[->, >=stealth] (.07\textwidth, .113\textwidth) -- (0, .063\textwidth);
+            \draw[->, >=stealth] (-.0625\textwidth, .242\textwidth) -- (-.195\textwidth, .192\textwidth);
+            \draw[->, >=stealth] (-.0025\textwidth, .242\textwidth) -- (.13\textwidth, .192\textwidth);
+
+            \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (.13\textwidth, .099\textwidth) {};
+            \node[anchor=north, font=\tiny] at (.13\textwidth, .102\textwidth) {lift(/R/)};
+            \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (.04\textwidth, .099\textwidth) {};
+            \node[anchor=north, font=\tiny] at (.04\textwidth, .102\textwidth) {lift(/)};
+            \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (-.15\textwidth, .099\textwidth) {};
+            \node[anchor=north, font=\tiny] at (-.15\textwidth, .102\textwidth) {lift(/)};
+        \end{tikzpicture}
+        \caption{\label{subfig:goto-2}
+            The range-clone operation reaches the source LCA, Node $C$,
+            flushing messages along the way.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
@@ -934,8 +1037,8 @@ Therefore, we can use \goto messages to implement range-delete.
             \node[anchor=north,rectangle, minimum height=.015\textwidth, minimum width=.05\textwidth, fill={white}] at (-.15\textwidth, .099\textwidth) {};
             \node[anchor=north, font=\tiny] at (-.15\textwidth, .102\textwidth) {lift(/)};
         \end{tikzpicture}
-        \caption{\label{subfig:goto-2} The range-clone operation generates a \goto message
-            for destination (``/B/'') keys.}
+        \caption{\label{subfig:goto-3} The range-clone operation injects a \goto message
+            for destination (``/B/'') keys into the root node.}
     \end{subfigure}
     \caption[A range-clone example with a \goto message]{\label{fig:goto}
         An example of completing range-clone(``/R/'', ``/B/'') with a \goto message.}
@@ -943,31 +1046,34 @@ Therefore, we can use \goto messages to implement range-delete.
 
 \paragraph{Range-clone with \goto messages.}
 
-Range-clone(\spre, \dpre) can be implement with \goto messages through the
+Range-clone(\spre, \dpre) is implemented with \goto messages through the
 following steps:
 \begin{itemize}
-\item it performs a root-to-leaf traversal with \spre until reaching the source
-LCA, flushing messages from parent to child simultaneously.
+\item the range-clone operation does a root-to-leaf traversal with \spre
+until reaching the source LCA, the lowest node that covers the whole key range
+(\spre$_{min}$, \spre$_{max}$).
+During the traversal, the range-clone operation also flushes messages from
+parent to child.
 At this point, all messages with source keys are in the subtree rooted at the
 source LCA.
-\item it then injects a \goto message into the root node of the lifted \bedag
-with the source LCA as the node ID in the \goto message, increasing the
-reference count of the source LCA by 1.
-Note, the \spre in the \goto message can be different from the \spre of the
-range-clone operation,
-because the root-to-leaf traversal may lift some prefix from the \spre.
+\item the range-clone message then injects a \goto message into the root node of
+the lifted \bedag with the source LCA as the node ID in the \goto message,
+increasing the reference count of the source LCA by 1.
 \end{itemize}
-Note, this range-clone operation doesn't perform any node split on the critical
-path.
+Note, this range-clone operation doesn't do tree surgery or pointer swings
+on the critical path.
 
 Figure~\ref{fig:goto} shows an example of range-clone(``/R/'', ``/B/'')
 that generates a \goto message.
+Figure~\ref{subfig:goto-1} shows the \bet before the range-clone operation.
 Starting from the root node, Node $A$, the range-clone operation traverses to
 the source LCA, Node $C$.
 At the same time, it flushes the message, \delm(``/R/z''), to Node $C$.
-Then, the range-clone operation injects a \goto message into the root node,
+Figure~\ref{subfig:goto-2} shows the \bet after the range-clone operation
+reaches the source LCA.
+Finally, the range-clone operation injects a \goto message into the root node,
 with ``/B/'' as its \dpre, ``/R/'' as its \spre and Node $C$ as its node ID.
-Figure~\ref{subfig:goto-2} shows the result.
+Figure~\ref{subfig:goto-3} shows the result.
 Now, consider a query for key ``/B/a''.
 The query starts at the Node $A$.
 Then, instead of following the parent-to-child pointers to Node $B$, it follows
