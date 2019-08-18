@@ -750,8 +750,14 @@ This section discusses implementation details of \fti.
 \subsection{Synchronization}
 \label{sec:bg:impl:sync}
 
-\Fti maintains a readers-writer lock for each \bet node to synchronize
-operations in the \bet.
+\Fti keeps in-memory copies of nodes in the cache table to reduce the
+number of I/Os each operation requires.
+If an in-memory node is mutated by \bet operations,
+\fti marks the node dirty, indicting the node should be written to disk to make
+the on-disk version of the node up to date.
+
+To synchronize operations on the \bet,
+\fti maintains a readers-writer lock for each \bet node.
 In \fti, a query grabs the read locks of all nodes along the root-to-leaf path,
 while a write operation grabs the write lock of the root node.
 A node split or merge grabs the write locks of the parents and children
@@ -820,6 +826,25 @@ message with key $k$ for the insert, finalizing the insert.
 If the transaction aborts, the transaction injects a transaction-abort message
 with key $k$ for the insert, invalidating the insert.
 Queries need to ignore uncommitted or aborted messages.
+
+\subsection{Queries}
+\label{sec:bg:impl:query}
+
+The textbook way of implementing queries on \bets is to traverse the
+root-to-leaf path, collecting related messages in non-leaf nodes and related
+key/value pairs in the leaf node,
+and figure out the results.
+However, when we have transactions, upsert messages and range messages,
+writing query code to distinguish different scenarios is difficult,
+especially for range queries.
+
+Therefore, \fti implements queries in a different way.
+Specifically, a query traverses the root-to-leaf path and applies messages in
+non-leaf nodes to the leaf node.
+With pending messages applied to the leaf node, the query can figure out its
+result by searching the leaf node.
+Note this doesn't dirty the leaf node, therefore,
+the asymptotic I/O costs of \bets are maintained.
 
 \subsection{Recovery}
 \label{sec:bg:impl:recover}

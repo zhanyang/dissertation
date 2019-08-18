@@ -1794,7 +1794,34 @@ because it is out of the key range specified in Node $A$.
 \section{Implementation}
 \label{sec:rc:impl}
 
+\subsection{Synchronization}
+
+The range-clone operation synchronizes with other \bet operations using the
+readers-writer locks of \bet nodes
+(Section~\ref{sec:bg:impl:sync}).
+The range-clone operation first grabs the write lock of the root node.
+Then, while flushing messages along the root-to-leaf path until the LCA,
+the range-clone operation write-locks \bet nodes hand-over-hand,
+holding the write lock of the root node.
+Finally, the range-clone operation injects the \goto message into the root node
+and releases the write locks of the root node and the LCA.
+
+The range-clone operation holds the write lock of the root node.
+Therefore, other operation cannot proceed simultaneously with a range-clone
+operation.
+In contrast, the range-rename operation unlocks the root node after flushing
+messages, provided that the root node is not the parent of LCAs
+(Section~\ref{sec:rr:impl:sync}).
+However, the range-rename operation slices subtrees while holding the write
+locks of the parents of the LCAs,
+excluding concurrent \bet operations in the subtress being sliced.
+On the other hand,
+the range-clone operation doesn't need to slice the subtree before returning to
+the user,
+other \bet operations targeting the subtrees can start earlier.
+
 \subsection{Preferential splitting}
+\label{sec:rc:impl:pfsplit}
 
 Most of the work in range-clone and range-rename is about splitting fringe
 nodes, separating keys with a prefix and keys without the prefix.
@@ -1852,27 +1879,17 @@ reduces node re-lifting costs.
 
 \subsection{Queries}
 
-The textbook way of implementing queries on \bets is to traverse the
-root-to-leaf path, collecting related messages in non-leaf nodes and related
-key/value pairs in the leaf node,
-and figure out the results.
-However, this is difficult to program when we have transactions, upsert messages
-and range messages, especially for range queries.
+As described in Section~\ref{sec:bg:impl:query}, during a query,
+\fti applies messages in non-leaf nodes along the root-to-leaf path to the
+leaf nodes.
 
-Therefore, \fti implements queries in a different way.
-Specifically, a query traverses the root-to-leaf path and applies messages in
-non-leaf nodes to the leaf node.
-With pending messages applied to the leaf node, the query can figure out its
-result by searching the leaf node.
-Because this doesn't dirty the leaf node, the asymptotic I/O costs of \bets
-are maintained.
-
-The challenge in a \bedag is that
-there are now multiple paths from the root node to a leaf node,
-which can accumulate a different set of pending messages.
+However, in a \bedag,
+there can be multiple paths from the root node to a leaf node,
+which will accumulate a different set of pending messages.
 Therefore, in our implementation,
 we must cache different versions of the same node that is shared on disk --- one per path.
-We change the cache index to add the key range as a sub-identifier.
+In addition to the original identifier, the node ID, in the cahe table,
+we add the key range as a sub-identifier.
 However, this approach can potentially create more cache pressure,
 which can lead to more node evictions and I/Os.
 
@@ -1886,10 +1903,11 @@ Otherwise, the leaf node maintains one additional copy for each version.
 When a leaf node's reference count drops to zero,
 it is simply marked as free in the block table,
 and the space on disk can be re-allocated after the next checkpoint.
-We defer re-allocation of physical space until after a checkpoint, because
-\fti implements crash recovery by replaying a redo log
-from a checkpoint; thus, it is only safe to reuse space in the block table
-after a checkpoint (which includes a snapshot of the block table).
+If the system crashes before the next checkpoint, crash recovery will replay the
+redo log on the previous checkpoint.
+Therefore, it is only safe to reuse space in the block table
+after a checkpoint (which includes a snapshot of the block table)
+and we defer re-allocation of physical space until after a checkpoint
 When an interior node's reference count drops to zero, the complication
 is that, as part of freeing the node, the reference count on each of its children
 must be lowered, and the children recursively freed.

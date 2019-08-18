@@ -1221,9 +1221,11 @@ In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
 This section discusses implementation details of the range-rename operation.
 
 \subsection{Synchronization}
+\label{sec:rr:impl:sync}
 
 The range-rename operation synchronizes with other \bet operations using
-the readers-writer locks of \bet nodes (Section~\ref{sec:bg:impl:sync}).
+the readers-writer locks of \bet nodes
+(described in Section~\ref{sec:bg:impl:sync}).
 Starting from the root node, the range-rename operation
 write-locks \bet nodes hand-over-hand until reaching the LCAs.
 To avoid newer messages being flushed to the subtrees rooted at the LCAs,
