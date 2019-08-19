@@ -1582,17 +1582,15 @@ adds an empty subtree to cover the key range as the child of the node.
 After the merging process, there is only one child whose key range overlaps
 with the key range of the \goto message.
 If the child is higher than the source LCA of the \goto message,
-we can simple flush the \goto message to the child buffer.
+we can simply flush the \goto message to the child buffer.
 However, if the child is at the same height as the source LCA,
 we cannot flush the \goto message.
-Otherwise, the \goto message would redirect queries to a node at the same level,
-breaking the asymptotic I/O costs for queries.
-
 In such scenarios, the \goto message is converted into pivots and a
 parent-to-child pointer in the node.
 
-This is done by adding \dpre$_{min}$ and \dpre$_{max}$ as two new pivots and
-set the parent-to-child pointer between them to the source LCA of the
+The lifted \bedag completes this conversion by adding
+\dpre$_{min}$ and \dpre$_{max}$ as two new pivots and
+setting the parent-to-child pointer between them to the source LCA of the
 \goto message.
 Assume \dpre$_{min}$ and \dpre$_{max}$ are in the key range of child $i$ of the node,
 that is, $\dpre_{min}, \dpre_{max} \in (pivot_{i},pivot_{i+1})$.
@@ -1602,8 +1600,8 @@ $(\dpre_{max}, pivot_{i+1})$.
 Key range $(\dpre_{min},\dpre_{max})$ is cover in the source LCA of the \goto
 message, while the other two key range are covered by child $i$.
 
-However, all three parent-to-child pointers now points to a child whose key
-range is different than those specified in the node.
+However, all three parent-to-child pointers now point to children whose key
+ranges are different than those specified in the node.
 In particular, child $i$ has range $(pivot_{i},pivot_{i+1})$ but bounded by
 $(pivot_{i},\dpre_{min})$ or $(\dpre_{max}, pivot_{i+1})$.
 The source LCA has a key range that might be larger than
@@ -1612,7 +1610,7 @@ A smaller key range may lift a longer prefix through the parent-to-child
 pointer.
 
 The problem is solved by augmenting parent-to-child pointers with \xf functions,
-which is the same as the \xf function described in \goto messages.
+which are the same as the \xf function described in \goto messages.
 Each parent-to-child pointer now has a \xf function with a prefix.
 After key lifting lifts the search keys of queries by the LCP of two pivots,
 the \xf function prepends its prefix to the search key.
@@ -1846,7 +1844,7 @@ Also, \xf functions serves as filters, bounding the results queries may return.
 Figure~\ref{fig:spvt} shows an example of the transformation.
 The lifted \bedag cannot flush the \goto message from Node $A$ to Node $B$,
 because Node $B$ is at the same height as its source LCA, Node $C$.
-Therefore, it adds two pivots, ``/B/$_{min}$'' and ``/B/$_{max}$'', to Node $A$.
+Therefore, two pivots, ``/B/$_{min}$'' and ``/B/$_{max}$'', are addedto Node $A$.
 The parent-to-child pointer between ``/B/$_{min}$'' and ``/B/$_{max}$'' points
 to the source LCA, Node $C$, and has a \xf function of ``/R/'', indicating a
 key range mismatch and the additional prefix ``/R/'' for keys in the child.
