@@ -1219,7 +1219,7 @@ as shown in Figure~\ref{subfig:flush-3}.
             \node[anchor=south, font=\tiny] at (.45\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.39\textwidth, .254\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (.39\textwidth, .256\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.39\textwidth, .25\textwidth) {\goto(/B/,/R/,$K$)};
+            \node[anchor=south, font=\tiny] at  (.39\textwidth, .25\textwidth) {\goto(/B/,R/,$K$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (.39\textwidth, .276\textwidth) {};
             \node[anchor=south, font=\tiny] at  (.39\textwidth, .27\textwidth) {\putm(/G/a,...)};
 
@@ -1346,7 +1346,7 @@ as shown in Figure~\ref{subfig:flush-3}.
             \node[anchor=south, font=\tiny] at (.4875\textwidth, .229\textwidth) {/O/b};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.4875\textwidth, .254\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (.4875\textwidth, .256\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.4875\textwidth, .25\textwidth) {\goto(/B/,/R/,$K$)};
+            \node[anchor=south, font=\tiny] at  (.4875\textwidth, .25\textwidth) {\goto(/B/,R/,$K$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (.4875\textwidth, .276\textwidth) {};
             \node[anchor=south, font=\tiny] at  (.4875\textwidth, .27\textwidth) {\putm(/G/a,...)};
 
@@ -1458,7 +1458,7 @@ as shown in Figure~\ref{subfig:flush-3}.
             \node[anchor=south, font=\tiny] at (.35\textwidth, .1\textwidth) {/B/u};
             \node[anchor=south, rectangle, minimum height=.04\textwidth, minimum width=.11\textwidth, draw=black] at (.26\textwidth, .125\textwidth) {};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={blue!60}] at (.26\textwidth, .127\textwidth) {};
-            \node[anchor=south, font=\tiny] at  (.26\textwidth, .121\textwidth) {\goto(/B/,/R/,$K$)};
+            \node[anchor=south, font=\tiny] at  (.26\textwidth, .121\textwidth) {\goto(/B/,R/,$K$)};
             \node[anchor=south, rectangle, minimum height=.015\textwidth, minimum width=.1\textwidth, draw=black, fill={green!60}] at (.26\textwidth, .147\textwidth) {};
             \node[anchor=south, font=\tiny] at  (.26\textwidth, .141\textwidth) {\putm(/G/a,...)};
 
@@ -1507,50 +1507,62 @@ as shown in Figure~\ref{subfig:flush-3}.
 
 In the more complicated case, a \goto message can overlap with the key ranges
 of multiple children.
-One solution is to duplicate the \goto message and flushes to all children,
-however, this may greatly increase the reference count of the node referenced
-by the \goto message,
+One solution is to duplicate the \goto message and flushes to all children.
+However,
+because duplicating the \goto message increases the reference count of the
+source LCA,
+the source LCA may end up being shared by many duplicated \goto messages,
 making the sharing complicated.
 
 Our solution is to generate a single child that can accommodate the \goto
 message.
-An easy way to accomplish this goal is to merge all children whose key range
-overlaps with the \goto message.
+An easy way is to merge all children whose key range overlaps with the
+\goto message.
 However, this may create a node with a huge fanout.
 In fact, because the \goto message invalidates all old keys
 with \dpre, we can decrease the reference counts
 (and potentially garbage-collect)
 of all children whose key ranges fall completely in the key range of the \goto
 message (we call these children interior children)
-and merges the two fringe children whose key ranges partly overlaps with the
-\goto message.
+and merges the two children whose key ranges partly overlaps with the
+\goto message (we call these two children fringe children).
 
 However, removing interior children creates a key range that is not covered by
 the fringe children.
-Therefore, we need to expand the key range of one fringe child to cover that
-range.
-This expansion creates a key range that is not covered by any children of the
-fringe child.
-This key-range hole propagates until the leaf level.
+Because of key lifting, modifying the key range of a child is not easy.
+For example, consider a child, Node $X$, bounded by two pivots, $p_0$ and $p_1$,
+and thus covering key range $(p_0, p_1)$.
+Therefore, the LCP of $p_0$ and $p_1$ is lifted from the subtree rooted at Node
+$X$.
+Then, assume the two pivots bounding the child become $p_0$ and $p'_1$.
+Now, the subtree rooted at Node $X$ should have the LCP of $p_0$ and $p'_1$
+lifted.
+Thus, this change requires re-lifting Node $X$ as well as all the descendants
+of Node $X$ whose key ranges used to be bounded by $p'_1$.
 To avoid reading any descendent of the fringe node, we create an empty subtree
 and add the subtree as one child of the expanded fringe child.
 
 Figure~\ref{fig:flush} shows an example of merging children before flushing a
 \goto message.
-In Figure~\ref{subfig:flush-1}, Node $B$, $C$ and $D$ all overlaps with the
+In Figure~\ref{subfig:flush-1}, Node $B$, $C$ and $D$ all overlap with the
 range of the \goto message.
 Node $B$ AND $D$ are fringe children, while Node $C$ is an interior child.
+Note, though the range-rename operation that generates the \goto message has
+``/R/'' as the \spre, the \spre in the \goto message is ``R/'' because ``/'' is
+lifted from the source LCA, Node $K$.
 To flush the \goto message, in Figure~\ref{subfig:flush-2}, the lifted \bedag
 garbage-collects Node $C$ and merges Node $B$ and $D$ into Node $B'$.
-After the merge, Node $A$ flushes the \goto message to Node $B'$.
 Note in the example, the merge creates an empty node, Node $M$, to cover the key
 range (``/B/h'', ``/B/q'').
+After the merge, Node $A$ flushes the \goto message to Node $B'$, as shown in
+Figure~\ref{subfig:flush-3}.
 
 In special cases, there can be only one or no fringe child.
-If there is only one fringe child, we removes the interior children and add
-an empty subtree to cover the key range as one child of the fringe child.
-If there is no fringe child, we remove the interior child and add an empty
-subtree to cover the key range as the child of the node.
+If there is only one fringe child, the flush process removes the interior
+children and adds an empty subtree to cover the key range as one child of the
+fringe child.
+If there is no fringe child, the flush process removes the interior child and
+adds an empty subtree to cover the key range as the child of the node.
 
 \paragraph{Converting \goto messages to pivots and parent-to-child pointers.}
 After the merging process, there is only one child whose key range overlaps
