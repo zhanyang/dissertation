@@ -180,64 +180,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
         Bandwidth to sequentially read and write a 10 GiB file (higher is better).}
 \end{figure}
 
-\begin{table}[t]
-    \begin{subtable}[b]{.5\textwidth}
-    \centering
-        \begin{tabular}{l|.@{${}\pm{}$}.}
-        \hline
-        File system & \multicolumn{2}{c}{random write (sec)} \\
-        \hline
-        \hline
-        \input{./data/rand_io.csv}
-        \hline
-        \end{tabular}
-        \caption{\label{subtab:rand_io}Benchmarking on empty file systems.}
-    \end{subtable}
-    \begin{subtable}[b]{.5\textwidth}
-    \centering
-        \begin{tabular}{l|.@{${}\pm{}$}.}
-        \hline
-        File system & \multicolumn{2}{c}{random write (sec)} \\
-        \hline
-        \hline
-        \input{./data/rand_io_aged.csv}
-        \hline
-        \end{tabular}
-        \caption{\label{subtab:rand_io_aged}Benchmarking on aged file systems.}
-    \end{subtable}
-    \caption[Random-write benchmark]{\label{tab:rand_io}
-        Time to perform 256K (262,144) 4-Byte random writes one a 10GiB file (1 MiB total IO, lower is better).}
-\end{table}
-
-\begin{table}[t]
-    \begin{subtable}{\textwidth}
-        \centering
-        \begin{tabular}{l|.@{${}\pm{}$}..@{${}\pm{}$}..@{${}\pm{}$}.}
-        \hline
-        File system & \multicolumn{2}{c}{grep (sec)} & \multicolumn{2}{c}{find (sec)} & \multicolumn{2}{c}{delete (sec)} \\
-        \hline
-        \hline
-        \input{./data/dir_ops.csv}
-        \hline
-        \end{tabular}
-        \caption{\label{subtab:dir_ops}Benchmarking on empty file systems.}
-    \end{subtable}
-    \begin{subtable}{\textwidth}
-        \centering
-        \begin{tabular}{l|.@{${}\pm{}$}..@{${}\pm{}$}..@{${}\pm{}$}.}
-        \hline
-        File system & \multicolumn{2}{c}{grep (sec)} & \multicolumn{2}{c}{find (sec)} & \multicolumn{2}{c}{delete (sec)} \\
-        \hline
-        \hline
-        \input{./data/dir_ops_aged.csv}
-        \hline
-        \end{tabular}
-        \caption{\label{subtab:dir_ops_aged}Benchmarking on aged file systems.}
-    \end{subtable}
-    \caption[Directory operation benchmark]{\label{tab:dir_ops}
-        Time to perform recursive grep, find and delete of the Linux source directory (lower is better).}
-\end{table}
-
 \newcommand{\addTokubenchPlotAged}[1]
 {
     \addplot[
@@ -1145,6 +1087,35 @@ sequential write benchmark.
 The benchmark issues 256K (262,144) 4-Byte overwrites (in total 1 MiB data) at
 random offsets within the 10GiB file, followed by an \texttt{fsync}.
 
+\begin{table}[t]
+    \begin{subtable}[b]{.5\textwidth}
+    \centering
+        \begin{tabular}{l|.@{${}\pm{}$}.}
+        \hline
+        File system & \multicolumn{2}{c}{random write (sec)} \\
+        \hline
+        \hline
+        \input{./data/rand_io.csv}
+        \hline
+        \end{tabular}
+        \caption{\label{subtab:rand_io}Benchmarking on empty file systems.}
+    \end{subtable}
+    \begin{subtable}[b]{.5\textwidth}
+    \centering
+        \begin{tabular}{l|.@{${}\pm{}$}.}
+        \hline
+        File system & \multicolumn{2}{c}{random write (sec)} \\
+        \hline
+        \hline
+        \input{./data/rand_io_aged.csv}
+        \hline
+        \end{tabular}
+        \caption{\label{subtab:rand_io_aged}Benchmarking on aged file systems.}
+    \end{subtable}
+    \caption[Random-write benchmark]{\label{tab:rand_io}
+        Time to perform 256K (262,144) 4-Byte random writes one a 10GiB file (1 MiB total IO, lower is better).}
+\end{table}
+
 Table~\ref{subtab:rand_io} shows the results of running the benchmark
 on empty file systems.
 Because \betrfs performs upserts, which doesn't read the old data, for random
@@ -1164,29 +1135,74 @@ aged file systems, which are similar to those on empty file systems.
 \paragraph{Directory operations.}
 Next, we measure three common directory operations,
 \texttt{grep}, \texttt{find}, and \texttt{delete}.
-The grep benchmark measures the time to grep keyword cpu\_to\_be64 on th
-Linux source diretory.
-The find benchmark measures the time to find file wait.c on the same direcotry.
+The grep benchmark measures the time to grep keyword cpu\_to\_be64 on the
+Linux-3.11.10 source directory.
+The find benchmark measures the time to find file wait.c on the same directory.
 And the delete benchmark measures the time to recursively delete the directory
 with ``rm -rf''.
 
-Table~\ref{subtab:dir_ops} shows the results of running the benchmark on emtpy
+\begin{table}[t]
+    \begin{subtable}{\textwidth}
+        \centering
+        \begin{tabular}{l|.@{${}\pm{}$}..@{${}\pm{}$}..@{${}\pm{}$}.}
+        \hline
+        File system & \multicolumn{2}{c}{grep (sec)} & \multicolumn{2}{c}{find (sec)} & \multicolumn{2}{c}{delete (sec)} \\
+        \hline
+        \hline
+        \input{./data/dir_ops.csv}
+        \hline
+        \end{tabular}
+        \caption{\label{subtab:dir_ops}Benchmarking on empty file systems.}
+    \end{subtable}
+    \begin{subtable}{\textwidth}
+        \centering
+        \begin{tabular}{l|.@{${}\pm{}$}..@{${}\pm{}$}..@{${}\pm{}$}.}
+        \hline
+        File system & \multicolumn{2}{c}{grep (sec)} & \multicolumn{2}{c}{find (sec)} & \multicolumn{2}{c}{delete (sec)} \\
+        \hline
+        \hline
+        \input{./data/dir_ops_aged.csv}
+        \hline
+        \end{tabular}
+        \caption{\label{subtab:dir_ops_aged}Benchmarking on aged file systems.}
+    \end{subtable}
+    \caption[Directory operation benchmark]{\label{tab:dir_ops}
+        Time to perform recursive grep, find and delete of the Linux source directory (lower is better).}
+\end{table}
+
+Table~\ref{subtab:dir_ops} shows the results of running the benchmark on empty
 file systems.
-We copy the Linux 3.11.10 source directory to the file system and then
-perform operations on that directory.
 Because full-path indexing ensures locality in \betrfs, \texttt{find} and
 \texttt{grep} on \betrfsFour and \betrfsFive are more than two times faster than
 other file systems.
-Recursive delete is implemented by range-delete messages in \betrfsFour and
-\goto messages in \betrfsFive, both shows comparable performance against other
-file systems.
+\betrfsThree is slower than \betrfsFour and \betrfsFive, but still faster than
+other file systems in the \texttt{find} and \texttt{grep} benchmarks
+because of relative-path indexing.
+In \betrfsThree and \betrfsFour, file deletes in the recursive delete benchmark
+are implemented with range-delete messages,
+while in \betrfsFive, file deletes are implemented with \goto messages.
+All versions of \betrfs show performances comparable to other file systems in
+the recursive delete benchmark.
 
 Table~\ref{subtab:dir_ops_aged} shows the results of running the benchmark on
 aged file systems.
-Before benchmarking, we use ``make clean'' to remove files generated by kenerl
-building in the aged git repository.
-Then, we measure the performance of operations on the directory of the aged
-git repository.
+In the aged setting, ext4, Btrfs, XFS, and ZFS shows worse performance in
+all benchmarks,
+because the file systems are not able to allocate
+spaces that are close to each other for files under the same directory.
+Btrfs and ZFS show less regression in the \texttt{find} and recursive delete
+benchmarks, because in Btrfs and ZFS, metadata are kept in trees.
+Because the \texttt{find} and \texttt{grep} benchmarks are read-only,
+and the recursive delete benchmark doesn't write new data,
+these benchmarks don't trigger garbage collection in NILFS2.
+Therefore, NILFS2 doesn't have much regression in the aged setting.
+All versions of \betrfs have slightly worse performance on the
+\texttt{find} and \texttt{grep} benchmarks because the \bets are higher in the
+aged setting.
+However, \betrfsThree and \betrfsFour have much worse performance in the
+recursive delete benchmark, because the file systems start with different \bets.
+During the benchmark, more range-delete messages are flushed
+to the leaf nodes, resulting in more node merges.
 
 \paragraph{TokuBench.}
 
