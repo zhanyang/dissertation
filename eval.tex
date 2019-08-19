@@ -1201,19 +1201,24 @@ when 10,000 files are created.
 
 Figure~\ref{subfig:toku} shows the results of running Tokubench on empty file
 systems.
-Because Tokubench excercises small, random writes,
+Because Tokubench exercises small, random writes,
 \betrfsFour and \betrfsFive are significantly faster than ext4, Btrfs and XFS.
 Also, \betrfsFour and \betrfsFive don't have the sudden performance drop that
 occurs in \betrfsThree (described in Section~\ref{sec:bg:rpi}).
-\betrfsFive performs better than \betrfsFour because preferential splitting
-also avoids further relifting in the benchmark.
-We expect NILFS to perform better than \betrfsFive in TokuBench that creates
-more files,
-because as a log-structured file system, NILFS2 would have stable performance
-until the log (disk) is full.
+The performance of \betrfsFive is better than that of \betrfsFour
+because preferential splitting avoids further relifting in the benchmark.
+NILFS2 translates all operations in the benchmark as log appends, therefore,
+the performance of NILFS2 is table.
 
 Figure~\ref{subfig:toku_aged} shows the results of running Tokubench on aged
 file systems.
+Because of the cost introduced by garbage collection,
+NILFS2 has much worse performance in the aged setting.
+Moreover, NILFS2 returns \texttt{ENOSPC} before completing the benchmark,
+though the total amount of data in the file system is far from filling up the
+disk.
+All other file systems show similar performances on aged file systems
+to those on empty file systems.
 
 \subsection{Namespace operations}
 \label{sec:micro:nso}
