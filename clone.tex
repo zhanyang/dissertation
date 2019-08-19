@@ -1092,19 +1092,27 @@ in the key range of the \goto message,
 because queries will not follow the normal parent-to-child pointer and finds
 the messages once flushed.
 
+However, flushing a \goto message to a node at the same height as the source
+LCA breaks the asymptotic I/O costs of queries in the lifted \bedag,
+because such a \goto message redirects queries to a node at the same height.
+Therefore, we transfers a \goto message to pivots and a parent-to-child pointer
+when the \goto message is being flushed to a node at the same height as the
+source LCA.
+
+This subsection explains how the lifted \bedag flushes \goto messages.
+We start from simple cases, where a \goto message is being flushed to nodes
+higher than the source LCA.
+Then, we describes how a \goto message becomes pivots and a parent-to-child
+pointer when the \goto message being flushed to a node at the same height as
+the source LCA.
+
+\paragraph{The lifted \bedag flushes a \goto message to a node higher than
+the source LCA.}
 In the simple case, the node that tries to flush a \goto message has a single
 child that covers the key range of the \goto message
 and the child is higher than the source LCA of the \goto message.
 Flushing the \goto message simply lifts the \dpre of the \goto message and moves
 the \goto message from the node's buffer to the child's buffer.
-
-For example, in Figure~\ref{subfig:flush-2}, one child of Node $A$, Node $B'$,
-covers the whole key range of the \goto message,
-(``/B/$_{min}$'', ``/B/$_{max}$'').
-Therefore, the lifted \bedag can flush the \goto message to Node $B'$,
-as shown in Figure~\ref{subfig:flush-3}.
-
-\paragraph{The \bedag merges children before flushing a \goto message.}
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -1505,13 +1513,19 @@ as shown in Figure~\ref{subfig:flush-3}.
         that can accommodate the \goto message.}
 \end{figure}
 
+For example, in Figure~\ref{subfig:flush-2}, one child of Node $A$, Node $B'$,
+covers the whole key range of the \goto message,
+(``/B/$_{min}$'', ``/B/$_{max}$'').
+Therefore, the lifted \bedag can flush the \goto message to Node $B'$,
+as shown in Figure~\ref{subfig:flush-3}.
+
 In the more complicated case, a \goto message can overlap with the key ranges
 of multiple children.
 One solution is to duplicate the \goto message and flushes to all children.
 However,
 because duplicating the \goto message increases the reference count of the
 source LCA,
-the source LCA may end up being shared by many duplicated \goto messages,
+the source LCA ends up being shared by many duplicated \goto messages,
 making the sharing complicated.
 
 Our solution is to generate a single child that can accommodate the \goto
@@ -1521,10 +1535,10 @@ An easy way is to merge all children whose key range overlaps with the
 However, this may create a node with a huge fanout.
 In fact, because the \goto message invalidates all old keys
 with \dpre, we can decrease the reference counts
-(and potentially garbage-collect)
+(and potentially garbage collect)
 of all children whose key ranges fall completely in the key range of the \goto
 message (we call these children interior children)
-and merges the two children whose key ranges partly overlaps with the
+and merges the two children whose key ranges partly overlap with the
 \goto message (we call these two children fringe children).
 
 However, removing interior children creates a key range that is not covered by
@@ -1532,13 +1546,13 @@ the fringe children.
 Because of key lifting, modifying the key range of a child is not easy.
 For example, consider a child, Node $X$, bounded by two pivots, $p_0$ and $p_1$,
 and thus covering key range $(p_0, p_1)$.
-Therefore, the LCP of $p_0$ and $p_1$ is lifted from the subtree rooted at Node
-$X$.
+With key lifting, the LCP of $p_0$ and $p_1$ is lifted from the subtree rooted
+at Node $X$.
 Then, assume the two pivots bounding the child become $p_0$ and $p'_1$.
 Now, the subtree rooted at Node $X$ should have the LCP of $p_0$ and $p'_1$
 lifted.
 Thus, this change requires re-lifting Node $X$ as well as all the descendants
-of Node $X$ whose key ranges used to be bounded by $p'_1$.
+of Node $X$ whose key ranges are updated to by $p'_1$.
 To avoid reading any descendent of the fringe node, we create an empty subtree
 and add the subtree as one child of the expanded fringe child.
 
