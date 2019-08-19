@@ -1857,7 +1857,7 @@ Note, for the leftmost parent-to-child pointer of Node $A$, though the \xf
 function contains no prefix, it still serves as a filter for queries.
 
 \paragraph{Fixing \xf functions in parent-to-child pointers.}
-\goto messages adds \xf functions to parent-to-child pointers.
+\goto messages add \xf functions to parent-to-child pointers.
 The \xf function transforms the search keys of queries by prepending its prefix
 after normal key lifting through parent-to-child pointers.
 Also, the \xf function indicates the child contains keys outside of the key range
@@ -1867,14 +1867,14 @@ the parent-to-child pointers.
 The lifted \bedag resolves \xf functions through node flushes.
 Specifically, when flushing from a parent to a child and the parent-to-child
 pointer has a \xf function,
-the lifted \bedag garbage-collects exterior children of the child whose key
+the lifted \bedag garbage collects exterior children of the child whose key
 ranges are completely outside of the key range specified by the pivots in parent.
 Also, the lifted \bedag removes messages whose keys are outside of the key
 range specified in the parent from the child buffer.
-Then, for fringe children whose key ranges partly overlaps with that specified
+Then, for fringe children whose key ranges partly overlap with that specified
 in the parent, the \bedag propagates the \xf function to their parent-to-child
 pointers.
-At last, if the \xf function has a prefix, the \bedag lifts the prefix from
+Finally, if the \xf function has a prefix, the \bedag lifts the prefix from
 keys in the child.
 
 \begin{figure}
@@ -2062,8 +2062,9 @@ Figure~\ref{fig:xf} shows an example of fixing \xf functions in node flushes.
 In Figure~\ref{subfig:xf-1}, the parent-to-child pointer from Node $A$ to
 Node $B$ has a \xf function, \xf(``/R/'').
 The key range specified by Node $A$ is (``/B/$_{min}$'',``/B/$_{max}$''), which
-translates to (``/R/$_{min}$'',``/R/$_{max}$'') in Node $B$.
-In Figure~\ref{subfig:xf-2}, the lifted \bedag garbage-collects exterior nodes,
+translates to (``/R/$_{min}$'',``/R/$_{max}$'') in Node $B$,
+however, Node $B$ contains pivots and messages that are out of the key range.
+In Figure~\ref{subfig:xf-2}, the lifted \bedag garbage collects exterior nodes,
 Node $C$ and $G$
 and adds \xf functions to pointers to fringe nodes, Node $D$ and $F$.
 Also, it updates keys in Node $B$ by removing the prefix, ``/R/'',
