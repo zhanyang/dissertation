@@ -849,7 +849,7 @@ on empty file systems.
 Because \betrfs performs upserts, which doesn't read the old data, for random
 writes, performing the 1MiB random writes only takes about 5 seconds on all
 versions of \betrfs.
-However, it takes at least 2000 seconds on other file systems, which is
+However, it takes at least 2000 seconds on the other file systems, which is
 more than 350 times slower.
 After the sequential write process, different versions of \betrfs have
 different \bets, resulting in different numbers of node flushes during the
@@ -900,14 +900,15 @@ with ``rm -rf''.
 Table~\ref{subtab:dir_ops} shows the results of running the benchmark on empty
 file systems.
 Because full-path indexing ensures locality in \betrfs, find and grep on
-\betrfsFour and \betrfsFive are more than two times faster than other file systems.
+\betrfsFour and \betrfsFive are more than two times faster than
+the other file systems.
 \betrfsThree is slower than \betrfsFour and \betrfsFive, but still faster than
-other file systems in the find and grep benchmarks
+the other file systems in the find and grep benchmarks
 because of relative-path indexing.
 In \betrfsThree and \betrfsFour, file deletes in the recursive delete benchmark
 are implemented with range-delete messages,
 while in \betrfsFive, file deletes are implemented with \goto messages.
-All versions of \betrfs show performances comparable to other file systems in
+All versions of \betrfs show performances comparable to the other file systems in
 the recursive delete benchmark.
 
 Table~\ref{subtab:dir_ops_aged} shows the results of running the benchmark on
@@ -958,7 +959,7 @@ NILFS2 has much worse performance in the aged setting.
 Moreover, NILFS2 returns \texttt{ENOSPC} before completing the benchmark,
 despite that the total amount of data in the file system is far from filling up
 the disk.
-The performances of other file systems are similar
+The performances of the other file systems are similar
 to those on empty file systems.
 
 \subsection{Namespace operations}
@@ -986,7 +987,7 @@ To rename a file larger than or equal to 4MiB,
 \betrfsFour and \betrfsFive use range-rename and range-clone, respectively.
 As shown in the figure,
 the throughputs of all versions of \betrfs
-are comparable to other file systems after reaching the thresholds.
+are comparable to the other file systems after reaching the thresholds.
 
 Figure~\ref{subfig:file_rename_aged} shows the results of running the benchmark
 on aged file systems.
@@ -1023,7 +1024,7 @@ The performance of ZFS also degrades.
 
 \paragraph{Directory clones.}
 To evaluate the performance of cloning and similar copy-on-write optimizations
-in other file systems,
+in the other file systems,
 we wrote a simple microbenchmark that creates a directory hierarchy with 8
 directories, each of which has 8 files that are 4 MiB each.
 At each step, we measure the copy time (Figure~\ref{fig:clone:clone}),
@@ -1108,14 +1109,14 @@ because of the slower sequential writes,
 which are slower than ext4 and Btrfs.
 The ``git diff'' benchmark opens differing files in depth-first-search order,
 therefore, though not all files are read,
-all versions of \betrfs are faster than other file systems, except Btrfs.
+all versions of \betrfs are faster than the other file systems, except Btrfs.
 
 Figure~\ref{subfig:git_aged} shows the results of running the benchmark on aged
 file systems.
 All versions of \betrfs become slightly slower, because the \bets are higher.
 However,
 \betrfsFive is faster than any other file systems,
-because, in the aged setting, other file systems cannot allocate spaces that
+because, in the aged setting, the other file systems cannot allocate spaces that
 are close to each for files in the same directory.
 
 \paragraph{Tar.}
@@ -1173,7 +1174,7 @@ If the ``in-place'' is set, the child process will create files in place.
 Figure~\ref{subfig:rsync} shows the results of running the benchmark on empty
 file systems.
 Because the benchmark traverses the source directory,
-versions of \betrfs are much faster than other file systems.
+versions of \betrfs are much faster than the other file systems.
 \betrfsFour and \betrfsFive are faster than \betrfsThree because full-path
 indexing has better locality than relative-path indexing.
 
@@ -1185,27 +1186,52 @@ Versions of \betrfs are only slightly slower because of the higher \bets.
 
 \paragraph{Mailserver.}
 
-The mailserver benchmarks measures the througput of the dovecot mailserver on
+The mailserver benchmarks measures the throughput of the dovecot mailserver on
 different file systems.
-The mailserver is configured with Maildir option, therefore, each mail is a
+The mailserver is configured with the Maildir option, therefore, each mail is a
 file.
-Initially, it has 10 boxes, each with 1000 mails.
+Initially, the mailserver has 10 mail boxes, each with 1000 mails.
 Then, the benchmark creates four threads that interact with the mailserver and
 measure the throughput.
-Each threads performs 50\% reads and 50\%write, writes are randomly chosen from
-creating a new mail, deleting an existing mail and changing the flag of an
-existing mail with equal probabilities.
+Each threads performs 50\% reads and 50\%write.
+Writes are randomly chosen from
+creating a new mail, changing the flag of an
+existing mail and deleting an existing mail with equal probabilities.
+For a read operation, the mailserver reads the index file and the file that
+stores the content of the mail.
+To create a new mail, the mailrserver first creates a file in the ``tmp''
+directory to store the content.
+Subsequently, the file is moved into the ``new'' directory and
+then into the ``cur'' directory.
+Because the mailserver stores flags in the file name, to change the flag of
+a mail, the mailserver renames the file that represents the mail.
+To delete a mail, the mailserver first renames the file so that the file name
+contains a ``deleted'' flag.
+Then, the mailserver deletes the file.
+In addition to modifying the file that represents the mail, all write operations
+create a temporary index file and
+renames the temporary file to overwrite the old index file.
 
 Figure~\ref{subfig:imap} shows the results of running the benchmark on empty file
 systems.
-Because the benchmark performs random small writes, \betrfsFour and \betrfsFive
-are only slightly slower than NILFS2.
+Versions of \betrfs are faster than the other file systems except NILFS2,
+because versions of \betrfs have faster file creates.
 
 Figure~\ref{subfig:imap_aged} shows the results of running the benchmark on
 aged file systems.
+NILFS2 becomes much slower because of garbage collection.
+Since the \bets are higher in the aged setting, versions of \betrfs become
+slower.
+However, versions of \betrfs are faster than the other file systems, because
+the other file systems cannot make the same allocation for files in the aged
+setting.
 
 \section{Conclusion}
 
-\betrfsFour and \betrfsFive show good performance on workloads that performs
-intensive directory scans and small randpm writes.
+\betrfsFour and \betrfsFive show good performance on workloads that have
+intensive directory scans or small randoms.
+The performances of namespace operations on \betrfsFour and \betrfsFive are
+at least comparable to the other file systems.
+And in the aged setting, versions of \betrfs show much less regressions than
+the other file systems.
 
