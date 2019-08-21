@@ -93,19 +93,42 @@
 
 \newcolumntype{.}{D{.}{.}{-1}}
 
-\newcommand{\addFileRenamePlot}[1]
-{
+\newcommand{\addSeqPlot}[1]{
     \addplot[
-        color=\pgfkeysvalueof{/fs-colors/#1},
-        line width=0.75pt,
-        mark=\pgfkeysvalueof{/fs-marks/#1},
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
     ]
     plot[
+        error bars/.cd,
+        y dir=both, y explicit,
     ]
     table[
+        x=op,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
     ]
-    {./data/file_rename/#1.csv};
-    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+    {./data/seq_io.csv};
+}
+
+\newcommand{\addSeqPlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/seq_io_aged.csv};
 }
 
 \newcommand{\addTokubenchPlot}[1]
@@ -123,3 +146,176 @@
     \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
 }
 
+\newcommand{\addTokubenchPlotAged}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/toku_aged/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
+\newcommand{\addFileRenamePlot}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/file_rename/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
+\newcommand{\addFileRenamePlotAged}[1]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[
+    ]
+    {./data/file_rename_aged/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
+\newcommand{\addDirRenamePlot}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=fs,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/dir_rename.csv};
+}
+
+\newcommand{\addDirRenamePlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=fs,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/dir_rename_aged.csv};
+}
+
+\newcommand{\addCloneMicroPlot}[2]
+{
+    \addplot[
+        color=\pgfkeysvalueof{/fs-colors/#1},
+        line width=0.75pt,
+        mark=\pgfkeysvalueof{/fs-marks/#1},
+    ]
+    plot[
+    ]
+    table[x=num,y=#2
+    ]
+    {./data/clone/#1.csv};
+    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
+}
+
+\newcommand{\addGitPlot}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/git.csv};
+}
+
+\newcommand{\addGitPlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/git_aged.csv};
+}
+
+\newcommand{\addTarPlot}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/tar.csv};
+}
+
+\newcommand{\addTarPlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=op,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/tar_aged.csv};
+}

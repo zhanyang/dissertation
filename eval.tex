@@ -71,44 +71,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
 \subsection{Non-namespace operations}
 \label{sec:micro:nnso}
 
-\newcommand{\addSeqPlot}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=op,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/seq_io.csv};
-}
-
-\newcommand{\addSeqPlotAged}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=op,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/seq_io_aged.csv};
-}
-
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
         \centering
@@ -179,21 +141,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
     \caption[Sequential-write and sequential-read benchmark]{\label{fig:seq_io}
         Bandwidth to sequentially read and write a 10 GiB file (higher is better).}
 \end{figure}
-
-\newcommand{\addTokubenchPlotAged}[1]
-{
-    \addplot[
-        color=\pgfkeysvalueof{/fs-colors/#1},
-        line width=0.75pt,
-        mark=\pgfkeysvalueof{/fs-marks/#1},
-    ]
-    plot[
-    ]
-    table[
-    ]
-    {./data/toku_aged/#1.csv};
-    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
-}
 
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
@@ -272,21 +219,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
         Cumulative file creation throughput during the Tokubench benchmark (higher is better).}
 \end{figure}
 
-\newcommand{\addFileRenamePlotAged}[1]
-{
-    \addplot[
-        color=\pgfkeysvalueof{/fs-colors/#1},
-        line width=0.75pt,
-        mark=\pgfkeysvalueof{/fs-marks/#1},
-    ]
-    plot[
-    ]
-    table[
-    ]
-    {./data/file_rename_aged/#1.csv};
-    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
-}
-
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
         \centering
@@ -360,44 +292,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
         Throughput of renaming a file of different sizes (higher is better).}
 \end{figure}
 
-\newcommand{\addDirRenamePlot}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=fs,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/dir_rename.csv};
-}
-
-\newcommand{\addDirRenamePlotAged}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=fs,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/dir_rename_aged.csv};
-}
-
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
         \centering
@@ -466,21 +360,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
     \caption[Directory rename benchmark]{\label{fig:dir_rename}
          Throughput of renaming a directory (higher is better).}
 \end{figure}
-
-\newcommand{\addCloneMicroPlot}[2]
-{
-    \addplot[
-        color=\pgfkeysvalueof{/fs-colors/#1},
-        line width=0.75pt,
-        mark=\pgfkeysvalueof{/fs-marks/#1},
-    ]
-    plot[
-    ]
-    table[x=num,y=#2
-    ]
-    {./data/clone/#1.csv};
-    \addlegendentry{\pgfkeysvalueof{/fs-names/#1}}
-}
 
 \begin{figure}[t]
     \begin{subfigure}[b]{.49\linewidth}
@@ -600,44 +479,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
         (lower is better for all metrics).}
 \end{figure}
 
-\newcommand{\addGitPlot}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=op,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/git.csv};
-}
-
-\newcommand{\addGitPlotAged}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=op,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/git_aged.csv};
-}
-
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
         \centering
@@ -645,7 +486,7 @@ and namespace operations (Section~\ref{sec:micro:nso}).
             \begin{axis}[
                     ybar,
                     ymin=0,
-                    ymax=210,
+                    ymax=150,
                     ylabel={Time (sec)},
                     ymajorgrids=true,
                     symbolic x coords={clone, diff},
@@ -678,7 +519,7 @@ and namespace operations (Section~\ref{sec:micro:nso}).
             \begin{axis}[
                     ybar,
                     ymin=0,
-                    ymax=210,
+                    ymax=150,
                     ylabel={Time (sec)},
                     ymajorgrids=true,
                     symbolic x coords={clone, diff},
@@ -709,43 +550,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
         Latency of ``git clone'' and ``git diff'' (lower is better).}
 \end{figure}
 
-\newcommand{\addTarPlot}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=op,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/tar.csv};
-}
-
-\newcommand{\addTarPlotAged}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=op,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/tar_aged.csv};
-}
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
         \centering
@@ -753,7 +557,7 @@ and namespace operations (Section~\ref{sec:micro:nso}).
             \begin{axis}[
                     ybar,
                     ymin=0,
-                    ymax=210,
+                    ymax=150,
                     ylabel={Time (sec)},
                     ymajorgrids=true,
                     symbolic x coords={untar,tar},
@@ -785,7 +589,7 @@ and namespace operations (Section~\ref{sec:micro:nso}).
             \begin{axis}[
                     ybar,
                     ymin=0,
-                    ymax=210,
+                    ymax=150,
                     ylabel={Time (sec)},
                     ymajorgrids=true,
                     symbolic x coords={untar,tar},
@@ -1386,7 +1190,7 @@ Figure~\ref{subfig:git_aged} shows the results of running the benchmark on aged
 file systems.
 All versions of \betrfs become slightly slower, because the \bets are higher.
 However,
-all versions of \betrfs are faster than other file systems,
+\betrfsFive is faster than any other file systems,
 because other file systems cannot make good arrangement for files in the aged
 setting, resulting in much larger regressions.
 
