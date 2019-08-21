@@ -1178,8 +1178,8 @@ by reading the object file.
 
 Figure~\ref{subfig:git} shows the results of running the benchmark on empty file
 systems.
-In the ``git clone'' benchmark,
-because of the slower sequentail writes,
+For the ``git clone'' benchmark,
+because of the slower sequential writes,
 \betrfsFour is slower than \betrfsThree and \betrfsFive,
 which are slower than ext4 and Btrfs.
 The ``git diff'' benchmark opens differing files in depth-first-search order,
@@ -1200,18 +1200,31 @@ The tar benchmark measures the latency of untar and tar.
 The benchmark first copies a Linux-3.11.10 source tar ball to the file systems.
 Then, it measures the time to untar the tar ball, which writes a Linux-3.11.10
 source directory.
-At last, it measures the time to generate a tar ball from the newly created
+Next, it measures the time to generate a tar ball from the newly created
 Linux-3.11.10 source directory.
+
+The untar process creates a child process that reads and uncompresses the tar
+ball.
+At the same time, the parent process creates files with the information sent
+from the child process.
+The tar process traverses the directory and sends the compressed content to
+a child process, which dumps the compressed content into a tar ball.
 
 Figure~\ref{subfig:tar} shows the results of running the benchmark on empty
 file systems.
-Untaring consists sequentially reading the tar ball and file creations.
-\betrfsFour and \betrfsFive are only slightly slower than Btrfs.
-Taring traverse the directory and sequentially writes the tar ball.
-\betrfsFour and \betrfsFive are the fastest file system in the tar benchmark.
+Because all versions of \betrfs have slower sequential reads, which are further
+decelerated by the messages injected by file creates,
+the untar benchmark is slower on versions of \betrfs than ext4 and Btrfs.
+The tar benchmark runs faster on versions of \betrfs because of the locality
+from full-path or relative-path indexing.
 
 Figure~\ref{subfig:tar_aged} shows the results of running the benchmark on aged
 file systems.
+All versions of \betrfs have similar performances to those on empty file systems
+for the untar benchmark, while the tar benchmark runs slightly slower because
+of the higher \bets.
+However, versions of \betrfs are faster than any other file systems on both
+benchmarks in the aged setting.
 
 \paragraph{Rsync.}
 
