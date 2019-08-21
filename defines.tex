@@ -319,3 +319,80 @@
     ]
     {./data/tar_aged.csv};
 }
+
+\newcommand{\addRsyncPlot}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=inplace,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/rsync.csv};
+}
+
+\newcommand{\addRsyncPlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=inplace,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/rsync_aged.csv};
+}
+
+\newcommand{\addIMAPPlot}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=fs,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/imap.csv};
+}
+
+\newcommand{\addIMAPPlotAged}[1]{
+    \addplot[
+        discard if not={fs}{#1},
+        fill=\pgfkeysvalueof{/fs-colors/#1},
+        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
+    ]
+    plot[
+        error bars/.cd,
+        y dir=both, y explicit,
+    ]
+    table[
+        x=fs,
+        y=avg,
+        y error plus expr=\thisrow{ci},
+        y error minus expr=\thisrow{ci},
+    ]
+    {./data/imap_aged.csv};
+}
+

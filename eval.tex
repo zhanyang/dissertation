@@ -619,44 +619,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
         Latency to untar and tar the Liinux-3.11.10 source directory (lower is better).}
 \end{figure}
 
-\newcommand{\addRsyncPlot}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=inplace,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/rsync.csv};
-}
-
-\newcommand{\addRsyncPlotAged}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=inplace,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/rsync_aged.csv};
-}
-
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
         \centering
@@ -727,44 +689,6 @@ and namespace operations (Section~\ref{sec:micro:nso}).
     \caption[Rsync benchmark]{\label{fig:rsync}
         Throughput of cloning the Linux-3.11.10 source directory with rsync (higher is better).}
 \end{figure}
-
-\newcommand{\addIMAPPlot}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=fs,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/imap.csv};
-}
-
-\newcommand{\addIMAPPlotAged}[1]{
-    \addplot[
-        discard if not={fs}{#1},
-        fill=\pgfkeysvalueof{/fs-colors/#1},
-        nodes near coords=\pgfkeysvalueof{/fs-names/#1},
-    ]
-    plot[
-        error bars/.cd,
-        y dir=both, y explicit,
-    ]
-    table[
-        x=fs,
-        y=avg,
-        y error plus expr=\thisrow{ci},
-        y error minus expr=\thisrow{ci},
-    ]
-    {./data/imap_aged.csv};
-}
 
 \begin{figure}[t]
     \begin{subfigure}{\textwidth}
@@ -1191,8 +1115,8 @@ file systems.
 All versions of \betrfs become slightly slower, because the \bets are higher.
 However,
 \betrfsFive is faster than any other file systems,
-because other file systems cannot make good arrangement for files in the aged
-setting, resulting in much larger regressions.
+because, in the aged setting, other file systems cannot allocate spaces that
+are close to each for files in the same directory.
 
 \paragraph{Tar.}
 
@@ -1230,24 +1154,34 @@ benchmarks in the aged setting.
 
 The rsync benchmark first copies the Linux-3.11.10 source directory to the file
 system, then uses rsync to create a copy of the directory.
-This benchmark runs twice on each file system, one with the ``in-place'' flags
+The benchmark runs twice on each file system, one with the ``in-place'' flags
 and the other without the flag.
-Without the flag, rsync would first creates temporary files and rename them to
-be final files, while with the flag, rsync would creates files in place.
-The rsync application divides the total amount of data being copies by the time
+The rsync process divides the total amount of data being copies by the time
 elapsed and reports the throughput.
-However, the original rsync measures time in seconds, resulting in a coarse
-granularity.
-In order to get more accurate results, we modify the rsync application to
+However, the original rsync process measures time in seconds,
+resulting in a coarse granularity.
+In order to get more accurate results, we modify the rsync process to
 measure time in microseconds.
+
+The rsync process traverses the source directory and sends the content to
+a child process that creates files in the destination directory.
+If the ``in-place'' is not set, for each file in a directory,
+the child process will first create a temporary file in the directory and
+then rename the temporary file to the target file.
+If the ``in-place'' is set, the child process will create files in place.
 
 Figure~\ref{subfig:rsync} shows the results of running the benchmark on empty
 file systems.
-\betrfsFour and \betrfsFive have much higher throughput than other file system
-because part of the job is to traverse the old directory.
+Because the benchmark traverses the source directory,
+versions of \betrfs are much faster than other file systems.
+\betrfsFour and \betrfsFive are faster than \betrfsThree because full-path
+indexing has better locality than relative-path indexing.
 
 Figure~\ref{subfig:rsync_aged} shows the results of running the benchmark on
 aged file systems.
+In the aged setting, ext4, Btrfs and NILFS2 cannot make the same allocation,
+resulting in orse performances.
+Versions of \betrfs are only slightly slower because of the higher \bets.
 
 \paragraph{Mailserver.}
 
