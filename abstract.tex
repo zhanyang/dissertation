@@ -1,23 +1,29 @@
 \begin{abstract}
 
-Write-optimized file systems store metadata and data in write-optimized
-dictionaries for good random write performance.
-Prior write-optimized file systems also adopt full-path indexing for spacial
-locality,
-because full-path-indexing places metadata and data under the same directory
-close to each other on disk.
-However, prior works show that namespace operations can be prohibitively
-expensive on full-path-indexed file systems.
-For instance, renaming a directory requires prior file systems to update all
-data in that directory.
+Good locality and efficient namespace operations are considered mutually
+exclusive in a file system.
+Traditional inode-based file systems have good rename performance, but fail
+to maintain locality, especially in the face of file system aging.
+On the other hand, full-path-indexed file systems ensure locality, however,
+renaming a directory needs to update all related full-paths,
+which is usually implemented as an expensive operation.
 
-This dissertation shows that full-path-indexed, write-optimized file systems can
-implement namespace operations efficiently by directly operating on
-the underlying write-optimized dictionaries.
-In fact, full-path indexing creates more opportunities for efficient namespace
-operations.
-For instance, full-path-index file systems can clone a directory with a few
-operations in the underlying write-optimized dictionaries,
-without traversing all files in the directory.
+This dissertation describes a technique that has both good locality and
+efficient namespace operations.
+In particular, we describe a novel synthesis of write-optimization,
+full-path indexing and operations on data structures.
+By directly manipulating the data structure, a full-path-indexed file system
+can efficiently update related full-paths in a rename.
+Moreover, with the technique, a full-path-indexed file system can
+clone a directory without traversing the directory.
+
+We implement this technique in \betrfs, a full-path-indexed, write-optimized,
+local file system for Linux.
+Compared to ext4, the widely used inode-based file system in Linux,
+the new version of \betrfs traverses the Linux source directory 9.47x faster,
+and renames the same directory 1.09x faster.
+Meanwhile, the new version of \betrfs clones a directory faster than
+file systems that clone the directory through file clones,
+such as Btrfs and XFS.
 
 \end{abstract}
