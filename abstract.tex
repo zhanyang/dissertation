@@ -1,17 +1,20 @@
 \begin{abstract}
 
-There seems to be a trade-off between good locality and efficient namespace
-operations in file systems.
-Traditional inode-based file systems have good rename performance, but fail
+There is a long-standing trade-off between
+good locality (fast directory traversals) and
+efficient namespace operations (efficient file or directory renames)
+in file systems.
+Traditional inode-based file systems have good rename performance but can fail
 to maintain locality, especially in the face of file system aging.
 On the other hand, full-path-indexed file systems ensure locality, however,
 renaming a directory needs to update all related full-paths,
 which is usually implemented as an expensive operation.
+No existing file system has both without taxing other operations.
 
-This dissertation describes a technique that has both good locality and
-efficient namespace operations.
+This dissertation describes a new file system design that has both good locality
+and efficient namespace operations.
 In particular, we describe a novel synthesis of write-optimization,
-full-path indexing and operations on data structures.
+full-path indexing, and operations on data structures.
 By directly manipulating the data structure, a full-path-indexed file system
 can efficiently update related full-paths in a rename.
 Moreover, with the technique, a full-path-indexed file system can
@@ -20,10 +23,9 @@ clone a directory without traversing the directory.
 We implement this technique in \betrfs, a full-path-indexed, write-optimized,
 local file system for Linux.
 Compared to ext4, the widely used inode-based file system in Linux,
-the new version of \betrfs traverses the Linux source directory 9.47x faster,
+the new version of \betrfs traverses the Linux source directory 9.47x faster
 and renames the same directory 1.09x faster.
 Meanwhile, the new version of \betrfs clones a directory faster than
-file systems that clone the directory through file clones,
-such as Btrfs and XFS.
+state-of-the-art file systems that support clones, such as Btrfs and XFS.
 
 \end{abstract}
