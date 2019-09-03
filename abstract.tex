@@ -9,7 +9,8 @@ to maintain locality, especially in the face of file system aging.
 On the other hand, full-path-indexed file systems ensure locality, however,
 renaming a directory needs to update all related full-paths,
 which is usually implemented as an expensive operation.
-No existing file system has both without taxing other operations.
+No existing file system has both good locality and efficient namespace
+operations.
 
 This dissertation describes a new file system design that has both good locality
 and efficient namespace operations.
