@@ -532,7 +532,7 @@ which is also called zoning.
 Relative-path indexing partitions the directory hierarchy into zones.
 Each zone has a zone ID (the root zone always has zone ID 0), which is analogous
 to an inode number, and a single root file or directory.
-All file or directory in a zone is indexed relative to the zone root.
+All files and directories in a zone are indexed relative to the zone root.
 If the file or directory is the root of another zone, the entry contains the
 zone ID to redirect queries.
 With the introduction of zoning, each key in \betrfs contains two parts,
@@ -550,8 +550,8 @@ indicates the entry is the root of Zone 2.
 Subsequently, the file system queries the key/value store with key (2, ``/'')
 and gets the correct value.
 Similarly, the file system notices the key for directory ``/foo/bar'' is
-(3, ``/'').
-Therefore, when querying for file ``/foo/bar/file'', it uses key (3, ``/file'').
+(1, ``/'').
+Therefore, when querying for file ``/foo/bar/file'', it uses key (1, ``/file'').
 
 Relative-path indexing tries to balance locality and rename performance through
 a target zone size.
@@ -703,7 +703,7 @@ However, relative-path indexing imposes zone maintenance costs on other file
 system operations.
 When a file system operation happens to trigger a zone split or merge,
 in addition to the costs of the operation itself,
-relative-path indexing charges the zone split or merge to that operations.
+relative-path indexing charges the zone split or merge to that operation.
 For instance, Figure~\ref{fig:tokuzone} shows the results of running Tokubench,
 which creates 3 million small files in a balanced tree structure,
 on \betrfsThree.
