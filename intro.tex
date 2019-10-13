@@ -5,7 +5,7 @@ Today's general purpose file systems fail to utilize the full bandwidth of the
 underlying hardware.
 Widely used inode-based file systems, such as ext4, XFS, and Btrfs, can write
 large files at near disk bandwidth,
-but typically create small files at less than 3\% of the disk bandwidth.
+but typically create small files at less than 3\% of the disk bandwidth~\citep{betrfs2}.
 Similarly, these file systems can read large files at near disk bandwidth,
 but traversing directories with many small files is slow, and the performance
 degrades when the file system ages~\citep{betrfs3}.
@@ -18,8 +18,9 @@ The inode number of a file or directory connects the name of an entry in the
 parent directory to its metadata location on disk.
 The metadata of an inode contains extents that describe the physical location
 of data at different offsets.
-Indirection simplifies the implementation of file systems, however,
-it doesn't impose any constraint on how metadata and data are placed on disk.
+Indirection simplifies the implementation of file systems.
+However, indirection doesn't impose any constraints on how metadata and
+data are placed on disk.
 In the worst case, the metadata of entries under a directory and the data of
 a file can end up scattered over the disk.
 Because random I/Os are much slower than sequential I/Os on disks,
@@ -28,20 +29,21 @@ Heuristics, such as cylinder groups~\citep{ffs1}, are designed to mitigate this
 problem.
 However, after disk space is allocated and freed over file system aging,
 the free space on disk becomes scattered, making such heuristics
-ineffective.
+ineffective in the worst case.
 
 One attempt to solve the problem of file creations is the log-structured file
 system~\citep{lfs}.
-The log-structured file system treats the disk as a log,
+The log-structured file system treats the whole disk as a log,
 and all write operations, including file creations, become log appends,
 which are written to the underlying disk sequentially.
 Therefore, file creations are much faster on the log-structured file system.
 However, the log cleaner in a log-structured file system has severe impact on
 performance~\citep{lfsbsd}, especially when the log is full.
 
-Alternatively, a file system can put its metadata and data in write-optimized
-dictionaries (WODs).
-A WOD consists of multiple levels whose sizes grow exponentially.
+An alternative approach to fix the file creation performance is to put
+file system metadata and data in write-optimized dictionaries (WODs).
+WODs, such as the LSM-tree~\cite{lsm},
+consist of multiple levels whose sizes grow exponentially.
 Writes are treated as log appends to the lowest level, and gradually merged to
 higher levels in batches.
 Because all data are written in batches, the amortized cost of each write is
@@ -50,13 +52,16 @@ despite the fact that each write is written multiple times.
 Thus, file creations are much faster on WOD-based file systems, such as
 TableFS~\citep{tablefs}.
 
-However, these file systems are still inode-based.
-In other words, they use inode numbers as indexes for their metadata and data.
+However, previous WOD-based file systems are still inode-based.
+In other words, these file systems use inode numbers as indexes for
+file system metadata and data.
 Because the inode number of a file or directory doesn't change once allocated,
-files in the same directory can be assigned with inode numbers that
-are far away from each other.
-Therefore, in the worst case, a directory traversal still need to performance
-many random I/Os.
+in the worst case,
+files in the same directory can be assigned with inode numbers that are
+irrelevant to each other after file deletions and creations over file system
+aging.
+In such a scenario, the file system is unable to group the inodes in the
+same directory close to each other in the WODs.
 
 An alternative design is to use full-path indexing upon WODs in a file system,
 known to have good performance on nearly all operations.
