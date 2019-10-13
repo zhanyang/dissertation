@@ -66,8 +66,8 @@ result in many random I/Os in the worst case.
 
 An alternative design is to use full-path indexing upon WODs in a file system,
 known to have good performance on nearly all operations.
-A full-path-indexed file system indexes metadata and data
-using the full-paths of the file or directory,
+A full-path-indexed file system uses the full-path of a file or directory as
+the key for associated metadata and data,
 and sorted the full-paths in depth-first-search order,
 that is, lexicographic order by the full-paths of files and directories.
 With full-path indexing, metadata and data under one directory are close to each
@@ -86,8 +86,8 @@ moving an entry from one directory to another directory,
 without touching the file or directory being renamed.
 However, with full-path indexing, renaming a directory involves changing the
 full-paths of all files and directories under it,
-updating keys of the metadata and data and moving them in the key space.
-Competitive performance for namespace operations infull-path-indexed file
+updating keys of the metadata and data.
+Competitive performance for namespace operations in full-path-indexed file
 systems should complete in an I/O-efficient manner.
 
 \begin{figure}[t]
@@ -132,7 +132,7 @@ Renames on those full-path-indexed file systems are implemented by fetching all
 related key/value pairs of metadata and data,
 inserting them back with updated keys, and deleting old key/value pairs.
 In such a design, a file system rename needs to call several operations for each
-affected full-path names, leading to bad performance,
+affected full-path, leading to bad performance,
 especially when the file or directory being renamed is large.
 Figure~\ref{fig:file_rename_intro} compares the throughput of file renames in
 different file systems.
