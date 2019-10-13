@@ -3,12 +3,10 @@
 
 This chapter gives the background of \betrfs~\citep{betrfs1,betrfs1tos,betrfs2,betrfs2tos,betrfs3}.
 \betrfs is a file system based on write-optimized \bets.
-Also, \betrfs adopts full-path indexing or relative-path indexing for locality.
-
 Section~\ref{sec:bg:bet} introduces the underlying data structure in \betrfs,
 the \bet.
-The \bet is a WOD that treats writes as messages and cascades messages in
-batches.
+The \bet is a write-optimized dictionary (WOD)
+that treats writes as messages and cascades messages in batches.
 Then, Section~\ref{sec:bg:fpi} describes full-path-indexed \betrfs.
 Full-path indexing keeps metadata and data under one directory close to each
 other in the key space,
@@ -31,8 +29,8 @@ If the child is a non-leaf node, messages are injected into the child's
 buffer.
 Otherwise, messages take effect on the leaf node.
 An insert message becomes a key/value pair in the leaf node.
-If there is an old/key/value pair with the same key in the leaf node,
-the insert message overwrites the old/key value pair;
+If there is an old key/value pair with the same key in the leaf node,
+the insert message overwrites the old/key value pair.
 A delete message removes the old key/value pair with the same key in the leaf
 node.
 Therefore, in a \bet, leaf nodes only store key/value pairs, as in a \btree.
@@ -136,7 +134,9 @@ as well as key/value pairs in leaf nodes.
     \end{tikzpicture}
     \caption[A \bet example]{\label{fig:bet}
         In a \bet, a leaf nodes stores key/value pairs, while a non-leaf node
-        has pivots, parent-to-child pointers and a message buffer.}
+        has pivots, parent-to-child pointers and a message buffer.
+        We use different colors to indicate keys with different prefixes
+        throughout the dissertation.}
 \end{figure}
 
 Figure~\ref{fig:bet} shows a \bet example.
@@ -146,7 +146,7 @@ and each row represents a key/value pair, with the left part as the key and
 the right part as the value.
 We use different colors to indicate keys with different prefixes and omit the
 content of the value as dots throughout the dissertation.
-Node $A$, $B$ and $C$ are non-leaf nodes that contains pivots, parent-to-child
+Node $A$, $B$ and $C$ are non-leaf nodes that contain pivots, parent-to-child
 pointers and messages in buffers.
 Parent-to-child pointers connect all nodes into a tree, and the left and right
 pivots of a parent-to-child pointer bound the key range of the child node.
