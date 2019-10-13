@@ -66,10 +66,10 @@ result in many random I/Os in the worst case.
 
 An alternative design is to use full-path indexing upon WODs in a file system,
 known to have good performance on nearly all operations.
-A full-path-indexed file system uses the full-path of a file or directory as
+A full-path-indexed file system uses the full-path name of a file or directory as
 the key for associated metadata and data,
-and sorted the full-paths in depth-first-search order,
-that is, lexicographic order by the full-paths of files and directories.
+and sorted the full-path names in depth-first-search order,
+that is, lexicographic order by the full-path names of files and directories.
 With full-path indexing, metadata and data under one directory are close to each
 other in the key space, which, combined with the sorted order maintained by
 WODs, leads to good locality and fast directory traversals.
@@ -85,7 +85,7 @@ renaming a file or directory is just a pointer swing,
 moving an entry from one directory to another directory,
 without touching the file or directory being renamed.
 However, with full-path indexing, renaming a directory involves changing the
-full-paths of all files and directories under it,
+full-path names of all files and directories under it,
 updating keys of the metadata and data.
 Competitive performance for namespace operations in full-path-indexed file
 systems should complete in an I/O-efficient manner.
@@ -132,32 +132,41 @@ Renames on those full-path-indexed file systems are implemented by fetching all
 related key/value pairs of metadata and data,
 inserting them back with updated keys, and deleting old key/value pairs.
 In such a design, a file system rename needs to call several operations for each
-affected full-path, leading to bad performance,
+affected full-path name, leading to bad performance,
 especially when the file or directory being renamed is large.
 Figure~\ref{fig:file_rename_intro} compares the throughput of file renames in
 different file systems.
 The benchmark renames a file of different sizes 100 times, each followed by a
 \texttt{fsync} of the parent directory.
-Except full-path-indexed \betrfsThree, all file systems are inode-based.
+Except full-path-indexed \betrfsThree~\footnote{\betrfsThree~\citep{betrfs3}
+is the latest
+version of \betrfs and can be configured to use full-path-indexing
+(default \betrfsThree is not full-path-indexed).},
+all file systems are inode-based.
 As the file size changes, these inode-based file systems have relatively
 stable rename throughput.
-In contrast, file renames in full-path-index \betrfsThree become slower and
+In contrast, file renames in full-path-indexed \betrfsThree become slower and
 slower when the file size grows,
 because the file system needs to update more key/value pairs
 (full-path-indexed \betrfsThree stores each 4KiB block of a file as
-a key/value pair).
+a key/value pair,
+which uses the full-path name and the block number and the key).
 
 This dissertation presents I/O-efficient implementations of namespace operations
 in a full-path-indexed, write-optimized file system.
 Specifically, though full-path indexing limits possible changes on the schema
 level, we observe that it can make all full-path names under a directory
 contiguous in the key space.
-And the underlying WODs, \bets, have a tree structure, which makes it possible
-to move a contiguous key range in a subtree efficiently.
+And the underlying WODs, \bets, have a tree structure~\footnote{
+We choose \bets in our implementation, but the technique can be used on other
+WODs, such as LSM-trees, as long as the data structure organizes data in a
+tree structure.},
+which makes it possible to move a contiguous key range in a subtree efficiently.
 Therefore, we dig into the underlying \bets, and implement a new operation,
 range-rename, that completes file system renames with a bounded number of I/Os.
-Moreover, the contiguity in the key space enables namespace operations that are
-difficult in inode-based file systems.
+Moreover, because of the contiguity in the key space,
+namespace operations that are difficult in inode-based file systems are easier
+in full-path-indexed file systems.
 In particular, we expand the range-rename operation into the range-clone
 operation, which can complete file or directory clones efficiently.
 
@@ -168,10 +177,16 @@ file system while keeping the locality ensured by full-path indexing.
 In fact, with full-path indexing, one can implement namespace operations that
 are difficult in inode-based file systems, such as directory clones.
 
+Chapter~\ref{chap:related} discusses previously published work related to
+this work.
+This chapter organizes related work by topic,
+and talks in detail about work that is closely related to this work.
+
 Chapter~\ref{chap:bg} describes the necessary background of this dissertation.
-It starts with a presentation of the write-optimized \bets,
+This chapter starts with a presentation of the write-optimized \bets,
 showing the idea of write-optimization.
-Then, it describes full-path-indexed \betrfs and relative-path-indexed \betrfs.
+Then, the chapter describes full-path-indexed \betrfs and
+relative-path-indexed \betrfs.
 The full-path-indexed \betrfs shows the benefit of full-path indexing and
 write-optimization, but suffers from slow renames.
 The relative-path-indexed \betrfs has good rename performance, but breaks the
@@ -180,30 +195,25 @@ full-path indexing and taxes other operations for efficient renames.
 Chapter~\ref{chap:rename} presents the range-rename operation on \bets.
 All key/value pairs in the \bet whose keys have a certain prefix are updated to
 have keys with another prefix after the range-rename operation.
-This is done efficiently through two techniques,
+And the range-rename operation is implemented efficiently through two techniques,
 \textbf{key lifting} and \textbf{tree surgery}.
 And with efficient range-rename, full-path-indexed \betrfs can implement file
 system renames efficiently.
 
 Chapter~\ref{chap:clone} expands the range-rename operation into the
 range-clone operation.
-It first shows how to implement the range-clone operation with range-rename
-techniques by transforming \bets into \bedags.
-Then, it introduces a new type of messages to \bedags, \goto messages.
+This chapter first shows how to implement the range-clone operation with
+range-rename techniques by transforming \bets into \bedags.
+Then, the chapter introduces a new type of messages to \bedags, \goto messages.
 The \goto message works like other messages in \bedags,
 fitting the range-clone operation into write-optimization.
 Full-path-indexed \betrfs can use the range-clone operation to implement both
 file or directory renames and clones.
 
 Chapter~\ref{chap:eval} evaluates the implementation.
-It compares full-path-indexed \betrfs with range-rename or range-clone to
-widely used file systems on micro and application benchmarks.
-It also puts a particular focus on benchmarking namespace operations.
-
-Chapter~\ref{chap:related} discusses previously published work related to
-this work.
-It organizes related work by topic, and talks in detail about work that is
-closely related to this work.
+This chapter compares full-path-indexed \betrfs with range-rename or range-clone
+to widely used file systems on micro and application benchmarks.
+The chapter also puts a particular focus on benchmarking namespace operations.
 
 Chapter~\ref{chap:conclusion} summarizes and concludes the dissertation.
 
