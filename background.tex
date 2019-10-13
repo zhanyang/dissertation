@@ -752,8 +752,9 @@ This section discusses implementation details of \fti.
 \Fti keeps in-memory copies of nodes in the cache table to reduce the
 number of I/Os each operation requires.
 If an in-memory node is mutated by \bet operations,
-\fti marks the node dirty, indicting the node should be written to disk to make
-the on-disk version of the node up to date.
+\fti marks the node dirty.
+A dirty node should be written to the disk so that the on-disk version of the
+node is up to date.
 
 To synchronize operations on the \bet,
 \fti maintains a readers-writer lock for each \bet node.
@@ -803,7 +804,7 @@ merged.
 \label{sec:bg:impl:txn}
 
 \Fti performs multiple operations atomically in transactions.
-To avoid transactions from touching the same key, \fti maintains locks for key
+To prevent transactions from touching the same key, \fti maintains locks for key
 ranges in an interval tree.
 Before querying a key, the operation should read-lock the specific key range so
 that no other transaction can modify keys in the key range.
@@ -819,7 +820,7 @@ When a transaction commits or aborts, it injects one transaction-commit or
 transaction-abort message for each operation it performs.
 For example, consider an insert for key $k$ in a transaction.
 During the transaction, the insert injects an \putm message with key $k$
-to the lifted \bet.
+to the \bet.
 When the transaction commits, the transaction injects a transaction-commit
 message with key $k$ for the insert, finalizing the insert.
 If the transaction aborts, the transaction injects a transaction-abort message
@@ -838,8 +839,10 @@ writing query code to distinguish different scenarios is difficult,
 especially for range queries.
 
 Therefore, \fti implements queries in a different way.
-Specifically, a query traverses the root-to-leaf path and applies messages in
-non-leaf nodes to the leaf node.
+Specifically, a query traverses the root-to-leaf path, lock all nodes along the
+path.
+Then, the query applies messages in non-leaf nodes to the leaf node in the
+reverse order, i.e., from the parent of the leaf node to the root node.
 With pending messages applied to the leaf node, the query can figure out its
 result by searching the leaf node.
 Note this doesn't dirty the leaf node, therefore,
@@ -852,8 +855,8 @@ the asymptotic I/O costs of \bets are maintained.
 applying messages to \betrfs nodes with copy-on-write.
 At periodic intervals (60 seconds in \betrfs), \fti checkpoints its lifted
 \bets by writing all dirty nodes to the disk.
-Then, \fti can discards the redo log that stores operations after previous
-checkpoint.
+Then, \fti can garbage collection the space used by the redo log,
+which stores operations after the previous checkpoint.
 Application can ensure all changes are persistent on the disk by force a log
 flush.
 When a machine fails, after rebooting, \fti simply replays the redo log on the
