@@ -40,8 +40,8 @@ Therefore, file creations are much faster on the log-structured file system.
 However, the log cleaner in a log-structured file system has severe impact on
 performance~\citep{lfsbsd}, especially when the log is full.
 
-An alternative approach to fix the file creation performance is to put
-file system metadata and data in write-optimized dictionaries (WODs).
+Alternatively, a file system can put metadata and data in
+write-optimized dictionaries (WODs).
 WODs, such as the LSM-tree~\cite{lsm},
 consist of multiple levels whose sizes grow exponentially.
 Writes are treated as log appends to the lowest level, and gradually merged to
@@ -54,19 +54,22 @@ TableFS~\citep{tablefs}.
 
 However, previous WOD-based file systems are still inode-based.
 In other words, these file systems use inode numbers as indexes for
-file system metadata and data.
+metadata and data.
 Because the inode number of a file or directory doesn't change once allocated,
-in the worst case,
+after file deletions and creations over file system aging,
 files in the same directory can be assigned with inode numbers that are
-irrelevant to each other after file deletions and creations over file system
-aging.
+irrelevant to each other in the worst case.
 In such a scenario, the file system is unable to group the inodes in the
-same directory close to each other in the WODs.
+same directory close to each other in the WOD.
+Therefore, a directory scan in inode-based, WOD-based file system can still
+result in many random I/Os in the worst case.
 
 An alternative design is to use full-path indexing upon WODs in a file system,
 known to have good performance on nearly all operations.
-Full-path indexing ensures metadata and data in depth-first-search order,
-that is, lexicographic order by the full-path names of files and directories.
+A full-path-indexed file system indexes metadata and data
+using the full-paths of the file or directory,
+and sorted the full-paths in depth-first-search order,
+that is, lexicographic order by the full-paths of files and directories.
 With full-path indexing, metadata and data under one directory are close to each
 other in the key space, which, combined with the sorted order maintained by
 WODs, leads to good locality and fast directory traversals.
@@ -84,7 +87,7 @@ without touching the file or directory being renamed.
 However, with full-path indexing, renaming a directory involves changing the
 full-paths of all files and directories under it,
 updating keys of the metadata and data and moving them in the key space.
-Competitive performance for namespace operations in full-path-indexed file
+Competitive performance for namespace operations infull-path-indexed file
 systems should complete in an I/O-efficient manner.
 
 \begin{figure}[t]
