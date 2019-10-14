@@ -119,12 +119,12 @@ that doesn't grow as the number of related keys grows.
 \label{sec:rr:op}
 
 This section describes the range-rename implementation on the
-\bet with a bounded number of I/Os.
+\bet whose cost doesn't grow as the number of related keys grows.
 The efficient range-rename operation requires lexicographic key order so that
 keys with the same prefix are contiguous in the key space.
 With contiguous keys, the range-rename operation can create an isolated subtree,
-which contains and only contains all keys of a certain prefix,
-in the \bet through \textbf{tree surgery}.
+which contains all keys of a certain prefix in the \bet,
+through \textbf{tree surgery}.
 Then, the range-rename operation moves the isolated subtree to another location
 in the \bet.
 The prefixes of keys in the subtree are updated automatically through
@@ -497,6 +497,10 @@ $(p_{min}, p_{max})$,
 a fringe node must include either $p_{min}$ or $p_{max}$ in its key range.
 Therefore, tree surgery can perform two root-to-leaf traversals with two keys,
 $p_{min}$ and $p_{max}$, to identify all fringe nodes.
+For example, in Figure~\ref{subfig:slice-1}, we walk down the \bet with
+``/R/$_{min}$'' and ``/R/$_{max}$'' to identify all fringe nodes of
+prefix ``/R/'',
+Node $A$, $C$, $F$ and $H$.
 
 An important fringe node for tree surgery is the \textbf{LCA}
 (Lowest Common Ancestor) of the two traversing keys, that is, the lowest
@@ -506,17 +510,17 @@ For example, in Figure~\ref{subfig:slice-1}, Node $C$ is the LCA of prefix
 ``/R/''.
 The subtree rooted at the LCA is the lowest subtree in the \bet that covers
 the whole range $(p_{min}, p_{max})$.
-Therefore, to generate the smallest subtree of range $(p_{min}, p_{max})$,
-tree surgery slices out the subtree rooted at the LCA.
-In order to push all related messages into the subtree, before reaching the LCA,
-tree surgery also performs parent-to-child flushes for fringe nodes.
+The goal of tree surgery is to generate an isolated subtree rooted at the LCA
+that contains all keys with prefix $p$.
+Therefore, before reaching the LCA, the traversals also flush messages from
+the parent to the child so that there is no pending message above the LCA.
 
 \paragraph{Slicing.}
-With all related messages and key/value pairs in the subtree rooted at the LCA,
-tree surgery starts slicing out the isolated subtree
-by splitting fringe nodes from bottom up.
 The goal of slicing is to separate unrelated keys in the fringe nodes
 from keys in the key range (thus with prefix $p$).
+With all related messages and key/value pairs in the subtree rooted at the LCA,
+tree surgery starts slicing out the isolated subtree
+by splitting fringe nodes from the bottom up.
 Slicing uses the same code as standard \bet node splits, but,
 rather than picking a key in the middle of the node,
 divides the node at one of the slicing keys, $p_{min}$ or $p_{max}$.
