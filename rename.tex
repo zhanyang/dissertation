@@ -763,7 +763,7 @@ node before slicing.
         change.}
 \end{figure}
 
-After tree surgery, one can move the isolated subtree to another location on
+After tree surgery, one can move the isolated subtree to another location in
 the \bet.
 However, the keys in the subtree will not be coherent with the new location in
 the tree.
@@ -802,8 +802,8 @@ Therefore, all keys in the subtree must have prefix ``/R/'' and key lifting
 removes this prefix from the subtree
 (we show the lifted prefix on the parent-to-child pointer and mark the lifted
 prefix as strike-through in the subtree).
-Because now keys in Node $B$ don't have prefix ``/R/'' physically in the node,
-we show transparent keys in the node.
+Because keys in Node $B$ don't have prefix ``/R/'' physically in the node,
+we show transparent keys (``/R/'' keys are red in previous examples) in the node.
 Likewise, Node $D$ is bounded by ``m/a'' and ``m/z'' in Node $B$
 (note ``/R/'' is already lifted from the sutbree rooted at Node $B$),
 so key lifting removes prefix ``m/'' from Node $D$.
@@ -845,8 +845,8 @@ However, the extra work described above for \bet operations can be resolved in
 memory.
 Therefore, key lifting doesn't incur additional I/Os for other \bet operations.
 
-Key lifting is completely transparent to the application using the key/value
-store.
+Compared to zoning, in which the file system removes certain prefixes from keys,
+key lifting is completely transparent to \betrfs.
 \betrfs still stores key/value pairs with full-path keys,
 just with a slightly different data structure.
 
