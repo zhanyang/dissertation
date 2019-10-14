@@ -1267,11 +1267,18 @@ re-lifting a node can cause a large amount of computation.
 
 However, as described in Section~\ref{sec:bg:impl:partition},
 \fti stores messages in a non-leaf node in partitions,
-each corresponds to a child.
+each corresponding to a child.
 Therefore, we can lift the prefixes of keys in a partition by the
 LCP of two pivots bounding it in the non-leaf node.
 In other words, keys in the partition are not only lifted by pivots in ancestors
 but also the two pivots in the node.
+For example, consider a non-leaf node that contains keys in
+(``/R/a/1'', ``R/b''),
+key lifting lifts prefix ``/R/'' from all keys in the node.
+Assume there are two adjacent pivots ``a/2'' and ``a/3'' in the node
+(prefix ``/R/'' is lifted).
+There is a partition in the node storing all keys in (``/R/a/2'', ``/R/a/3''),
+with prefix ``/R/a/'' lifted.
 
 To see how it helps, consider a partition bounded by two pivots in the non-leaf
 node.
@@ -1286,9 +1293,14 @@ Similarly, assume re-lifting reduces the lifted prefix from ancestors to
 $(p-s')$.
 Now the LCP of the two pivots become $(q+s')$, and the total amount of prefix
 lifted for keys in the partition is still $(p+q)$.
+In the previous example, assume we split the node with a new pivot ``/R/a/9''.
+The resulting node that contains keys in (``/R/a/1'', ``/R/a/9'') has ``/R/a/'' lifted.
+The two pivots bounding the partition become ``2'' and ``3''.
+However, for all keys in the partition, the total lifted prefix is still
+``/R/a/''.
 
 Therefore, re-lifting a non-leaf node only needs to update pivots.
-It is not necessary to touch any message in partitions.
+It is not necessary to touch any messages in partitions.
 However, re-lifting a leaf node still requires updating all keys.
 
 \subsection{Splitting fringe nodes}
@@ -1314,13 +1326,13 @@ When invoked, the range-rename operation first write-locks the source and
 destination key range.
 However, the range-rename operation doesn't generate messages that can
 be committed or aborted with transaction-commit or transaction-abort message.
-Therefore, we perform the whole work of the range-rename operation in
+Therefore, we perform the whole work of the range-rename operation when the
 transaction commits.
 If the transaction aborts, nothing happens to the lifted \bet.
 
 \subsection{Recovery}
 
-After crash, the range-rename operation can be recovered if the log entry is
+After a crash, the range-rename operation can be recovered if the log entry is
 written to the redo log of \fti (Section~\ref{sec:bg:impl:recover}).
 A range-rename operation is {\em logically applied} as soon as the
 range-rename and its corresponding transaction commit entries are inserted into
