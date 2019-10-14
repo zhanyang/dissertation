@@ -4,9 +4,12 @@
 This chapter describes the range-rename operation~\citep{betrfs4,betrfs4tos}
 on \bets.
 Full-path-indexed \betrfs can implement a file system rename by invoking the
-range-rename operation on the \bet.
-The range-rename operation will then update all related key/value pairs in
-the file system rename efficiently.
+range-rename operation on the \bet that updates all related key in the rename.
+For example, renaming ``/foo'' to ``/bar'' invokes a range-rename operation
+that updates all keys with prefix ``/foo'' to have prefix ``/bar''.
+The goal of this design is to get good locality from full-path indexing
+while having good rename performance through an efficient range-rename
+implementation.
 
 Section~\ref{sec:rr:int} describes the range-rename interface and shows how
 \betrfs can implement file system renames by calling range-rename operations.
@@ -26,7 +29,7 @@ range-rename(\spre, \dpre).
 The range-rename operation takes two prefixes, \spre and \dpre, as arguments
 and updates source and destination key/value pairs
 (a source/destination key/value pair has the prefix \spre/\dpre in its key).
-Range-rename(\spre, \dpre) does three things:
+Range-rename(\spre, \dpre) does three things atomically:
 \begin{itemize}
 \item the range-rename operation deletes all destination key/value pairs
     from the key/value store
@@ -58,10 +61,13 @@ Additionally, \betrfs needs to update all keys with prefix ``/baz/'' to have
 prefix ``/qux/''
 (POSIX only allows directory renames to overwrite an empty directory, which
 means there cannot be any key with prefix ``/qux/''),
-which is covered in range-rename(``/baz/'', ``/qux/'').
+which is handled in range-rename(``/baz/'', ``/qux/'').
 Likewise, in \ddb, \betrfs needs to update all keys with prefix ``/baz/''
 to have prefix ``/qux/'', which is done by range-rename(``/baz/'', ``/qux/'')
 (directory doesn't have any data key).
+
+Also, \betrfs puts all operations in a file system rename in a transaction
+so that all changes are committed atomically.
 
 \begin{table}[t]
     \centering
@@ -70,19 +76,23 @@ to have prefix ``/qux/'', which is done by range-rename(``/baz/'', ``/qux/'')
         Type of Rename & Key/Value Store Operations \\
         \hline
         \hline
-        File Rename & \mdb$\rightarrow$put(\textit{dst}); \\
+        File Rename & transaction\_begin(); \\
+                    & \mdb$\rightarrow$put(\textit{dst}); \\
                     & \mdb$\rightarrow$del(\textit{src}); \\
                     & \ddb$\rightarrow$range-rename(\textit{src}, \textit{dst}); \\
+                    & transaction\_end(); \\
         \hline
-        Directory Rename & \mdb$\rightarrow$put(\textit{dst}); \\
+        Directory Rename & transaction\_begin(); \\
+                         & \mdb$\rightarrow$put(\textit{dst}); \\
                          & \mdb$\rightarrow$del(\textit{src}); \\
                          & \mdb$\rightarrow$range-rename(\textit{src/}, \textit{dst/}); \\
                          & \ddb$\rightarrow$range-rename(\textit{src/}, \textit{dst/}); \\
+                         & transaction\_end(); \\
         \hline
     \end{tabular}
     \caption[Full-path-indexed \betrfs implements file system renames with range-rename]{\label{tab:fsrr}
         Full-path-indexed \betrfs renames \textit{src} to \textit{dst} by
-        invoking range-rename and other operations on \bets.}
+        invoking range-rename and other operations on \bets in a transaction.}
 \end{table}
 
 Table~\ref{tab:fsrr} summarizes how file system renames can be done with
@@ -93,16 +103,17 @@ operation.
 And a directory rename can be done with an insert, a delete and two
 range-rename operations.
 
-In fact, previous full-path-indexed \betrfs unconsciously implemented the
+In fact, previous full-path-indexed \betrfs implemented the
 range-rename operation with existing \bet operations,
 \texttt{del}, \texttt{get} and \texttt{put}.
-However, this range-rename implementation touches all source and destination
+However, this range-rename implementation updates all source and destination
 key/value pairs.
 The I/O-cost of this range-rename implementation increases
 when the number of source and destination key/value pairs grows.
-Efficient file system renames in full-phat-indexed \betrfs require an efficient
+Efficient file system renames in full-path-indexed \betrfs require an efficient
 range-rename implementation, that is, a range-rename implementation that
-completes in a bounded number of I/Os.
+completes in a bounded number of I/Os
+that doesn't grow as the number of related keys grows.
 
 \section{The range-rename operation}
 \label{sec:rr:op}
