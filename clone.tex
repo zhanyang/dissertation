@@ -1,26 +1,36 @@
 \chapter{Range-clone}
 \label{chap:clone}
 
-This chapter describes the range-clone operation on \bets, which can be used
-to implement file or directory clones and renames in full-path-indexed \betrfs.
+This chapter describes how to implement another type of namespace operations,
+the file or directory clone, in a full-path-indexed file system.
+File or directory clones are useful in many cases.
+For example,
+many people build versioning file systems~\citep{efs, cvfs, versionfs}
+which constantly make read-only clones of files and directories.
+Therefore, a user can get an old version of a file or directory after committing
+unwanted changes to the file or directory.
+Also, container applications usually clone the image file
+before booting the container.
+
+Similar to file or directory renames,
+we implement file or directory clones with the range-clone operation on \bets.
 Unlike a range-rename operation, which completes all its work at once,
-a range-clone operation injects a new type of message, \goto messages,
+a range-clone operation injects a new type of message, the \goto message,
 into the root node of the \bet.
 The \bet then flushes \goto messages with other messages in batches, gradually
 finishing the range-clone work.
 Therefore,
 the range-clone operation fits into the write-optimized framework of \bets,
-and the I/O cost of a range-clone operation is amortized with other messages.
-
+and the I/O cost of a range-clone operation is amortized with other operations.
 
 Section~\ref{sec:rc:int} describes the range-clone interface and how to implement
-file or directory renames and clones in full-path-index \betrfs by calling the
+file or directory renames and clones in full-path-indexed \betrfs by calling the
 range-clone operation.
 Section~\ref{sec:rc:rc} discusses how to implement the range-clone operation.
-In particular, we first describes an implementation of the range-clone operation
+In particular, we first describe an implementation of the range-clone operation
 with techniques introduced by the range-rename operation,
 finishing all work on the critical path.
-Then, we introduces the \goto message that delays most of the range-clone work
+Then, we introduce the \goto message that delays most of the range-clone work
 to the flushing process in the data structure.
 Finally, Section~\ref{sec:rc:impl} explains some implementation details in the
 range-clone operation.

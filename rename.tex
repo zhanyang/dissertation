@@ -1396,16 +1396,24 @@ a delete and one or two range-rename operations.
 And on lifted \bets, a range-rename operation can be done efficiently with
 tree surgery.
 
-Key lifting and tree surgery can be applied to other tree-style data structures.
-For example, one can build a full-path-indexed file system on \btrees
-with the same range-rename design.
-However, the generality means the design doesn't fully utilize the
-write-optimization of \bets.
-
 \betrfs with range-rename demonstrates the possibility of consolidating
 efficient renames into full-path-indexed file systems, showing the possibility
 of building file systems that are good at locality and namespace operations.
 Moreover, full-path indexing ensures all metadata or data in a directory are
 contiguous in the key space,
 creating more opportunity for namespace operations.
+
+Key lifting and tree surgery can be applied to other tree-style data structures.
+For example, one can build a full-path-indexed file system on \btrees
+with the same range-rename design.
+However, the generality means the design doesn't fully utilize the
+write-optimization of \bets.
+
+Also, the technique is not limited to the range-rename operation that updates
+keys with a certain prefix.
+For a key/value store operation that updates a lot of keys,
+one can use a similar technique as long as the key/value store can group all
+related keys in a contiguous key range and
+the bounding keys of the key range can ``lift'' the parts of related keys being
+updated.
 
