@@ -722,39 +722,8 @@ Also, the query should update its search key by replacing prefix \dpre with
 prefix \spre.
 Later, the query needs to reconstruct the result by replacing prefix \spre
 with prefix \dpre in the key.
-Therefore, the \goto message should filters out keys that are not in the
+Therefore, the \goto message should filter out keys that are not in the
 key range (\spre$_{min}$, \spre$_{max}$) in the subsequent search.
-
-For example, in Figure~\ref{subfig:goto-3}, consider a query for key ``/B/a''.
-The query first visits the root node, Node $A$, and finds a \goto message,
-\goto(``/B/'', ``/R'', $C$).
-This query should follow the \goto message and visit Node $C$,
-instead of the normal parent-to-child pointer to Node $B$..
-Additionally, the \goto message acts as an \xf function that translates the
-search key from ``/B/a'' to ``/R/a'' and bounds the query result to
-(``/R/$_{min}$'', ``/R/$_{max}$'').
-After fetching the key/value pair with key ``/R/a'' in Node $F$,
-the query reconstructs the key by replacing prefix ``/R/'' with prefix ``/B/''.
-Therefore, the query returns the key/value pair with key ``/B/a''.
-To see why the \goto message needs bound the query result,
-consider a range query for a key that is greater than ``/B/z''.
-The \goto message in Node $A$ translates the search key to ``/R/z''.
-However, searching for a key greater than ``/R/z'' in the subtree rooted at
-Node $C$ returns key ``/Y/x'',
-which the query cannot reconstruct by replacing prefix ``/R/'' with prefix
-``/B/''.
-In fact, the \goto message is only for results whose keys falls in the key
-range (``/B/$_{min}$'', ``/B/$_{max}$''),
-therefore, any key that is not in the key range
-(``/R/$_{min}$'', ``/R/$_{max}$'') is invalid after following the \goto message.
-
-Because a \goto message redirects queries whose search keys have a certain
-prefix, it also acts as a range-delete message that invalidates all old messages
-and key/value pairs following other pointers (normal parent-to-child pointers
-and older \goto messages).
-Thus, if we set the node ID in a \goto message to a special value
-(for example, 0), the \goto message acts as a range-delete message.
-Therefore, we can use \goto messages to implement range-delete.
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -1069,6 +1038,48 @@ Therefore, we can use \goto messages to implement range-delete.
         An example of completing range-clone(``/R/'', ``/B/'') with a \goto message.}
 \end{figure}
 
+For example, in Figure~\ref{subfig:goto-3}, consider a query for key ``/B/a''.
+The query first visits the root node, Node $A$, and finds a \goto message,
+\goto(``/B/'', ``/R'', $C$).
+This query should follow the \goto message and visit Node $C$,
+instead of the normal parent-to-child pointer to Node $B$.
+Additionally, the \goto message acts as an \xf function that translates the
+search key from ``/B/a'' to ``/R/a'' and bounds the query result to
+(``/R/$_{min}$'', ``/R/$_{max}$'').
+After fetching the key/value pair with key ``/R/a'' in Node $F$,
+the query reconstructs the key by replacing prefix ``/R/'' with prefix ``/B/''.
+Therefore, the query returns the key/value pair with key ``/B/a''.
+To see why the \goto message needs to bound the query result,
+consider a range query for a key that is greater than ``/B/z''.
+The \goto message in Node $A$ translates the search key to ``/R/z''.
+However, searching for a key greater than ``/R/z'' in the subtree rooted at
+Node $C$ returns key ``/Y/x'',
+which the query cannot reconstruct by replacing prefix ``/R/'' with prefix
+``/B/''.
+In fact, the \goto message is only for results whose keys fall in the key
+range (``/B/$_{min}$'', ``/B/$_{max}$''),
+therefore, any key that is not in the key range
+(``/R/$_{min}$'', ``/R/$_{max}$'') is invalid after following the \goto message.
+
+Because a \goto message redirects queries whose search keys have a certain
+prefix, it also acts as a range-delete message that invalidates all old messages
+and key/value pairs following other pointers (normal parent-to-child pointers
+and older \goto messages).
+Thus, if we set the node ID in a \goto message to a special value
+(for example, 0), the \goto message acts as a range-delete message.
+Therefore, we can use \goto messages to implement range-delete.
+
+Though a \goto message acts as an additional parent-to-child pointer in the node,
+the child of the \goto message doesn't need to be at the same height as
+normal children of the node.
+Therefore, the \goto message let us share a subtree between two parents
+at different heights.
+
+Also, the \xf function associated with the \goto message means the target
+subtree can have a larger key range than specified in the \goto message.
+Thus, the range-clone operation can lazily slice out the subtrees,
+amortizing the slicing cost with other operations.
+
 \paragraph{Range-clone with \goto messages.}
 
 Range-clone(\spre, \dpre) is implemented with \goto messages through the
@@ -1079,12 +1090,15 @@ until reaching the source LCA, the lowest node that covers the whole key range
 (\spre$_{min}$, \spre$_{max}$).
 During the traversal, the range-clone operation also flushes messages from
 parent to child.
-At this point, all messages with source keys are in the subtree rooted at the
-source LCA.
+At this point, all messages with keys in the cloned key range
+are in the subtree rooted at the source LCA.
 \item the range-clone message then injects a \goto message into the root node of
 the lifted \bedag with the source LCA as the node ID in the \goto message,
 increasing the reference count of the source LCA by 1.
 \end{itemize}
+Briefly speaking, on the critical path, the range-clone operation flushes
+messages until the source LCA, increments the reference count of the source LCA,
+and injects a \goto message into the root node.
 Note, this range-clone operation doesn't do tree surgery or pointer swings
 on the critical path.
 
@@ -1102,34 +1116,35 @@ Figure~\ref{subfig:goto-3} shows the result.
 Now, consider a query for key ``/B/a''.
 The query starts at the Node $A$.
 Then, instead of following the parent-to-child pointers to Node $B$, it follows
-the \goto message and visit Node $C$.
-The \goto message also acts as a \xf function that translates the search key
+the \goto message and visits Node $C$.
+The \goto message also acts as an \xf function that translates the search key
 to ``/R/a'' and bounds the result in range (``/R/$_{min}$'', ``/R/$_{max}$'').
 At last, the query finds the correct key/value pair in Node $F$.
 
 \subsection{Flushing \goto messages}
 \label{sec:rc:flush}
 
-The lifted \bedag should flush \goto messages along with other messages.
-Otherwise, the root node can be filled with \goto messages.
-A \goto message also prevents the \bet from flushing future messages that falls
-in the key range of the \goto message,
-because queries will not follow the normal parent-to-child pointer and finds
+A \goto message prevents the \bet from flushing future messages that
+fall in the key range of the \goto message,
+because queries will not follow the normal parent-to-child pointer and find
 the messages once flushed.
+Therefore, the lifted \bedag should flush \goto messages along with other messages.
 
 However, flushing a \goto message to a node at the same height as the source
 LCA breaks the asymptotic I/O costs of queries in the lifted \bedag,
 because such a \goto message redirects queries to a node at the same height.
-Therefore, we transfers a \goto message to pivots and a parent-to-child pointer
-when the \goto message is being flushed to a node at the same height as the
-source LCA.
+Therefore, when flushing a \goto message to a node at the same height as
+the source LCA,
+the lifted \bedag transfers the \goto message to
+pivots and a parent-to-child pointer.
 
 This subsection explains how the lifted \bedag flushes \goto messages.
-We start from simple cases, where a \goto message is being flushed to nodes
+We start from the simple case, where a \goto message is being flushed to nodes
 higher than the source LCA.
-Then, we describes how a \goto message becomes pivots and a parent-to-child
-pointer when the \goto message being flushed to a node at the same height as
-the source LCA.
+Then, we describe how a \goto message becomes pivots and a parent-to-child
+pointer
+when the lifted \bedag flushes the \goto message to
+a node at the same height as the source LCA.
 
 \paragraph{The lifted \bedag flushes a \goto message to a node higher than
 the source LCA.}
@@ -1546,7 +1561,7 @@ as shown in Figure~\ref{subfig:flush-3}.
 
 In the more complicated case, a \goto message can overlap with the key ranges
 of multiple children.
-One solution is to duplicate the \goto message and flushes to all children.
+One solution is to duplicate the \goto message and flush to all children.
 However,
 because duplicating the \goto message increases the reference count of the
 source LCA,
@@ -1562,24 +1577,9 @@ In fact, because the \goto message invalidates all old keys
 with \dpre, we can decrease the reference counts
 (and potentially garbage collect)
 of all children whose key ranges fall completely in the key range of the \goto
-message (we call these children interior children)
-and merges the two children whose key ranges partly overlap with the
-\goto message (we call these two children fringe children).
-
-However, removing interior children creates a key range that is not covered by
-the fringe children.
-Because of key lifting, modifying the key range of a child is not easy.
-For example, consider a child, Node $X$, bounded by two pivots, $p_0$ and $p_1$,
-and thus covering key range $(p_0, p_1)$.
-With key lifting, the LCP of $p_0$ and $p_1$ is lifted from the subtree rooted
-at Node $X$.
-Then, assume the two pivots bounding the child become $p_0$ and $p'_1$.
-Now, the subtree rooted at Node $X$ should have the LCP of $p_0$ and $p'_1$
-lifted.
-Thus, this change requires re-lifting Node $X$ as well as all the descendants
-of Node $X$ whose key ranges are updated to by $p'_1$.
-To avoid reading any descendent of the fringe node, we create an empty subtree
-and add the subtree as one child of the expanded fringe child.
+message (we call these children \textit{interior children})
+and merge the two children whose key ranges partly overlap with the
+\goto message (we call these two children \textit{fringe children}).
 
 Figure~\ref{fig:flush} shows an example of merging children before flushing a
 \goto message.
@@ -1590,11 +1590,17 @@ Note, though the range-rename operation that generates the \goto message has
 ``/R/'' as the \spre, the \spre in the \goto message is ``R/'' because ``/'' is
 lifted from the source LCA, Node $K$.
 To flush the \goto message, in Figure~\ref{subfig:flush-2}, the lifted \bedag
-garbage-collects Node $C$ and merges Node $B$ and $D$ into Node $B'$.
+garbage collects Node $C$ and merges Node $B$ and $D$ into Node $B'$.
 Note in the example, the merge creates an empty node, Node $M$, to cover the key
 range (``/B/h'', ``/B/q'').
 After the merge, Node $A$ flushes the \goto message to Node $B'$, as shown in
 Figure~\ref{subfig:flush-3}.
+
+In the exmaple, we create an empty node, Node $M$, to cover the key range of
+garbage-collected nodes.
+Otherwise, we need to enlarge the key range of either Node $G$ or Node $I$.
+However, with key lifting, changing the key range of a node means re-lifting
+the node and its descendants, which means additioanl I/Os during a flush.
 
 In special cases, there can be only one or no fringe child.
 If there is only one fringe child, the flush process removes the interior
@@ -1613,19 +1619,19 @@ we cannot flush the \goto message.
 In such scenarios, the \goto message is converted into pivots and a
 parent-to-child pointer in the node.
 
-The lifted \bedag completes this conversion by adding
-\dpre$_{min}$ and \dpre$_{max}$ as two new pivots and
-setting the parent-to-child pointer between them to the source LCA of the
+The lifted \bedag completes this conversion by adding two new pivots,
+\dpre$_{min}$ and \dpre$_{max}$ and
+setting the new parent-to-child pointer to the source LCA of the
 \goto message.
 Assume \dpre$_{min}$ and \dpre$_{max}$ are in the key range of child $i$ of the node,
 that is, $\dpre_{min}, \dpre_{max} \in (pivot_{i},pivot_{i+1})$.
 Adding \dpre$_{min}$ and \dpre$_{max}$ as two new pivots creates 3 key ranges,
 $(pivot_{i},\dpre_{min})$, $(\dpre_{min},\dpre_{max})$ and
 $(\dpre_{max}, pivot_{i+1})$.
-Key range $(\dpre_{min},\dpre_{max})$ is cover in the source LCA of the \goto
+Key range $(\dpre_{min},\dpre_{max})$ is covered in the source LCA of the \goto
 message, while the other two key range are covered by child $i$.
 
-However, all three parent-to-child pointers now point to children whose key
+All three parent-to-child pointers now point to children whose key
 ranges are different than those specified in the node.
 In particular, child $i$ has range $(pivot_{i},pivot_{i+1})$ but bounded by
 $(pivot_{i},\dpre_{min})$ or $(\dpre_{max}, pivot_{i+1})$.
@@ -1869,29 +1875,37 @@ Also, \xf functions serves as filters, bounding the results queries may return.
 Figure~\ref{fig:spvt} shows an example of the transformation.
 The lifted \bedag cannot flush the \goto message from Node $A$ to Node $B$,
 because Node $B$ is at the same height as its source LCA, Node $C$.
-Therefore, two pivots, ``/B/$_{min}$'' and ``/B/$_{max}$'', are addedto Node $A$.
+Therefore, two pivots, ``/B/$_{min}$'' and ``/B/$_{max}$'', are added to Node $A$.
 The parent-to-child pointer between ``/B/$_{min}$'' and ``/B/$_{max}$'' points
 to the source LCA, Node $C$, and has a \xf function of ``/R/'', indicating a
 key range mismatch and the additional prefix ``/R/'' for keys in the child.
 Queries following that parent-to-child pointer should prepend prefix ``/R/''
 after the normal lifting of ``/B/'' from its search key.
-Also, they remember only keys between ``/R/$_{min}$'' and ``/R/$_{max}$'' in
+Also, queries remember only keys between ``/R/$_{min}$'' and ``/R/$_{max}$'' in
 the child are valid.
 Similarly, two \xf functions are added to the other two pointers.
 Note, for the leftmost parent-to-child pointer of Node $A$, though the \xf
 function contains no prefix, it still serves as a filter for queries.
 
+With the help of \xf functions in parent-to-child pointers,
+the \bedag can transfer a \goto message into two pivots and a parent-to-child
+pointer.
+Now, let's look at how \xf functions are resolved during flushes,
+finishing the rest work in the range-clone operation.
+
 \paragraph{Fixing \xf functions in parent-to-child pointers.}
 \goto messages add \xf functions to parent-to-child pointers.
 The \xf function transforms the search keys of queries by prepending its prefix
 after normal key lifting through parent-to-child pointers.
-Also, the \xf function indicates the child contains keys outside of the key range
-specified by pivots in the parent and queries should ignore those keys following
+Also, the \xf function indicates that
+the child contains keys outside of the key range
+specified by pivots in the parent and
+thus, queries should ignore those keys following
 the parent-to-child pointers.
 
 The lifted \bedag resolves \xf functions through node flushes.
 Specifically, when flushing from a parent to a child and the parent-to-child
-pointer has a \xf function,
+pointer has an \xf function,
 the lifted \bedag garbage collects exterior children of the child whose key
 ranges are completely outside of the key range specified by the pivots in parent.
 Also, the lifted \bedag removes messages whose keys are outside of the key
@@ -2085,10 +2099,12 @@ keys in the child.
 
 Figure~\ref{fig:xf} shows an example of fixing \xf functions in node flushes.
 In Figure~\ref{subfig:xf-1}, the parent-to-child pointer from Node $A$ to
-Node $B$ has a \xf function, \xf(``/R/'').
-The key range specified by Node $A$ is (``/B/$_{min}$'',``/B/$_{max}$''), which
-translates to (``/R/$_{min}$'',``/R/$_{max}$'') in Node $B$,
-however, Node $B$ contains pivots and messages that are out of the key range.
+Node $B$ has an \xf function, \xf(``/R/'').
+The key range specified by Node $A$ is (``/B/$_{min}$'',``/B/$_{max}$''),
+and the \xf function translates the key range to
+translates to (``/R/$_{min}$'',``/R/$_{max}$'') in Node $B$.
+Also, the \xf function tells queries to ignore pivots and messages that are
+out of the key range (``/R/$_{min}$'',``/R/$_{max}$'').
 In Figure~\ref{subfig:xf-2}, the lifted \bedag garbage collects exterior nodes,
 Node $C$ and $G$
 and adds \xf functions to pointers to fringe nodes, Node $D$ and $F$.
@@ -2100,6 +2116,8 @@ because it is out of the key range specified in Node $A$.
 \section{Implementation}
 \label{sec:rc:impl}
 
+This section discusses implementation details of the range-clone operation.
+
 \subsection{Synchronization}
 
 The range-clone operation synchronizes with other \bet operations using the
@@ -2107,30 +2125,16 @@ readers-writer locks of \bet nodes
 (Section~\ref{sec:bg:impl:sync}).
 The range-clone operation first grabs the write lock of the root node.
 Then, while flushing messages along the root-to-leaf path until the LCA,
-the range-clone operation write-locks \bet nodes hand-over-hand,
+the range-clone operation write-locks \bet nodes, hand-over-hand,
 holding the write lock of the root node.
 Finally, the range-clone operation injects the \goto message into the root node
 and releases the write locks of the root node and the LCA.
-
-The range-clone operation holds the write lock of the root node.
-Therefore, other operation cannot proceed simultaneously with a range-clone
-operation.
-In contrast, the range-rename operation unlocks the root node after flushing
-messages, provided that the root node is not the parent of LCAs
-(Section~\ref{sec:rr:impl:sync}).
-However, the range-rename operation slices subtrees while holding the write
-locks of the parents of the LCAs,
-excluding concurrent \bet operations in the subtress being sliced.
-On the other hand,
-the range-clone operation doesn't need to slice the subtree before returning to
-the user,
-other \bet operations targeting the subtrees can start earlier.
 
 \subsection{Preferential splitting}
 \label{sec:rc:impl:pfsplit}
 
 Most of the work in range-clone and range-rename is about splitting fringe
-nodes, separating keys with a prefix and keys without the prefix.
+nodes, separating keys with the prefix and keys without the prefix.
 If all nodes are either interior nodes or exterior nodes, much less work is
 needed.
 Therefore, it is beneficial to reduce the number of fringe nodes.
