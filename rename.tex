@@ -34,8 +34,8 @@ Range-rename(\spre, \dpre) does three things atomically:
 \item the range-rename operation deletes all destination key/value pairs
     from the key/value store
 \item then, for each source key/value pair $(k,v)$ in the key/value store,
-    the range-rename operation inserts a key/value pair $(k',v)$
-    to the key/value store, where $k$ is the concatenation of \spre and some
+    the range-rename operation creates a key/value pair $(k',v)$
+    in the key/value store, where $k$ is the concatenation of \spre and some
     suffix $s$ and $k'$ is the concatenation of \dpre and the same suffix $s$;
 \item at last, the range-rename operation deletes all source key/value pairs
     from the key/value store.

@@ -38,6 +38,19 @@ range-clone operation.
 \section{The range-clone interface}
 \label{sec:rc:int}
 
+Range-clone is defined as range-clone(\spre, \dpre).
+Range-clone(\spre, \dpre) does the following things atomically:
+\begin{itemize}
+\item the range-clone operation deletes all destination key/value pairs from
+    the key/value store;
+\item then, for each source key/value pair $(k,v)$ in the key/value store,
+    the range-clone operation creates a key/value pair $(k',v)$ to the
+    key/value store, where $k$ is the concatenation of \spre and some suffix
+    $s$ and $k'$ is the concatenation of \dpre and the same suffix $s$;
+\end{itemize}
+Therefore, range-clone(\spre, \dpre) is equivalent to range-rename(\spre, \dpre)
+without deleting source key/value pairs.
+
 \begin{table}[t]
     \centering
     \begin{tabular}{c | l}
@@ -45,43 +58,38 @@ range-clone operation.
         Type of File System Operation & Key/Value Store Operations \\
         \hline
         \hline
-        File Rename & \mdb$\rightarrow$put(\textit{dst}); \\
+        File Rename & transaction\_begin(); \\
+                    & \mdb$\rightarrow$put(\textit{dst}); \\
                     & \mdb$\rightarrow$del(\textit{src}); \\
                     & \ddb$\rightarrow$range-clone(\textit{src}, \textit{dst}); \\
                     & \ddb$\rightarrow$range-delete(\textit{src}) \\
+                    & transaction\_end(); \\
         \hline
-        Directory Rename & \mdb$\rightarrow$put(\textit{dst}); \\
+        Directory Rename & transaction\_begin(); \\
+                         & \mdb$\rightarrow$put(\textit{dst}); \\
                          & \mdb$\rightarrow$del(\textit{src}); \\
                          & \mdb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}); \\
                          & \mdb$\rightarrow$range-delete(\textit{src/}); \\
                          & \ddb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}); \\
                          & \ddb$\rightarrow$range-delete(\textit{src/}); \\
+                         & transaction\_end(); \\
         \hline
-        File Clone  & \mdb$\rightarrow$put(\textit{dst}); \\
+        File Clone  & transaction\_begin(); \\
+                    & \mdb$\rightarrow$put(\textit{dst}); \\
                     & \ddb$\rightarrow$range-clone(\textit{src}, \textit{dst}); \\
+                    & transaction\_end(); \\
         \hline
-        Directory Clone  & \mdb$\rightarrow$put(\textit{dst}); \\
+        Directory Clone  & transaction\_begin(); \\
+                         & \mdb$\rightarrow$put(\textit{dst}); \\
                          & \mdb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}); \\
                          & \ddb$\rightarrow$range-clone(\textit{src/}, \textit{dst/}); \\
+                         & transaction\_end(); \\
         \hline
     \end{tabular}
     \caption[Full-path-indexed \betrfs implements file system renames and clones with range-clone]{\label{tab:fsrc}
         Full-path-indexed \betrfs renames or clones \textit{src} to \textit{dst} by
         invoking range-clone and other operations on \bets.}
 \end{table}
-
-Range-clone is defined as range-clone(\spre, \dpre).
-Range-clone(\spre, \dpre) does the following things:
-\begin{itemize}
-\item the range-clone operation  deletes all destination key/value pairs from
-    the key/value store;
-\item then, for each source key/value pair $(k,v)$ in the key/value store,
-    the range-clone operation inserts a key/value pair $(k',v)$ to the
-    key/value store, where $k$ is the concatenation of \spre and some suffix
-    $s$ and $k'$ is the concatenation of \dpre and the same suffix $s$;
-\end{itemize}
-Therefore, range-clone(\spre, \dpre) is equivalent to range-rename(\spre, \dpre)
-without deleting source key/value pairs.
 
 Table~\ref{tab:fsrc} summarizes how \betrfs implements file or
 directory renames and clones by invoking the range-clone operation.
@@ -100,6 +108,9 @@ In such a scenario, the file system completes file or directory clones if it
 doesn't delete the metadata for the source file or directory
 (in rename, this delete is not covered in the range-rename operation).
 
+Also, \betrfs puts all operations in a file system rename in a transaction
+so that all changes are committed atomically.
+
 \section{The range-clone operation}
 \label{sec:rc:rc}
 
@@ -113,8 +124,8 @@ This implementation shows all the work in the range-clone operation and
 helps the understanding of the write-optimized implementation described in
 later sections.
 Then, Section~\ref{sec:rc:goto} introduces \goto messages.
-the range-rename operation can return to application immediately after injecting
-a \goto message into the root node after reaching the source LCA,
+The range-rename operation can return to the application immediately
+after injecting a \goto message into the root node,
 without slicing out the subtrees.
 Finally, Section~\ref{sec:rc:flush} shows how \goto messages are flushed in
 the data structure, gradually finishing the range-clone work.
@@ -408,12 +419,13 @@ instead of swapping the two subtrees and injecting a range-delete message
 for source keys in a range-rename operation,
 a range-clone operation can share the source subtree in both source and
 destination,
-and garbage collects the destination subtree.
+and garbage collect the destination subtree.
 
 Figure~\ref{fig:rc} shows an example of performing the work of
 range-clone(``/R/'', ``/B/'') on the lifted \bet in Figure~\ref{subfig:rc-1}.
 Figure~\ref{subfig:rc-2} shows the lifted \bet after tree surgery.
-Tree surgery slices out the source and destination subtrees.
+Tree surgery slices out the source and destination subtrees,
+after flushing pending messages to the LCAs.
 This tree surgery is completely identical to that in the range-rename operation
 (Figure~\ref{subfig:rr-2}).
 In Figure~\ref{subfig:rc-3}, the lifted \bet garbage collects the destination
@@ -423,6 +435,7 @@ subtree, rooted at Node $B'$, and sets the parent-to-child pointer between
 prefix ``/B/'', respectively)
 to Node $C'$,
 which is the root node of the source subtree.
+
 The subtree rooted at Node $C'$ is now shared by two parent-to-child pointers,
 and queries for
 both ``/B/'' and ``/R/'' keys will fetch messages and key/value pairs in that
@@ -442,8 +455,8 @@ logarithmic in the size of the graph.
 
 The lifted \bedag adds reference counts for \bet nodes to track the sharing
 status.
-In particular, \fti has a node table that a maps node ID to a actual location of
-the node.
+In particular, \fti has a node table that a maps node ID to
+the actual location of the node.
 We store the reference count of each node in the node table alongside
 the mapping.
 Before flushing to a node, the \bedag must check the reference count of the node.
@@ -451,12 +464,6 @@ A reference count greater than 1 means the node is shared by multiple
 parent-to-child pointers.
 The lifted \bedag must break the sharing because other paths should not see the
 messages this flush is going to inject into the node.
-
-The lifted \bedag must break the sharing of a node when flushing messages
-through one of its parent-to-child pointer.
-Because these messages are injected into the tree after the range-clone
-operation, they are not shared by all parent-to-child pointers.
-Thus, the node can no longer be shared by multiple parents after flushing.
 
 In a lifted \bedag, the root-to-leaf traversals of different queries may end up
 reaching the same leaf node, fetching the same key/value pair.
@@ -466,11 +473,21 @@ with different prefixes.
 For example, in Figure~\ref{subfig:rc-3}, queries for key ``/R/n'' and ``/B/n''
 follow the same root-to-leaf path and get the same key/value pair from the
 leaf node, Node $G$.
-However, when waling down the tree from Node $A$ to Node $C$, the query for
+However, when walking down the tree from Node $A$ to Node $C$, the query for
 key ``/R/n'' follows the parent-to-child pointer that lifts prefix ``/R/''.
 Therefore, it gets key ``/R/n'' after prepending lifted prefixes along the
 root-to-leaf path.
 Similarly, the query for key ``/B/n'' gets a result with key ``/B/n''.
+
+The lifted \bedag must break the sharing of a node when flushing messages
+through one of its parent-to-child pointer.
+Because these messages are injected into the tree after the range-clone
+operation, they are not shared by all parent-to-child pointers.
+Thus, the node can no longer be shared by multiple parents after flushing.
+However, before accumulating enough messages to flush to the subtree,
+the subtree is shared by multiple parent-to-child pointers,
+which saves a lot of space compared to the naive approach that clones
+the source subtree in the range-clone operation.
 
 The lifted \bedag breaks the sharing of a node using Copy-on-Write (CoW).
 For instance, after the range-clone operation, one parent of the shared node
@@ -665,9 +682,7 @@ ID.
 In Figure~\ref{subfig:cow-1}, Node $A$ has two parent-to-child pointers to
 Node $C$.
 Therefore, the reference count of Node $C$ is 2 and
-Node $F$, $G$ and $H$ have reference count 1
-(assume nodes omitted in the figure don't have parent-to-child pointers
-to nodes shown in the figure).
+Node $F$, $G$ and $H$ have reference count 1.
 When Node $A$ wants to flush messages with through the parent-to-child pointer
 between ``/B/$_{min}$'' and ``/B/$_{max}$'',
 the flushing process finds out that Node $C$ is a shared node because its
@@ -675,7 +690,7 @@ reference count is greater than 1.
 Therefore, it clones Node $C$ to break the sharing.
 As shown in Figure~\ref{subfig:cow-2}, the \bedag creates a new node, Node $I$,
 that is identical to Node $C$.
-Now, both Node $C$ and $I$ have reference count 1, while Node $F$, $G$ and
+Now, both Node $C$ and $I$ have reference count 1, while Node $F$, $G$, and
 $H$ have reference count 2.
 With the sharing broken, the \bedag can flush message \putm(``/B/b'',...) from
 Node $A$ to Node $I$ without affecting the other root-to-leaf path that
