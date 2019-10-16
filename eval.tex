@@ -4,7 +4,7 @@
 This chapter evaluates the performance of \betrfs with
 range-rename (\betrfsFour) and \betrfs with range-clone (\betrfsFive),
 comparing them with widely used file systems and \betrfsThree.
-\betrfsThree is the relative-path-indexed \betrfs that taxes other file system
+\betrfsThree is the relative-path-indexed \betrfs that penalizes other file system
 operations for good namespace operations.
 The evaluation includes both micro and macro benchmarks.
 
@@ -12,9 +12,8 @@ We seek to answer the following questions in the evaluation:
 \begin{itemize}
 \item How do non-namespace operations perform on \betrfsFour and \betrfsFive?
 \item How do namespace operations perform on \betrfsFour and \betrfsFive?
-\item Do applications perform well on \betrfsFour adn \betrfsFive?
-\item Do \betrfsFour and \betrfsFive maintain good performance against file
-    system aging?
+\item Do applications perform well on \betrfsFour and \betrfsFive?
+\item Do \betrfsFour and \betrfsFive maintain good performance over time?
 \end{itemize}
 
 \paragraph{Experimental Setup.}
@@ -29,20 +28,19 @@ The system runs 64-bit Ubuntu server 14.04.6 on a USB stick to prevent
 interference from the root file system.
 \betrfsThree and \betrfsFour run on a modified Linux 3.11.10 kernel that
 enlarges the size of the kernel stack,
-while \betrfsFive and all other file systems run on Linux 4.9.142 kernel.
+while \betrfsFive and all other file systems run on unmodified Linux 4.9.142 kernel.
 The evaluation uses ZFS 0.6.5.11 from \url{zfsonlinx.org} and
 ext4, Btrfs, XFS and NILFS2 as parts of the Linux kernel.
 Each experiment runs a minimum of 5 times and reports the average number.
-Error bars indicate (95\%) confidence intervals over all runs.
-Similarly, error $\pm$ terms show confidence intervals over all runs.
+Error bars and error $\pm$ terms indicat 95\% confidence intervals over all runs.
 Unless noted, all benchmarks are cold-cache tests.
 
 We run benchmarks on empty file systems and aged file systems.
 We age the file system by emulating user behaviors.
 First, we fill the file system with files and directories from the root file
-system, roughly taking up 31 GiB space.
+system, roughly taking up 31 GiB out of 128GiB space.
 Then, we clone the git repository of the Linux kernel with the release tag
-``v3.12'' (released on 2013/11/03) to the home directory in the file system.
+``v3.12'' (released on 2013/11/03) into the home directory in the file system.
 Afterwards, we repeat the process of building the kernel and pulling the next
 release of the repository
 until we build the Linux kernel with the release tag ``v4.20''
@@ -762,10 +760,10 @@ and namespace operations (Section~\ref{sec:micro:nso}).
 \paragraph{Sequential writes and reads.}
 
 We measure the throughput of sequentially writing and reading a file.
-This benchmark first writes a 10GiB file, 40MiB at a time, with a
+This benchmark first writes a 10GiB file, 40MiB at a time, with an
 \texttt{fsync} to flush the file to the disk.
 Then, after clearing the kernel page cache, the benchmark reads the file from
-the disk using \texttt{dd} with 10MiB block size.
+the disk using \texttt{dd} with a 10MiB block size.
 
 Figure~\ref{subfig:seq_io} shows the results of running the benchmark on empty
 file systems.
@@ -797,8 +795,8 @@ aged file systems.
 The performances of ext4 and XFS are similar to those on empty file systems,
 showing that most of the free spaces are not fragmented by the aging process.
 Btrfs, ZFS, \betrfsThree, \betrfsFour, and \betrfsFive store parts of metadata
-and data in trees, which are higher for non-empty file systems.
-Because operations on higher trees are more expensive,
+and data in trees, which are taller for non-empty file systems.
+Because operations on taller trees are more expensive,
 Btrfs, ZFS, \betrfsThree, \betrfsFour, and \betrfsFive become slightly slower
 in the aged setting.
 NILFS2 becomes much slower because the aging process fills the log multiple
@@ -841,7 +839,7 @@ random offsets within the 10GiB file, followed by an \texttt{fsync}.
         \caption{\label{subtab:rand_io_aged}Benchmarking on aged file systems.}
     \end{subtable}
     \caption[Random-write benchmark]{\label{tab:rand_io}
-        Time to perform 256K (262,144) 4-Byte random writes one a 10GiB file (1 MiB total IO, lower is better).}
+        Time to perform 256K (262,144) 4-Byte random writes on a 10GiB file (1 MiB total IO, lower is better).}
 \end{table}
 
 Table~\ref{subtab:rand_io} shows the results of running the benchmark
@@ -924,7 +922,7 @@ and the recursive delete benchmark doesn't write new data,
 these benchmarks don't trigger garbage collection in NILFS2.
 Therefore, NILFS2 doesn't have much regression in the aged setting.
 All versions of \betrfs have slightly worse performance in the
-find and grep benchmarks because the \bets are higher in the aged setting.
+find and grep benchmarks because the \bets are taller in the aged setting.
 However, \betrfsThree and \betrfsFour have much worse performance in the
 recursive delete benchmark,
 because, during the benchmark, more range-delete messages are flushed
@@ -970,7 +968,7 @@ The file rename benchmark measures the throughput of renaming files with
 different sizes.
 The benchmark first creates a file filled with random data.
 Then, the benchmark renames the file 100 times,
-each followed by a \texttt{fsync} of the parent directory,
+each followed by an \texttt{fsync} of the parent directory,
 and reports the throughput, that is, renames per second.
 
 Figure~\ref{subfig:file_rename} shows the results of running the benchmark on
@@ -1003,10 +1001,10 @@ The directory rename benchmark measures the throughput of renaming a directory.
 On empty file systems, the benchmark first clones the Linux source repository
 to the file system and measures the throughput by renaming the directory that
 contains the repository 100 times,
-each followed by a \texttt{fsync} of the parent directory.
+each followed by an \texttt{fsync} of the parent directory.
 When measuring the performance on aged file systems, the benchmark renames
 the directory is aged by the aging script 100 times,
-each followed by a \texttt{fsync} of the parent directory.
+each followed by an \texttt{fsync} of the parent directory.
 
 Figure~\ref{subfig:dir_rename} shows the results of running the benchmark on
 empty file systems.
@@ -1017,7 +1015,7 @@ Figure~\ref{subfig:dir_rename_aged} shows the results of running the benchmark o
 aged file systems.
 The performances of ext4, Btrfs, XFS, and \betrfsThree are similar to those on
 empty file systems.
-\betrfsFive and \betrfsFour become slower become slicing in higher trees.
+\betrfsFive and \betrfsFour become slower become slicing in taller trees.
 The performance of NILFS2 degrades and becomes unstable because of garbage
 collection.
 The performance of ZFS also degrades.
@@ -1113,7 +1111,7 @@ all versions of \betrfs are faster than the other file systems, except Btrfs.
 
 Figure~\ref{subfig:git_aged} shows the results of running the benchmark on aged
 file systems.
-All versions of \betrfs become slightly slower, because the \bets are higher.
+All versions of \betrfs become slightly slower, because the \bets are taller.
 However,
 \betrfsFive is faster than any other file systems,
 because, in the aged setting, the other file systems cannot allocate spaces that
@@ -1147,7 +1145,7 @@ Figure~\ref{subfig:tar_aged} shows the results of running the benchmark on aged
 file systems.
 All versions of \betrfs have similar performances to those on empty file systems
 for the untar benchmark, while the tar benchmark runs slightly slower because
-of the higher \bets.
+of the taller \bets.
 However, versions of \betrfs are faster than any other file systems on both
 benchmarks in the aged setting.
 
@@ -1182,7 +1180,7 @@ Figure~\ref{subfig:rsync_aged} shows the results of running the benchmark on
 aged file systems.
 In the aged setting, ext4, Btrfs and NILFS2 cannot make the same allocation,
 resulting in orse performances.
-Versions of \betrfs are only slightly slower because of the higher \bets.
+Versions of \betrfs are only slightly slower because of the taller \bets.
 
 \paragraph{Mailserver.}
 
@@ -1220,7 +1218,7 @@ because versions of \betrfs have faster file creates.
 Figure~\ref{subfig:imap_aged} shows the results of running the benchmark on
 aged file systems.
 NILFS2 becomes much slower because of garbage collection.
-Since the \bets are higher in the aged setting, versions of \betrfs become
+Since the \bets are taller in the aged setting, versions of \betrfs become
 slower.
 However, versions of \betrfs are faster than the other file systems, because
 the other file systems cannot make the same allocation for files in the aged
@@ -1229,9 +1227,9 @@ setting.
 \section{Conclusion}
 
 \betrfsFour and \betrfsFive show good performance on workloads that have
-intensive directory scans or small randoms.
-The performances of namespace operations on \betrfsFour and \betrfsFive are
-at least comparable to the other file systems.
+intensive directory scans or small random writes.
+The namespace operations on \betrfsFour and \betrfsFive have comparable
+performance to those on the other file systems.
 And in the aged setting, versions of \betrfs show much less regressions than
 the other file systems.
 

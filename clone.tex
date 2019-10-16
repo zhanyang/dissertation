@@ -2130,6 +2130,13 @@ holding the write lock of the root node.
 Finally, the range-clone operation injects the \goto message into the root node
 and releases the write locks of the root node and the LCA.
 
+Compared to the range-rename operation that unlocks the root node after flushing
+messages (Section~\ref{sec:rr:impl:sync}),
+the range-clone operations locks the root node for a longer time.
+However, the range-clone operation returns to the caller earlier,
+while the range-rename operation needs to lock the LCAs during bottom-up
+slicing, preventing concurrent operations to the subtrees.
+
 \subsection{Preferential splitting}
 \label{sec:rc:impl:pfsplit}
 
@@ -2240,9 +2247,24 @@ At last, we show how \goto messages should be flushed down the lifted \bedags.
 A \goto message will eventually become pivots and a parent-to-child pointer
 in the lifted \bedag.
 
-The range-clone operation makes file or directory clones possible in
-full-path-indexed \betrfs,
-showing that full-path indexing is not an obstacle to namespace operations.
-In fact, full-path indexing creates more opportunities for namespace operations
-because all keys under one directory are contiguous in the key space.
+Full-path-indexed \betrfs clones a directory without traversing the directory
+because full-path indexing specifies the key range inside the directory.
+In contrast, to finish a directory clone,
+an inode-based file system needs to traverse the directory to collect all inodes
+inside the directory.
+When the number of inodes in the directory is large,
+cloning the directory is slower in inode-based file systems
+than that in full-path-indexed \betrfs.
+Additionally, the directory clones in full-path-indexed \betrfs
+still maintains full-path indexing, which ensures good locality.
+
+Therefore, full-path indexing is not an obstacle to namespace operations.
+In fact, full-path indexing creates more opportunities for namespace operations.
+
+Similar to the range-rename operation, the technique is not limited to the
+range-clone operation that clones keys with certain prefix.
+For a key/value store operation that clones a lot of keys,
+one can use a similar technique as long as the key/value store can group all
+related keys in a contiguous key range and
+there is an \xf function that translates sources keys to destination keys.
 

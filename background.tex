@@ -12,7 +12,7 @@ Full-path indexing keeps metadata and data under one directory close to each
 other in the key space,
 but makes the simple implementation of file system renames expensive.
 Next, Section~\ref{sec:bg:rpi} discusses relative-path indexing,
-the previous approach that taxes other operations to mitigate the rename issue
+the previous approach that penalizes other operations to mitigate the rename issue
 in \betrfs.
 Finally, Section~\ref{sec:bg:impl} explains implementation details
 in \betrfs.
@@ -620,7 +620,7 @@ traversals are almost as fast as \betrfsOne.
 
 Figure~\ref{fig:file_rename_rpi} shows the results of running the file rename
 benchmark on \betrfsThree (\betrfsThree is \betrfsTwo with some bug fixes).
-The benchmark renames a file of different sizes 100 times, each followed by a
+The benchmark renames a file of different sizes 100 times, each followed by an
 \texttt{fsync} of the parent directory.
 We run the benchmark on \betrfsThree twice,
 one on \betrfsThree (with the default zone size),
