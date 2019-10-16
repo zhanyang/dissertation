@@ -42,7 +42,7 @@ system, roughly taking up 31 GiB out of 128GiB space.
 Then, we clone the git repository of the Linux kernel with the release tag
 ``v3.12'' (released on 2013/11/03) into the home directory in the file system.
 Afterwards, we repeat the process of building the kernel and pulling the next
-release of the repository
+elease of the repository
 until we build the Linux kernel with the release tag ``v4.20''
 (released on 2018/12/13).
 This process takes several days to complete (about 5 days on ext4),
@@ -69,695 +69,73 @@ and namespace operations (Section~\ref{sec:micro:nso}).
 \subsection{Non-namespace operations}
 \label{sec:micro:nnso}
 
-\begin{figure}[t]
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar,
-                    ymin=0,
-                    ymax=150,
-                    ylabel={Bandwidth (MiB/sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={seq.write,seq.read},
-                    xtick={seq.write,seq.read},
-                    xticklabels={write,read},
-                    enlarge x limits=0.5,
-                    visualization depends on=y \as \rawy,
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addSeqPlot{ext4};
-                \addSeqPlot{btrfs};
-                \addSeqPlot{xfs};
-                \addSeqPlot{zfs};
-                \addSeqPlot{nilfs2};
-                \addSeqPlot{betrfs3};
-                \addSeqPlot{betrfs4};
-                \addSeqPlot{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:seq_io}Benchmarking on empty file systems.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar,
-                    ymin=0,
-                    ymax=150,
-                    ylabel={Bandwidth (MiB/sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={seq.write,seq.read},
-                    xtick={seq.write,seq.read},
-                    xticklabels={write,read},
-                    enlarge x limits=0.5,
-                    visualization depends on=y \as \rawy,
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addSeqPlotAged{ext4};
-                \addSeqPlotAged{btrfs};
-                \addSeqPlotAged{xfs};
-                \addSeqPlotAged{zfs};
-                \addSeqPlotAged{nilfs2};
-                \addSeqPlotAged{betrfs3};
-                \addSeqPlotAged{betrfs4};
-                \addSeqPlotAged{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:seq_io_aged}Benchmarking on aged file systems.}
-    \end{subfigure}
-    \caption[Sequential-write and sequential-read benchmark]{\label{fig:seq_io}
-        Bandwidth to sequentially read and write a 10 GiB file (higher is better).}
-\end{figure}
-
-\begin{figure}[t]
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    xlabel={Files created},
-                    ylabel={Throughput (files/sec)},
-                    xmin=0,
-                    xmax=3000000,
-                    ymin=10,
-                    ymax=50000,
-                    mark repeat=10,
-                    ytick={10000,20000,30000,40000,50000},
-                    yticklabels={10k,20k,30k,40k,50k},
-                    xtick={0,1000000,2000000,3000000},
-                    xticklabels={0,1M,2M,3M},
-                    grid=major,
-                    scaled x ticks=false,
-                    scaled y ticks=false,
-                    legend columns=4,
-                    legend cell align=left,
-                    transpose legend,
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addTokubenchPlot{ext4};
-                \addTokubenchPlot{btrfs};
-                \addTokubenchPlot{xfs};
-                \addTokubenchPlot{zfs};
-                \addTokubenchPlot{nilfs2};
-                \addTokubenchPlot{betrfs3};
-                \addTokubenchPlot{betrfs4};
-                \addTokubenchPlot{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:toku}Benchmarking on empty file systems.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    xlabel={Files created},
-                    ylabel={Throughput (files/sec)},
-                    xmin=0,
-                    xmax=3000000,
-                    ymin=10,
-                    ymax=50000,
-                    mark repeat=10,
-                    ytick={10000,20000,30000,40000,50000},
-                    yticklabels={10k,20k,30k,40k,50k},
-                    xtick={0,1000000,2000000,3000000},
-                    xticklabels={0,1M,2M,3M},
-                    grid=major,
-                    scaled x ticks=false,
-                    scaled y ticks=false,
-                    legend columns=4,
-                    legend cell align=left,
-                    transpose legend,
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addTokubenchPlotAged{ext4};
-                \addTokubenchPlotAged{btrfs};
-                \addTokubenchPlotAged{xfs};
-                \addTokubenchPlotAged{zfs};
-                \addTokubenchPlotAged{nilfs2};
-                \addTokubenchPlotAged{betrfs3};
-                \addTokubenchPlotAged{betrfs4};
-                \addTokubenchPlotAged{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:toku_aged}Benchmarking on aged file systems.}
-    \end{subfigure}
-    \caption[TokuBench benchmark]{\label{fig:toku}
-        Cumulative file creation throughput during the Tokubench benchmark (higher is better).}
-\end{figure}
-
-\begin{figure}[t]
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    xlabel={File Size (log scale)},
-                    x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
-                    ylabel={Throughput (renames/sec)},
-                    xmin=12,
-                    xmax=26,
-                    xtick={12,13,14,15,16,17,18,19,20,21,22,23,24,25,26},
-                    xticklabels={4KiB,8KiB,16KiB,32KiB,64KiB,128KiB,256KiB,512KiB,1MiB,2MiB,4MiB,8MiB,16MiB,32MiB,64MiB},
-                    xticklabel style={rotate=270, anchor=west},
-                    ymin=0,
-                    ymax=150,
-                    grid=major,
-                    scaled x ticks=false,
-                    scaled y ticks=false,
-                    legend columns=4,
-                    legend cell align=left,
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addFileRenamePlot{ext4};
-                \addFileRenamePlot{btrfs};
-                \addFileRenamePlot{xfs};
-                \addFileRenamePlot{zfs};
-                \addFileRenamePlot{nilfs2};
-                \addFileRenamePlot{betrfs3};
-                \addFileRenamePlot{betrfs4};
-                \addFileRenamePlot{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:file_rename}Benchmarking on empty file systems.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    xlabel={File Size (log scale)},
-                    x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
-                    ylabel={Throughput (renames/sec)},
-                    xmin=12,
-                    xmax=26,
-                    xtick={12,13,14,15,16,17,18,19,20,21,22,23,24,25,26},
-                    xticklabels={4KiB,8KiB,16KiB,32KiB,64KiB,128KiB,256KiB,512KiB,1MiB,2MiB,4MiB,8MiB,16MiB,32MiB,64MiB},
-                    xticklabel style={rotate=270, anchor=west},
-                    ymin=0,
-                    ymax=150,
-                    grid=major,
-                    scaled x ticks=false,
-                    scaled y ticks=false,
-                    legend columns=4,
-                    legend cell align=left,
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addFileRenamePlotAged{ext4};
-                \addFileRenamePlotAged{btrfs};
-                \addFileRenamePlotAged{xfs};
-                \addFileRenamePlotAged{zfs};
-                \addFileRenamePlotAged{nilfs2};
-                \addFileRenamePlotAged{betrfs3};
-                \addFileRenamePlotAged{betrfs4};
-                \addFileRenamePlotAged{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:file_rename_aged}Benchmarking on aged file systems.}
-    \end{subfigure}
-    \caption[File rename benchmark]{\label{fig:file_rename}
-        Throughput of renaming a file of different sizes (higher is better).}
-\end{figure}
-
-\begin{figure}[t]
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar=0pt,
-                    /pgf/bar shift=0pt,
-                    ymin=0,
-                    ymax=120,
-                    ylabel={Throughput (renames/sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
-                    xticklabels={},
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addDirRenamePlot{ext4};
-                \addDirRenamePlot{btrfs};
-                \addDirRenamePlot{xfs};
-                \addDirRenamePlot{zfs};
-                \addDirRenamePlot{nilfs2};
-                \addDirRenamePlot{betrfs3};
-                \addDirRenamePlot{betrfs4};
-                \addDirRenamePlot{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:dir_rename}Benchmarking on empty file systems.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar=0pt,
-                    /pgf/bar shift=0pt,
-                    ymin=0,
-                    ymax=120,
-                    ylabel={Throughput (renames/sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
-                    xticklabels={},
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addDirRenamePlotAged{ext4};
-                \addDirRenamePlotAged{btrfs};
-                \addDirRenamePlotAged{xfs};
-                \addDirRenamePlotAged{zfs};
-                \addDirRenamePlotAged{nilfs2};
-                \addDirRenamePlotAged{betrfs3};
-                \addDirRenamePlotAged{betrfs4};
-                \addDirRenamePlotAged{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:dir_rename_aged}Benchmarking on aged file systems.}
-    \end{subfigure}
-    \caption[Directory rename benchmark]{\label{fig:dir_rename}
-         Throughput of renaming a directory (higher is better).}
-\end{figure}
-
-\begin{figure}[t]
-    \begin{subfigure}[b]{.49\linewidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                xlabel={Clone Number},
-                ylabel={Latency (sec)},
-                xmin=1,
-                xmax=8,
-                ymin=0,
-                ymax=1,
-                mark repeat=1,
-                xtick={2,4,6,8,10,12,14,16},
-                grid=none,
-                scaled x ticks=false,
-                scaled y ticks=false,
-                legend columns=3,
-                legend cell align=left,
-                legend style={at={(0.5,-0.1)},anchor=north}
-                ]
-                \addCloneMicroPlot{btrfs}{clonetime};
-                \addCloneMicroPlot{xfs}{clonetime};
-                \addCloneMicroPlot{betrfs5}{clonetime};
-                \addCloneMicroPlot{btrfs-svol}{clonetime};
-                \addCloneMicroPlot{zfs}{clonetime};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{fig:clone:clone} Time to clone a directory.}
-    \end{subfigure}
-    \begin{subfigure}[b]{.49\linewidth}
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                xlabel={Clone Number},
-                ylabel={Clone Space (KiB, log scale)},
-                xmin=1,
-                xmax=8,
-                ymin=1,
-                ymax=100000,
-                ymode=log,
-                log basis y=10,
-                mark repeat=1,
-                xtick={2,4,6,8,10,12,14,16},
-                grid=none,
-                scaled x ticks=false,
-                scaled y ticks=false,
-                legend columns=3,
-                legend cell align=left,
-                legend style={at={(0.5,-0.1)},anchor=north}
-                ]
-                \addCloneMicroPlot{btrfs}{clonespace};
-                \addCloneMicroPlot{xfs}{clonespace};
-                \addCloneMicroPlot{betrfs5}{clonespace};
-                \addCloneMicroPlot{btrfs-svol}{clonespace};
-                \addCloneMicroPlot{zfs}{clonespace};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{fig:clone:space} Change in space usage. }
-    \end{subfigure}
-    \begin{subfigure}[b]{.49\linewidth}
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                xlabel={Clone Number},
-                ylabel={Grep Time (sec)},
-                xmin=1,
-                xmax=8,
-                ymin=0,
-                ymax=9,
-                mark repeat=1,
-                xtick={2,4,6,8,10,12,14,16},
-                grid=none,
-                scaled x ticks=false,
-                scaled y ticks=false,
-                legend columns=3,
-                legend cell align=left,
-                legend style={at={(0.5,-0.1)},anchor=north}
-                ]
-                \addCloneMicroPlot{btrfs}{greptime};
-                \addCloneMicroPlot{xfs}{greptime};
-                \addCloneMicroPlot{betrfs5}{greptime};
-                \addCloneMicroPlot{btrfs-svol}{greptime};
-                \addCloneMicroPlot{zfs}{greptime};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{fig:clone:grep} Grep Time.}
-    \end{subfigure}
-    \begin{subfigure}[b]{.49\linewidth}
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                xlabel={Clone Number},
-                ylabel={Write Time (sec)},
-                xmin=1,
-                xmax=8,
-                ymin=0,
-                ymax=1.5,
-                mark repeat=1,
-                xtick={2,4,6,8,10,12,14,16},
-                grid=none,
-                scaled x ticks=false,
-                scaled y ticks=false,
-                legend columns=3,
-                legend cell align=left,
-                legend style={at={(0.5,-0.1)},anchor=north}
-                ]
-                \addCloneMicroPlot{btrfs}{writetime};
-                \addCloneMicroPlot{xfs}{writetime};
-                \addCloneMicroPlot{betrfs5}{writetime};
-                \addCloneMicroPlot{btrfs-svol}{writetime};
-                \addCloneMicroPlot{zfs}{writetime};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{fig:clone:write} Small write latency.}
-    \end{subfigure}
-    \caption[Directory clone benchmark]{\label{fig:clone}
-        Latency to clone, read, and write, as well as space usage, as a function
-        of the number of times a directory tree has been cloned
-        (lower is better for all metrics).}
-\end{figure}
-
-\begin{figure}[t]
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar,
-                    ymin=0,
-                    ymax=150,
-                    ylabel={Time (sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={clone, diff},
-                    xticklabels={git clone,git diff},
-                    xtick={clone,diff},
-                    enlarge x limits=0.5,
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addGitPlot{ext4};
-                \addGitPlot{btrfs};
-                \addGitPlot{xfs};
-                \addGitPlot{zfs};
-                \addGitPlot{nilfs2};
-                \addGitPlot{betrfs3};
-                \addGitPlot{betrfs4};
-                \addGitPlot{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:git}Benchmarking on empty file systems.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar,
-                    ymin=0,
-                    ymax=150,
-                    ylabel={Time (sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={clone, diff},
-                    xticklabels={git clone,git diff},
-                    xtick={clone,diff},
-                    enlarge x limits=0.5,
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addGitPlotAged{ext4};
-                \addGitPlotAged{btrfs};
-                \addGitPlotAged{xfs};
-                \addGitPlotAged{zfs};
-                \addGitPlotAged{nilfs2};
-                \addGitPlotAged{betrfs3};
-                \addGitPlotAged{betrfs4};
-                \addGitPlotAged{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:git_aged}Benchmarking on aged file systems.}
-    \end{subfigure}
-    \caption[Git benchmark]{\label{fig:git}
-        Latency of ``git clone'' and ``git diff'' (lower is better).}
-\end{figure}
-
-\begin{figure}[t]
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar,
-                    ymin=0,
-                    ymax=150,
-                    ylabel={Time (sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={untar,tar},
-                    xtick={untar,tar},
-                    enlarge x limits=0.5,
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addTarPlot{ext4};
-                \addTarPlot{btrfs};
-                \addTarPlot{xfs};
-                \addTarPlot{zfs};
-                \addTarPlot{nilfs2};
-                \addTarPlot{betrfs3};
-                \addTarPlot{betrfs4};
-                \addTarPlot{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:tar}Benchmarking on empty file systems.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar,
-                    ymin=0,
-                    ymax=150,
-                    ylabel={Time (sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={untar,tar},
-                    xtick={untar,tar},
-                    enlarge x limits=0.5,
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addTarPlotAged{ext4};
-                \addTarPlotAged{btrfs};
-                \addTarPlotAged{xfs};
-                \addTarPlotAged{zfs};
-                \addTarPlotAged{nilfs2};
-                \addTarPlotAged{betrfs3};
-                \addTarPlotAged{betrfs4};
-                \addTarPlotAged{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:tar_aged}Benchmarking on aged file systems.}
-    \end{subfigure}
-    \caption[Tar benchmark]{\label{fig:tar}
-        Latency to untar and tar the Liinux-3.11.10 source directory (lower is better).}
-\end{figure}
-
-\begin{figure}[t]
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar,
-                    ymin=0,
-                    ymax=60,
-                    ylabel={Bandwidth (MB/sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={yes,no},
-                    xtick={yes,no},
-                    xticklabels={\large{\texttt{--in-place}},\large{rename}},
-                    enlarge x limits=0.5,
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-            \addRsyncPlot{ext4};
-            \addRsyncPlot{btrfs};
-            \addRsyncPlot{xfs};
-            \addRsyncPlot{zfs};
-            \addRsyncPlot{nilfs2};
-            \addRsyncPlot{betrfs3};
-            \addRsyncPlot{betrfs4};
-            \addRsyncPlot{betrfs5};
-        \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:rsync}Benchmarking on empty file systems.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar,
-                    ymin=0,
-                    ymax=60,
-                    ylabel={Bandwidth (MB/sec)},
-                    ymajorgrids=true,
-                    symbolic x coords={yes,no},
-                    xtick={yes,no},
-                    xticklabels={\large{\texttt{--in-place}},\large{rename}},
-                    enlarge x limits=0.5,
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-            \addRsyncPlotAged{ext4};
-            \addRsyncPlotAged{btrfs};
-            \addRsyncPlotAged{xfs};
-            \addRsyncPlotAged{zfs};
-            \addRsyncPlotAged{nilfs2};
-            \addRsyncPlotAged{betrfs3};
-            \addRsyncPlotAged{betrfs4};
-            \addRsyncPlotAged{betrfs5};
-        \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:rsync_aged}Benchmarking on aged file systems.}
-    \end{subfigure}
-    \caption[Rsync benchmark]{\label{fig:rsync}
-        Throughput of cloning the Linux-3.11.10 source directory with rsync (higher is better).}
-\end{figure}
-
-\begin{figure}[t]
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar=0pt,
-                    /pgf/bar shift=0pt,
-                    ymin=0,
-                    ymax=210,
-                    ylabel={Throughput (op/s)},
-                    ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
-                    xticklabels={},
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addIMAPPlot{ext4};
-                \addIMAPPlot{btrfs};
-                \addIMAPPlot{xfs};
-                \addIMAPPlot{zfs};
-                \addIMAPPlot{nilfs2};
-                \addIMAPPlot{betrfs3};
-                \addIMAPPlot{betrfs4};
-                \addIMAPPlot{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:imap}Benchmarking on empty file systems.}
-    \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{tikzpicture}[yscale=0.95, xscale=0.95]
-            \begin{axis}[
-                    ybar=0pt,
-                    /pgf/bar shift=0pt,
-                    ymin=0,
-                    ymax=210,
-                    ylabel={Throughput (op/s)},
-                    ymajorgrids=true,
-                    symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
-                    xticklabels={},
-                    xtick pos=right,
-                    major tick length=0in,
-                    xticklabel pos=right,
-                    visualization depends on=y \as \rawy,
-                    nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
-                    height=.45\linewidth,
-                    width=\linewidth,
-                ]
-                \addIMAPPlotAged{ext4};
-                \addIMAPPlotAged{btrfs};
-                \addIMAPPlotAged{xfs};
-                \addIMAPPlotAged{zfs};
-                \addIMAPPlotAged{nilfs2};
-                \addIMAPPlotAged{betrfs3};
-                \addIMAPPlotAged{betrfs4};
-                \addIMAPPlotAged{betrfs5};
-            \end{axis}
-        \end{tikzpicture}
-        \caption{\label{subfig:imap_aged}Benchmarking on aged file systems.}
-    \end{subfigure}
-    \caption[Mailserver benchmark]{\label{fig:imap}
-        Throughput of the dovecot mailserver (higher is better).}
-\end{figure}
-
 \paragraph{Sequential writes and reads.}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ylabel={Bandwidth (MiB/sec)},
+                ymajorgrids=true,
+                symbolic x coords={seq.write,seq.read},
+                xtick={seq.write,seq.read},
+                xticklabels={write,read},
+                enlarge x limits=0.5,
+                visualization depends on=y \as \rawy,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addSeqPlot{ext4};
+            \addSeqPlot{btrfs};
+            \addSeqPlot{xfs};
+            \addSeqPlot{zfs};
+            \addSeqPlot{nilfs2};
+            \addSeqPlot{betrfs3};
+            \addSeqPlot{betrfs4};
+            \addSeqPlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Sequential-write and sequential-read benchmark on empty file systems]{\label{fig:seq_io_empty}Bandwidth to sequentially read and write a 10 GiB file on empty file systems (higher is better).}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ylabel={Bandwidth (MiB/sec)},
+                ymajorgrids=true,
+                symbolic x coords={seq.write,seq.read},
+                xtick={seq.write,seq.read},
+                xticklabels={write,read},
+                enlarge x limits=0.5,
+                visualization depends on=y \as \rawy,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                nodes near coords style={font=\small,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addSeqPlotAged{ext4};
+            \addSeqPlotAged{btrfs};
+            \addSeqPlotAged{xfs};
+            \addSeqPlotAged{zfs};
+            \addSeqPlotAged{nilfs2};
+            \addSeqPlotAged{betrfs3};
+            \addSeqPlotAged{betrfs4};
+            \addSeqPlotAged{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Sequential-write and sequential-read benchmark on aged file systems]{\label{fig:seq_io_aged}Bandwidth to sequentially read and write a 10 GiB file on aged file systems (higher is better).}
+\end{figure}
 
 We measure the throughput of sequentially writing and reading a file.
 This benchmark first writes a 10GiB file, 40MiB at a time, with an
@@ -765,7 +143,7 @@ This benchmark first writes a 10GiB file, 40MiB at a time, with an
 Then, after clearing the kernel page cache, the benchmark reads the file from
 the disk using \texttt{dd} with a 10MiB block size.
 
-Figure~\ref{subfig:seq_io} shows the results of running the benchmark on empty
+Figure~\ref{fig:seq_io_empty} shows the results of running the benchmark on empty
 file systems.
 Ext4, Btrfs and XFS can sequentially write close to disk bandwidth,
 while \betrfsFive, similar to NILFS2,
@@ -790,7 +168,7 @@ However, the I/Os generated by ext4 are contiguous in the address space,
 while \betrfsFive constantly issues two consecutive I/Os that are far away from
 each other when \betrfsFive switches to read a different node.
 
-Figure~\ref{subfig:seq_io_aged} shows the results of running the benchmark on
+Figure~\ref{fig:seq_io_aged} shows the results of running the benchmark on
 aged file systems.
 The performances of ext4 and XFS are similar to those on empty file systems,
 showing that most of the free spaces are not fragmented by the aging process.
@@ -930,6 +308,82 @@ to the leaf nodes, resulting in more node merges.
 
 \paragraph{TokuBench.}
 
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                xlabel={Files created},
+                ylabel={Throughput (files/sec)},
+                xmin=0,
+                xmax=3000000,
+                ymin=10,
+                ymax=50000,
+                mark repeat=10,
+                ytick={10000,20000,30000,40000,50000},
+                yticklabels={10k,20k,30k,40k,50k},
+                xtick={0,1000000,2000000,3000000},
+                xticklabels={0,1M,2M,3M},
+                grid=major,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=4,
+                legend cell align=left,
+                transpose legend,
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addTokubenchPlot{ext4};
+            \addTokubenchPlot{btrfs};
+            \addTokubenchPlot{xfs};
+            \addTokubenchPlot{zfs};
+            \addTokubenchPlot{nilfs2};
+            \addTokubenchPlot{betrfs3};
+            \addTokubenchPlot{betrfs4};
+            \addTokubenchPlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[TokuBench benchmark on empty file systems]{\label{fig:toku_empty}
+        Cumulative file creation throughput during the Tokubench benchmark on empty file systems (higher is better).}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                xlabel={Files created},
+                ylabel={Throughput (files/sec)},
+                xmin=0,
+                xmax=3000000,
+                ymin=10,
+                ymax=50000,
+                mark repeat=10,
+                ytick={10000,20000,30000,40000,50000},
+                yticklabels={10k,20k,30k,40k,50k},
+                xtick={0,1000000,2000000,3000000},
+                xticklabels={0,1M,2M,3M},
+                grid=major,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=4,
+                legend cell align=left,
+                transpose legend,
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addTokubenchPlotAged{ext4};
+            \addTokubenchPlotAged{btrfs};
+            \addTokubenchPlotAged{xfs};
+            \addTokubenchPlotAged{zfs};
+            \addTokubenchPlotAged{nilfs2};
+            \addTokubenchPlotAged{betrfs3};
+            \addTokubenchPlotAged{betrfs4};
+            \addTokubenchPlotAged{betrfs5};
+            \end{axis}
+    \end{tikzpicture}
+    \caption[TokuBench benchmark on aged file systems]{\label{fig:toku_aged}
+        Cumulative file creation throughput during the Tokubench benchmark on aged file systems (higher is better).}
+\end{figure}
+
 TokuBench~\citep{tokufs} is a small-write-intensive benchmark that creates 3
 million 200-Byte files in a balanced tree directory.
 The benchmark first creates the balanced tree directory with a fanout of 128,
@@ -939,7 +393,7 @@ Each thread iterates over the leaf directories, creating one file at a time.
 The benchmark reports the cumulative throughput of the file creation each time
 when 10,000 files are created.
 
-Figure~\ref{subfig:toku} shows the results of running Tokubench on empty file
+Figure~\ref{fig:toku_empty} shows the results of running Tokubench on empty file
 systems.
 Because Tokubench exercises small, random writes,
 \betrfsFour and \betrfsFive are significantly faster than ext4, Btrfs and XFS.
@@ -950,7 +404,7 @@ because preferential splitting avoids further re-lifting in the benchmark.
 NILFS2 translates all operations in the benchmark to log appends, therefore,
 the performance of NILFS2 is high and stable.
 
-Figure~\ref{subfig:toku_aged} shows the results of running Tokubench on aged
+Figure~\ref{fig:toku_aged} shows the results of running Tokubench on aged
 file systems.
 Because of the cost introduced by garbage collection,
 NILFS2 has much worse performance in the aged setting.
@@ -963,6 +417,78 @@ to those on empty file systems.
 \subsection{Namespace operations}
 \label{sec:micro:nso}
 
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                xlabel={File Size (log scale)},
+                x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
+                ylabel={Throughput (renames/sec)},
+                xmin=12,
+                xmax=26,
+                xtick={12,13,14,15,16,17,18,19,20,21,22,23,24,25,26},
+                xticklabels={4KiB,8KiB,16KiB,32KiB,64KiB,128KiB,256KiB,512KiB,1MiB,2MiB,4MiB,8MiB,16MiB,32MiB,64MiB},
+                xticklabel style={rotate=270, anchor=west},
+                ymin=0,
+                ymax=150,
+                grid=major,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=4,
+                legend cell align=left,
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addFileRenamePlot{ext4};
+            \addFileRenamePlot{btrfs};
+            \addFileRenamePlot{xfs};
+            \addFileRenamePlot{zfs};
+            \addFileRenamePlot{nilfs2};
+            \addFileRenamePlot{betrfs3};
+            \addFileRenamePlot{betrfs4};
+            \addFileRenamePlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[File rename benchmark on empty file systems]{\label{fig:file_rename_empty}
+        Throughput of renaming a file of different sizes on empty file systems (higher is better).}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                xlabel={File Size (log scale)},
+                x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
+                ylabel={Throughput (renames/sec)},
+                xmin=12,
+                xmax=26,
+                xtick={12,13,14,15,16,17,18,19,20,21,22,23,24,25,26},
+                xticklabels={4KiB,8KiB,16KiB,32KiB,64KiB,128KiB,256KiB,512KiB,1MiB,2MiB,4MiB,8MiB,16MiB,32MiB,64MiB},
+                xticklabel style={rotate=270, anchor=west},
+                ymin=0,
+                ymax=150,
+                grid=major,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=4,
+                legend cell align=left,
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addFileRenamePlotAged{ext4};
+            \addFileRenamePlotAged{btrfs};
+            \addFileRenamePlotAged{xfs};
+            \addFileRenamePlotAged{zfs};
+            \addFileRenamePlotAged{nilfs2};
+            \addFileRenamePlotAged{betrfs3};
+            \addFileRenamePlotAged{betrfs4};
+            \addFileRenamePlotAged{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[File rename benchmark on aged file systems]{\label{fig:file_rename_aged}
+        Throughput of renaming a file of different sizes on aged file systems (higher is better).}
+\end{figure}
+
 \paragraph{File renames.}
 The file rename benchmark measures the throughput of renaming files with
 different sizes.
@@ -971,7 +497,7 @@ Then, the benchmark renames the file 100 times,
 each followed by an \texttt{fsync} of the parent directory,
 and reports the throughput, that is, renames per second.
 
-Figure~\ref{subfig:file_rename} shows the results of running the benchmark on
+Figure~\ref{fig:file_rename_empty} shows the results of running the benchmark on
 empty file systems.
 For all file systems except \betrfs, the rename throughput is stable regardless
 of the file being renames because a rename is just a pointer swing in those
@@ -987,7 +513,7 @@ As shown in the figure,
 the throughputs of all versions of \betrfs
 are comparable to the other file systems after reaching the thresholds.
 
-Figure~\ref{subfig:file_rename_aged} shows the results of running the benchmark
+Figure~\ref{fig:file_rename_aged} shows the results of running the benchmark
 on aged file systems.
 The performances of ext4, XFS, ZFS and NILFS2 are similar to those on empty
 file systems.
@@ -995,6 +521,74 @@ Btrfs becomes much slower.
 All versions of \betrfs have higher rename throughput for small files, because
 the rename doesn't write key/value pairs directly to leaf nodes,
 resulting in node splits and merges.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar=0pt,
+                /pgf/bar shift=0pt,
+                ymin=0,
+                ymax=120,
+                ylabel={Throughput (renames/sec)},
+                ymajorgrids=true,
+                symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
+                xticklabels={},
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addDirRenamePlot{ext4};
+            \addDirRenamePlot{btrfs};
+            \addDirRenamePlot{xfs};
+            \addDirRenamePlot{zfs};
+            \addDirRenamePlot{nilfs2};
+            \addDirRenamePlot{betrfs3};
+            \addDirRenamePlot{betrfs4};
+            \addDirRenamePlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Directory rename benchmark on empty file systems]{\label{fig:dir_rename_empty}
+         Throughput of renaming a directory on empty file systems (higher is better).}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar=0pt,
+                /pgf/bar shift=0pt,
+                ymin=0,
+                ymax=120,
+                ylabel={Throughput (renames/sec)},
+                ymajorgrids=true,
+                symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
+                xticklabels={},
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addDirRenamePlotAged{ext4};
+            \addDirRenamePlotAged{btrfs};
+            \addDirRenamePlotAged{xfs};
+            \addDirRenamePlotAged{zfs};
+            \addDirRenamePlotAged{nilfs2};
+            \addDirRenamePlotAged{betrfs3};
+            \addDirRenamePlotAged{betrfs4};
+            \addDirRenamePlotAged{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Directory rename benchmark on aged file systems]{\label{fig:dir_rename_aged}
+         Throughput of renaming a directory on aged file systems (higher is better).}
+\end{figure}
 
 \paragraph{Directory renames.}
 The directory rename benchmark measures the throughput of renaming a directory.
@@ -1006,12 +600,12 @@ When measuring the performance on aged file systems, the benchmark renames
 the directory is aged by the aging script 100 times,
 each followed by an \texttt{fsync} of the parent directory.
 
-Figure~\ref{subfig:dir_rename} shows the results of running the benchmark on
+Figure~\ref{fig:dir_rename_empty} shows the results of running the benchmark on
 empty file systems.
 The throughputs of different versions of \betrfs are comparable to other
 file system.
 
-Figure~\ref{subfig:dir_rename_aged} shows the results of running the benchmark on
+Figure~\ref{fig:dir_rename_aged} shows the results of running the benchmark on
 aged file systems.
 The performances of ext4, Btrfs, XFS, and \betrfsThree are similar to those on
 empty file systems.
@@ -1019,6 +613,124 @@ empty file systems.
 The performance of NILFS2 degrades and becomes unstable because of garbage
 collection.
 The performance of ZFS also degrades.
+
+\begin{figure}
+    \begin{subfigure}[b]{.49\linewidth}
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={Clone Number},
+                ylabel={Latency (sec)},
+                xmin=1,
+                xmax=8,
+                ymin=0,
+                ymax=1,
+                mark repeat=1,
+                xtick={2,4,6,8,10,12,14,16},
+                grid=none,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=3,
+                legend cell align=left,
+                legend style={at={(0.5,-0.1)},anchor=north}
+                ]
+                \addCloneMicroPlot{btrfs}{clonetime};
+                \addCloneMicroPlot{xfs}{clonetime};
+                \addCloneMicroPlot{betrfs5}{clonetime};
+                \addCloneMicroPlot{btrfs-svol}{clonetime};
+                \addCloneMicroPlot{zfs}{clonetime};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{fig:clone:clone} Time to clone a directory.}
+    \end{subfigure}
+    \begin{subfigure}[b]{.49\linewidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={Clone Number},
+                ylabel={Clone Space (KiB, log scale)},
+                xmin=1,
+                xmax=8,
+                ymin=1,
+                ymax=100000,
+                ymode=log,
+                log basis y=10,
+                mark repeat=1,
+                xtick={2,4,6,8,10,12,14,16},
+                grid=none,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=3,
+                legend cell align=left,
+                legend style={at={(0.5,-0.1)},anchor=north}
+                ]
+                \addCloneMicroPlot{btrfs}{clonespace};
+                \addCloneMicroPlot{xfs}{clonespace};
+                \addCloneMicroPlot{betrfs5}{clonespace};
+                \addCloneMicroPlot{btrfs-svol}{clonespace};
+                \addCloneMicroPlot{zfs}{clonespace};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{fig:clone:space} Change in space usage. }
+    \end{subfigure}
+    \begin{subfigure}[b]{.49\linewidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={Clone Number},
+                ylabel={Grep Time (sec)},
+                xmin=1,
+                xmax=8,
+                ymin=0,
+                ymax=9,
+                mark repeat=1,
+                xtick={2,4,6,8,10,12,14,16},
+                grid=none,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=3,
+                legend cell align=left,
+                legend style={at={(0.5,-0.1)},anchor=north}
+                ]
+                \addCloneMicroPlot{btrfs}{greptime};
+                \addCloneMicroPlot{xfs}{greptime};
+                \addCloneMicroPlot{betrfs5}{greptime};
+                \addCloneMicroPlot{btrfs-svol}{greptime};
+                \addCloneMicroPlot{zfs}{greptime};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{fig:clone:grep} Grep Time.}
+    \end{subfigure}
+    \begin{subfigure}[b]{.49\linewidth}
+        \begin{tikzpicture}
+            \begin{axis}[
+                xlabel={Clone Number},
+                ylabel={Write Time (sec)},
+                xmin=1,
+                xmax=8,
+                ymin=0,
+                ymax=1.5,
+                mark repeat=1,
+                xtick={2,4,6,8,10,12,14,16},
+                grid=none,
+                scaled x ticks=false,
+                scaled y ticks=false,
+                legend columns=3,
+                legend cell align=left,
+                legend style={at={(0.5,-0.1)},anchor=north}
+                ]
+                \addCloneMicroPlot{btrfs}{writetime};
+                \addCloneMicroPlot{xfs}{writetime};
+                \addCloneMicroPlot{betrfs5}{writetime};
+                \addCloneMicroPlot{btrfs-svol}{writetime};
+                \addCloneMicroPlot{zfs}{writetime};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{\label{fig:clone:write} Small write latency.}
+    \end{subfigure}
+    \caption[Directory clone benchmark]{\label{fig:clone}
+        Latency to clone, read, and write, as well as space usage, as a function
+        of the number of times a directory tree has been cloned
+        (lower is better for all metrics).}
+\end{figure}
 
 \paragraph{Directory clones.}
 To evaluate the performance of cloning and similar copy-on-write optimizations
@@ -1086,6 +798,74 @@ most of which are much faster than the state of the art.
 
 We then measure the performance of file systems on canonical applications.
 
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ylabel={Time (sec)},
+                ymajorgrids=true,
+                symbolic x coords={clone, diff},
+                xticklabels={git clone,git diff},
+                xtick={clone,diff},
+                enlarge x limits=0.5,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addGitPlot{ext4};
+            \addGitPlot{btrfs};
+            \addGitPlot{xfs};
+            \addGitPlot{zfs};
+            \addGitPlot{nilfs2};
+            \addGitPlot{betrfs3};
+            \addGitPlot{betrfs4};
+            \addGitPlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Git benchmark on empty file systems]{\label{fig:git_empty}
+        Latency of ``git clone'' and ``git diff'' on empty file systems (lower is better).}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ylabel={Time (sec)},
+                ymajorgrids=true,
+                symbolic x coords={clone, diff},
+                xticklabels={git clone,git diff},
+                xtick={clone,diff},
+                enlarge x limits=0.5,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addGitPlotAged{ext4};
+            \addGitPlotAged{btrfs};
+            \addGitPlotAged{xfs};
+            \addGitPlotAged{zfs};
+            \addGitPlotAged{nilfs2};
+            \addGitPlotAged{betrfs3};
+            \addGitPlotAged{betrfs4};
+            \addGitPlotAged{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Git benchmark on aged file systems]{\label{fig:git_aged}
+        Latency of ``git clone'' and ``git diff'' on aged file systems (lower is better).}
+\end{figure}
+
 \paragraph{Git.}
 
 The git benchmark first measures the latency of finishing ``git clone'' that
@@ -1099,7 +879,7 @@ content from the object file.
 The ``git diff'' process opens all differing files and computes the difference
 by reading the object file.
 
-Figure~\ref{subfig:git} shows the results of running the benchmark on empty file
+Figure~\ref{fig:git_empty} shows the results of running the benchmark on empty file
 systems.
 For the ``git clone'' benchmark,
 because of the slower sequential writes,
@@ -1109,13 +889,80 @@ The ``git diff'' benchmark opens differing files in depth-first-search order,
 therefore, though not all files are read,
 all versions of \betrfs are faster than the other file systems, except Btrfs.
 
-Figure~\ref{subfig:git_aged} shows the results of running the benchmark on aged
+Figure~\ref{fig:git_aged} shows the results of running the benchmark on aged
 file systems.
 All versions of \betrfs become slightly slower, because the \bets are taller.
 However,
 \betrfsFive is faster than any other file systems,
 because, in the aged setting, the other file systems cannot allocate spaces that
 are close to each for files in the same directory.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ylabel={Time (sec)},
+                ymajorgrids=true,
+                symbolic x coords={untar,tar},
+                xtick={untar,tar},
+                enlarge x limits=0.5,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addTarPlot{ext4};
+            \addTarPlot{btrfs};
+            \addTarPlot{xfs};
+            \addTarPlot{zfs};
+            \addTarPlot{nilfs2};
+            \addTarPlot{betrfs3};
+            \addTarPlot{betrfs4};
+            \addTarPlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Tar benchmark on empty file systems]{\label{fig:tar_empty}
+        Latency to untar and tar the Liinux-3.11.10 source directory on empty file systems (lower is better).}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ymax=150,
+                ylabel={Time (sec)},
+                ymajorgrids=true,
+                symbolic x coords={untar,tar},
+                xtick={untar,tar},
+                enlarge x limits=0.5,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addTarPlotAged{ext4};
+            \addTarPlotAged{btrfs};
+            \addTarPlotAged{xfs};
+            \addTarPlotAged{zfs};
+            \addTarPlotAged{nilfs2};
+            \addTarPlotAged{betrfs3};
+            \addTarPlotAged{betrfs4};
+            \addTarPlotAged{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Tar benchmark on aged file systems]{\label{fig:tar_aged}
+        Latency to untar and tar the Liinux-3.11.10 source directory on aged file systems (lower is better).}
+\end{figure}
 
 \paragraph{Tar.}
 
@@ -1133,7 +980,7 @@ from the child process.
 The tar process traverses the directory and sends the compressed content to
 a child process, which dumps the compressed content into a tar ball.
 
-Figure~\ref{subfig:tar} shows the results of running the benchmark on empty
+Figure~\ref{fig:tar_empty} shows the results of running the benchmark on empty
 file systems.
 Because all versions of \betrfs have slower sequential reads, which are further
 decelerated by the messages injected by file creates,
@@ -1141,13 +988,83 @@ the untar benchmark is slower on versions of \betrfs than ext4 and Btrfs.
 The tar benchmark runs faster on versions of \betrfs because of the locality
 from full-path or relative-path indexing.
 
-Figure~\ref{subfig:tar_aged} shows the results of running the benchmark on aged
+Figure~\ref{fig:tar_aged} shows the results of running the benchmark on aged
 file systems.
 All versions of \betrfs have similar performances to those on empty file systems
 for the untar benchmark, while the tar benchmark runs slightly slower because
 of the taller \bets.
 However, versions of \betrfs are faster than any other file systems on both
 benchmarks in the aged setting.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ymax=60,
+                ylabel={Bandwidth (MB/sec)},
+                ymajorgrids=true,
+                symbolic x coords={yes,no},
+                xtick={yes,no},
+                xticklabels={\large{\texttt{--in-place}},\large{rename}},
+                enlarge x limits=0.5,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addRsyncPlot{ext4};
+            \addRsyncPlot{btrfs};
+            \addRsyncPlot{xfs};
+            \addRsyncPlot{zfs};
+            \addRsyncPlot{nilfs2};
+            \addRsyncPlot{betrfs3};
+            \addRsyncPlot{betrfs4};
+            \addRsyncPlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Rsync benchmark on empty file system]{\label{fig:rsync_empty}
+        Throughput of cloning the Linux-3.11.10 source directory with rsync on empty file systems (higher is better).}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar,
+                ymin=0,
+                ymax=60,
+                ylabel={Bandwidth (MB/sec)},
+                ymajorgrids=true,
+                symbolic x coords={yes,no},
+                xtick={yes,no},
+                xticklabels={\large{\texttt{--in-place}},\large{rename}},
+                enlarge x limits=0.5,
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-10*\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addRsyncPlotAged{ext4};
+            \addRsyncPlotAged{btrfs};
+            \addRsyncPlotAged{xfs};
+            \addRsyncPlotAged{zfs};
+            \addRsyncPlotAged{nilfs2};
+            \addRsyncPlotAged{betrfs3};
+            \addRsyncPlotAged{betrfs4};
+            \addRsyncPlotAged{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Rsync benchmark on aged file system]{\label{fig:rsync_aged}
+        Throughput of cloning the Linux-3.11.10 source directory with rsync on aged file systems (higher is better).}
+\end{figure}
 
 \paragraph{Rsync.}
 
@@ -1169,18 +1086,86 @@ the child process will first create a temporary file in the directory and
 then rename the temporary file to the target file.
 If the ``in-place'' is set, the child process will create files in place.
 
-Figure~\ref{subfig:rsync} shows the results of running the benchmark on empty
+Figure~\ref{fig:rsync_empty} shows the results of running the benchmark on empty
 file systems.
 Because the benchmark traverses the source directory,
 versions of \betrfs are much faster than the other file systems.
 \betrfsFour and \betrfsFive are faster than \betrfsThree because full-path
 indexing has better locality than relative-path indexing.
 
-Figure~\ref{subfig:rsync_aged} shows the results of running the benchmark on
+Figure~\ref{fig:rsync_aged} shows the results of running the benchmark on
 aged file systems.
 In the aged setting, ext4, Btrfs and NILFS2 cannot make the same allocation,
 resulting in orse performances.
 Versions of \betrfs are only slightly slower because of the taller \bets.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar=0pt,
+                /pgf/bar shift=0pt,
+                ymin=0,
+                ymax=210,
+                ylabel={Throughput (op/s)},
+                ymajorgrids=true,
+                symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
+                xticklabels={},
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addIMAPPlot{ext4};
+            \addIMAPPlot{btrfs};
+            \addIMAPPlot{xfs};
+            \addIMAPPlot{zfs};
+            \addIMAPPlot{nilfs2};
+            \addIMAPPlot{betrfs3};
+            \addIMAPPlot{betrfs4};
+            \addIMAPPlot{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Mailserver benchmarki on empty file systems]{\label{fig:imap_empty}
+        Throughput of the dovecot mailserver on empty file systems (higher is better).}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}[yscale=0.95, xscale=0.95]
+        \begin{axis}[
+                ybar=0pt,
+                /pgf/bar shift=0pt,
+                ymin=0,
+                ymax=210,
+                ylabel={Throughput (op/s)},
+                ymajorgrids=true,
+                symbolic x coords={ext4,btrfs,xfs,zfs,nilfs2,betrfs3,betrfs4,betrfs5},
+                xticklabels={},
+                xtick pos=right,
+                major tick length=0in,
+                xticklabel pos=right,
+                visualization depends on=y \as \rawy,
+                nodes near coords style={font=\large,anchor=east,rotate=90,xshift=-\pgfplotsunitylength*\rawy,},
+                height=.6\linewidth,
+                width=\linewidth,
+            ]
+            \addIMAPPlotAged{ext4};
+            \addIMAPPlotAged{btrfs};
+            \addIMAPPlotAged{xfs};
+            \addIMAPPlotAged{zfs};
+            \addIMAPPlotAged{nilfs2};
+            \addIMAPPlotAged{betrfs3};
+            \addIMAPPlotAged{betrfs4};
+            \addIMAPPlotAged{betrfs5};
+        \end{axis}
+    \end{tikzpicture}
+    \caption[Mailserver benchmarki on aged file systems]{\label{fig:imap_aged}
+        Throughput of the dovecot mailserver on aged file systems (higher is better).}
+\end{figure}
 
 \paragraph{Mailserver.}
 
@@ -1210,12 +1195,12 @@ In addition to modifying the file that represents the mail, all write operations
 create a temporary index file and
 renames the temporary file to overwrite the old index file.
 
-Figure~\ref{subfig:imap} shows the results of running the benchmark on empty file
+Figure~\ref{fig:imap_empty} shows the results of running the benchmark on empty file
 systems.
 Versions of \betrfs are faster than the other file systems except NILFS2,
 because versions of \betrfs have faster file creates.
 
-Figure~\ref{subfig:imap_aged} shows the results of running the benchmark on
+Figure~\ref{fig:imap_aged} shows the results of running the benchmark on
 aged file systems.
 NILFS2 becomes much slower because of garbage collection.
 Since the \bets are taller in the aged setting, versions of \betrfs become
