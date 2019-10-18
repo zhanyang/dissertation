@@ -11,13 +11,12 @@ systems, tree surgery and clones in file systems.
 \paragraph{Write-optimized dictionaries (WODs).}
 The most commonly used WOD is the
 log-structured merge tree (LSM-tree)~\cite{lsm}.
-The LSM-tree partitions key/value pairs into levels whose sizes
-grow exponentially.
-New key/value pairs are put into the first level and gradually merged
-into higher levels.
-The original paper implements each level as a tree.
-When one level is full, all key/value pairs in the level are merged into the
-next level.
+The LSM-tree partitioned key/value pairs into levels
+whose sizes grew exponentially.
+Each level in the LSM-tree was an \btree.
+The LSM-tree put new key/value pairs into the first level.
+When a level was full, the LSM-tree merged all key/value pairs in the level
+into the next level.
 
 Nowadays, most LSM-tree implementations use the design of
 LevelDB~\cite{leveldb}.
@@ -27,11 +26,11 @@ keeps the key range of each SSTable in the metadata file.
 When a level is full, LevelDB picks an SSTable in the level and merges the
 SSTable with SSTables in the next level.
 
-There are also cache-oblivious WODs.
-The cache-oblivious lookahead array (COLA)~\citep{cola} stores
+There were also cache-oblivious WODs.
+The cache-oblivious lookahead array (COLA)~\citep{cola} stored
 each level in an array
-and  uses fractional cascading~\citep{fcascading} to improve query performance.
-The xDict~\citep{xdict} is a cache-oblivious write-optimized dictionary with
+and used fractional cascading~\citep{fcascading} to improve query performance.
+The xDict~\citep{xdict} was a cache-oblivious write-optimized dictionary with
 asymptotic behavior similar to a \bet.
 However, only prototypes exist for cache-oblivious WODs.
 
@@ -45,52 +44,59 @@ BigTable~\citep{bigtable}, Cassandra~\citep{cassandra}, HBase~\citep{hbase},
 LevelDB~\citep{leveldb} and RocksDB~\citep{rocksdb} implement LSM-trees,
 while \fti~\cite{fti} and Tucana~\cite{tucana} implement \bets.
 
-Many papers focus on optimizing different aspects of the LSM-tree in LevelDB.
-LOCS~\citep{locs} optimizes LSM-trees for multi-channel SSDs.
-WiscKey~\citep{wisckey} reduces the size of the LSM-tree
-so that the LSM-tree fits into the in-memory cache.
-PebblesDB~\citep{pebble} optimizes the implementation of LSM-trees in LevelDB to
+Many papers focused on optimizing different aspects of the LSM-tree in LevelDB.
+LOCS~\citep{locs} optimized LSM-trees for multi-channel SSDs.
+WiscKey~\citep{wisckey} reduced the size of the LSM-tree
+so that the LSM-tree fitted into the in-memory cache.
+PebblesDB~\citep{pebble} optimized the implementation of LSM-trees in LevelDB to
 reduce write-amplification.
 
 In this dissertation,
 we provide the upper level file system with key/value store operations.
 Specifically, for a namespace operation, the file system calls a key/value
-store operation that finishes most the work efficiently.
+store operation that finishes most of the work efficiently.
 
 \paragraph{File systems.}
-The log-structured file system~\citep{lfs} treats the whole disk as a log,
-thus it performs writes much faster than other file systems.
-However, garbage collection can be expensive on the file system.
+The log-structured file system~\citep{lfs} treated the whole disk as a log.
+Thus, it performed writes much faster than other file systems.
+However, garbage collection could be expensive in the file system~\cite{lfsbsd}.
 
-All previous write-optimized file systems are based on FUSE~\citep{fuse} so that
-the authors can write the file system in userspace.
-However, FUSE imposes expensive context-switch costs on the file system.
-
-TokuFS~\citep{tokufs} is an in-application library file system, also built using
-\bets.
-TokuFS showed that a write-optimized file system can support efficient
+TokuFS~\citep{tokufs} was an in-application library file system,
+built on top of \fti.
+TokuFS showed that a write-optimized file system could support efficient
 write-intensive and scan-intensive workloads.
-TokuFS had a FUSE-based version, but the authors explicitly omitted
-disappointing measurements using FUSE.
 
-KVFS~\citep{kvfs} is based on a transactional variation of an LSM-tree, called a
-VT-tree.
-Impressively, the performance of their transactional, FUSE-based file system was
-comparable to the performance of the in-kernel ext4 file system,
+KVFS~\citep{kvfs} was based on a transactional variation of the LSM-tree,
+called the VT-tree.
+Impressively, the performance of their transactional file system was
+comparable to the performance of the ext4 file system,
 which does not support transactions.
 One performance highlight was on random-writes, where they outperformed ext4 by
 a factor of 2.
 They also used stitching to perform well on sequential I/O in the presence of
 LSM-tree compaction.
 
-TableFS~\citep{tablefs} uses LevelDB to store file-system metadata.
+TableFS~\citep{tablefs} used LevelDB to store file-system metadata.
 They showed substantial performance improvements on metadata-intensive
 workloads, sometimes up to an order of magnitude.
 They used ext4 as an object store for large files, so sequential IO performance
 was com-parable to ext4.
-They also analyzed the FUSE overhead relative to a library implementation of
-their file system and found that FUSE could cause a 1000× increase in disk-read
-traffic.
+
+All the WOD-based file systems above were built on FUSE~\citep{fuse},
+in which the authors can write file systems in userspace.
+However, FUSE imposes expensive context-switch costs on the file system.
+The TableFS paper analyzed the FUSE overhead relative to a library
+implementation of their file system and
+found that FUSE could cause a 1000× increase in disk-read traffic.
+
+\betrfs~\cite{betrfs1,betrfs1tos,betrfs2,betrfs2tos,betrfs3} was the first
+WOD-based file system in kernel.
+Because of the underlying WOD, \betrfs performed well on benchmarks
+with small, random writes.
+
+The implementation in this dissertation is a newer version of \betrfs,
+which inherits the good random write performance from older versions and
+has a new design for namespace operations.
 
 \section{Full-path indexing in file systems}
 A number of systems store metadata in a hash table, keyed by full-paths, to look
