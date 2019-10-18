@@ -99,12 +99,12 @@ which inherits the good random write performance from older versions and
 has a new design for namespace operations.
 
 \section{Full-path indexing in file systems}
-A number of systems store metadata in a hash table, keyed by full-paths, to look
-up metadata in one IO.
-The Direct Lookup File System(DLFS) maps file metadata to on-disk buckets by
+A number of systems store metadata in a hash table,
+keyed by full-paths, to look up metadata in one IO.
+The Direct Lookup File System(DLFS) mapped file metadata to on-disk buckets by
 hashing full-paths~\citep{dlfs}.
-Hashing full-paths creates two challenges, files in the same directory may be
-scattered across disk, harming locality and DLFS directory renames require deep
+Hashing full-paths created two challenges, files in the same directory might be
+scattered across disk, harming locality and DLFS directory renames required deep
 recursive copies of both data and metadata.
 
 A number of distributed file systems have stored file metadata in a hash table,
@@ -116,9 +116,22 @@ different from keeping logically contiguous data physically contiguous on disk.
 Some systems, such as the Google File System, also do not support common POSIX
 operations, such as listing a directory.
 
-The dcache optimization proposed by Tsai et al. demonstrates that
+The dcache optimization proposed by Tsai et al. demonstrated that
 indexing the in-memory kernel cache by full-path names can improve several
 lookup operations, such as \texttt{open}~\citep{dcache}.
+In their system, a rename needed to invalidate all related caches.
+
+The first version of \betrfs~\cite{betrfs1,betrfs1tos} used full-path indexing
+and renames in the first version of \betrfs could be very slow.
+Therefore, later versions of \betrfs~\cite{betrfs2,betrfs2tos,betrfs3} used
+relative-path indexing.
+Relative-path indexing divided the directory tree into zones and used
+full-path indexing within a zone.
+Relative-path indexing showed good rename performance but penalized other
+operations.
+
+This dissertation brings full-path indexing back to \betrfs
+and implements efficient file system renames by doing tree surgery on \bets.
 
 \section{Tree surgery}
 
