@@ -8,19 +8,36 @@ systems, tree surgery and clones in file systems.
 
 \section{Write-optimization}
 
-\paragraph{WODs.}
-The most commonly used WOD is the log-structured merge tree (LSM-tree)~\cite{lsm}.
-Different from a \bet, a LSM-tree partitions key/value pairs into levels, with
-newer key/value pairs in higher levels.
-A level in a LSM-tree can be viewed as consisting of all nodes at one height in
-a \bet.
+\paragraph{Write-optimized dictionaries (WODs).}
+The most commonly used WOD is the
+log-structured merge tree (LSM-tree)~\cite{lsm}.
+The LSM-tree partitions key/value pairs into levels whose sizes
+grow exponentially.
+New key/value pairs are put into the first level and gradually merged
+into higher levels.
+The original paper implements each level as a tree.
+When one level is full, all key/value pairs in the level are merged into the
+next level.
 
-COLAs~\citep{cola} are an LSM-tree variant that uses fractional
-cascading~\citep{fcascading} to match the performance of \bets for both
-insertions and queries.
+Nowadays, most LSM-tree implementations use the design of
+LevelDB~\cite{leveldb}.
+Instead of using a tree to store key/value pairs in one level,
+LevelDB divides a level into multiple 4MiB SSTables and
+keeps the key range of each SSTable in the metadata file.
+When a level is full, LevelDB picks an SSTable in the level and merges the
+SSTable with SSTables in the next level.
 
-xDict~\citep{xdict} is a cache-oblivious write-optimized dictionary with
+There are also cache-oblivious WODs.
+The cache-oblivious lookahead array (COLA)~\citep{cola} stores
+each level in an array
+and  uses fractional cascading~\citep{fcascading} to improve query performance.
+The xDict~\citep{xdict} is a cache-oblivious write-optimized dictionary with
 asymptotic behavior similar to a \bet.
+However, only prototypes exist for cache-oblivious WODs.
+
+We use write-optimized \bets~\cite{bet} in our implementation.
+Compared to LSM-trees, \bets put all key/value pairs in one tree and have
+better asymptotic query performance~\cite{betlogin}.
 
 \paragraph{Key/value stores.}
 Many key/value stores use WODs as the underlying data structures.
@@ -199,7 +216,7 @@ whether the target block is inherited from the previous version.
 Therefore, GCTree can check whether to free a block by inspecting GCTree
 metadata and doesn't need to maintain reference counts.
 
-NOVA-Fortis~\citep{nova} targets at non-volatile main memory (NVMM).
+NOVA-Fortis~\citep{nova} is designed for non-volatile main memory (NVMM).
 In NOVA-Fortis, each inode has a private log with log entries pointing
 to data blocks.
 To enable snapshots, NOVA-Fortis keeps a global snapshot ID and adds the
