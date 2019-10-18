@@ -45,12 +45,17 @@ BigTable~\citep{bigtable}, Cassandra~\citep{cassandra}, HBase~\citep{hbase},
 LevelDB~\citep{leveldb} and RocksDB~\citep{rocksdb} implement LSM-trees,
 while \fti~\cite{fti} and Tucana~\cite{tucana} implement \bets.
 
-Many research focus on optimizing different aspects of the LSM-tree on LevelDB.
+Many papers focus on optimizing different aspects of the LSM-tree in LevelDB.
 LOCS~\citep{locs} optimizes LSM-trees for multi-channel SSDs.
-WiscKey~\citep{wisckey} reduces the size of the LSM-tree to fit it into the
-in-memory cache.
+WiscKey~\citep{wisckey} reduces the size of the LSM-tree
+so that the LSM-tree fits into the in-memory cache.
 PebblesDB~\citep{pebble} optimizes the implementation of LSM-trees in LevelDB to
 reduce write-amplification.
+
+In this dissertation,
+we provide the upper level file system with key/value store operations.
+Specifically, for a namespace operation, the file system calls a key/value
+store operation that finishes most the work efficiently.
 
 \paragraph{File systems.}
 The log-structured file system~\citep{lfs} treats the whole disk as a log,
