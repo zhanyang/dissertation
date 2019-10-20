@@ -146,10 +146,15 @@ Similar to a file system rename that moves a subtree in the directory hierarchy,
 one of their task was moving a subtree in the hierarchical data.
 However, in their use cases, hierarchy indexes were generally secondary
 indexes,
-while \betrfs uses the full-path to represent the directory hierarchy.
+while in \betrfs, full-path keys encode the directory hierarchy.
 
-Ceph~\citep{ceph} performs dynamic subtree partitioning~\citep{cephtree} on the
-directory tree to adaptively distribute metadata to different metadata servers.
+Ceph~\citep{ceph} used dynamic subtree partitioning~\citep{cephtree}
+to load balancing metadata servers.
+In Ceph, a busy metadata server would delegate subtrees of its workload to other
+metadata servers.
+Compared to namespace operations of this dissertation,
+the dynamic subtree partitioning in Ceph didn't change the overall directory
+hierarchy of the file system.
 
 \section{Clones in file systems}
 
@@ -194,6 +199,7 @@ directory tree to adaptively distribute metadata to different metadata servers.
         before putting anything to the directory).}
 \end{table}
 
+We also investigate file or directory clones in this dissertation.
 Table~\ref{tab:clonefs} summarizes the support of clones in file systems.
 
 \paragraph{File systems with snapshots.}
@@ -201,105 +207,123 @@ Table~\ref{tab:clonefs} summarizes the support of clones in file systems.
 Many modern file systems provide snapshot mechanism, making read-only copies of
 the whole file system.
 
-The WAFL file system~\citep{wafl} organizes all blocks in a tree structure.
-By copying the vol\_info block, which is the root of the tree structure, WAFL
-creates a snapshot.
-Later, WAFL introduces a level of indirection between the file system and the
+The WAFL file system~\citep{wafl} organized all blocks in a tree structure.
+By copying the ``vol\_info'' block, which was the root of the tree structure,
+WAFL created a snapshot.
+Later, WAFL introduced a level of indirection between the file system and the
 underlying disks~\citep{wafl-flexvol}.
-Therefore, multiple active instances of the file system can exist at the same
-time and WAFL can create writable snapshots of the whole file system by creating
+Therefore, multiple active instances of the file system could exist at the same
+time and WAFL could create writable snapshots of the whole file system by creating
 a new instance and copying the vol\_info block.
 
-FFS~\citep{ffs1,ffs2} creates snapshots by suspending all operations and creating a
-snapshot file whose inode is stored in the superblock.
-The size of the snapshot file is the same as the disk.
-Upon creation, most block pointers in the snapshot inode are marked
-``not copied'' or ``not used'' while some metadata blocks are copied to new
+FFS~\citep{ffs1,ffs2} created snapshots by suspending all operations and creating a
+snapshot file whose inode was stored in the superblock.
+The size of the snapshot file was the same as the disk.
+Upon creation, most block pointers in the snapshot inode were marked
+``not copied'' or ``not used'' while some metadata blocks were copied to new
 addresses.
-Reading a ``not copied'' address in the snapshot file results in reading the
+Reading a ``not copied'' address in the snapshot file resulted in reading the
 address on the disk.
-When a ``not copied'' block is modified in the file system, FFS copies the block
-to a new address and updates the block pointer in the snapshot inode.
+When a ``not copied'' block was modified in the file system, FFS copied the block
+to a new address and updated the block pointer in the snapshot inode.
 
-NILFS~\citep{nilfs2} is a log-structured file system that organizes all blocks
+NILFS~\citep{nilfs2} was a log-structured file system that organizes all blocks
 in a B-tree.
-In NILFS, each logical segment contains modified blocks and a checkpoint block
-used as the root of the B-tree.
-NILFS gets the current view of the file system from the checkpoint block
+In NILFS, each logical segment contained modified blocks and a checkpoint block,
+which was used as the root of the B-tree.
+NILFS got the current view of the file system from the checkpoint block
 of the last logical segment.
-NILFS can create a snapshot by making a checkpoint block permanent.
+NILFS could create a snapshot by making a checkpoint block permanent.
 
-ZFS~\citep{zfs} also stores the file system in a tree structure and creates
+ZFS~\citep{zfs} also stored the file system in a tree structure and created
 snapshots by copying the root of the tree (uberblock).
-To avoid maintaining one block bitmap for each snapshot, ZFS keeps birth time
+To avoid maintaining one block bitmap for each snapshot, ZFS kept birth time
 in each pointer.
-A block should not be freed if its birth time is earlier than any snapshot.
-In that case, the block is added to the dead list of the most recent snapshot.
-When a snapshot is deleted, all blocks in its dead list are checked again before
-being freed.
+A block should not be freed if its birth time was earlier than any snapshot.
+In that case, the block was added to the dead list of the most recent snapshot.
+When a snapshot was deleted,
+all blocks in its dead list were checked again before being freed.
 
-GCTree~\citep{gctree} implements snapshots on top of ext4.
-It chains different versions of a metadata block with GCTree metadata.
-Also, each pointer in the metadata block has a ``borrowed bit'' indicating
-whether the target block is inherited from the previous version.
-Therefore, GCTree can check whether to free a block by inspecting GCTree
-metadata and doesn't need to maintain reference counts.
+GCTree~\citep{gctree} implemented snapshots on top of ext4
+by chaining different versions of a metadata block with GCTree metadata.
+Also, each pointer in the metadata block had a ``borrowed bit'' indicating
+whether the target block was inherited from the previous version.
+Therefore, GCTree could check whether to free a block by inspecting GCTree
+metadata and didn't need to maintain reference counts.
 
-NOVA-Fortis~\citep{nova} is designed for non-volatile main memory (NVMM).
-In NOVA-Fortis, each inode has a private log with log entries pointing
+NOVA-Fortis~\citep{nova} was designed for non-volatile main memory (NVMM).
+In NOVA-Fortis, each inode had a private log with log entries pointing
 to data blocks.
-To enable snapshots, NOVA-Fortis keeps a global snapshot ID and adds the
+To enable snapshots, NOVA-Fortis kept a global snapshot ID and added the
 creating snapshot ID to log entries in inodes.
-NOVA-Fortis decides whether to free a block based on the snapshot ID in the log
+NOVA-Fortis decided whether to free a block based on the snapshot ID in the log
 entry and active snapshots.
-It also deals with DAX-style \texttt{mmap} by stalling page faults when marking
-all pages read-only.
+NOVA-Fortis also dealt with DAX-style \texttt{mmap}
+by stalling page faults when marking all pages read-only.
+
+Snapshots in file systems provide the basic functionality of cloning files
+and directories in a coarse granularity.
+However, users may want to clone only a certain file or directory,
+in which cloning the whole file system can waste time and space.
 
 \paragraph{File systems with file or directory clones.}
 
-Some file systems go further to support cloning one single directory or file.
+Some file systems go further to support cloning one single file or directory.
 
-The Episode file system~\citep{episode} groups everything under a directory into
-a fileset.
-Episode can create an immutable fileset clone by copying all the anodes (inodes)
-and marking all block pointers in the anodes copy-on-write.
-When Episode changes a block with a copy-on-write pointer, it allocates a new
-block and updates the block pointer in the active fileset.
+The Episode file system~\citep{episode} grouped everything under a directory
+into a fileset.
+Episode could create an immutable fileset clone by copying all the anodes
+(inodes) and marking all block pointers in the anodes copy-on-write.
+When modifying a block with a copy-on-write pointer, Episode allocated a new
+block and updated the block pointer in the active fileset.
 
-Ext3cow~\citep{ext3cow} creates immutable file clones by maintaining a
+Ext3cow~\citep{ext3cow} created immutable file clones by maintaining a
 system-wide epoch and inode epochs.
-When an inode is modified, ext3cow allocates a new inode if the epoch in the
-inode is older than the last snapshot epoch.
-Also, each directory stores birth and death epochs for each entry.
-Ext3cow can render the view of the file system in a certain epoch by fetching
+When an inode was modified, ext3cow allocated a new inode if the epoch in the
+inode was older than the last snapshot epoch.
+Also, each directory stored birth and death epochs for each entry.
+Ext3cow could render the view of the file system in a certain epoch by fetching
 entries alive at that epoch.
 
-Btrfs~\citep{btrfs} supports creating writable snapshot of the whole file system
+Btrfs~\citep{btrfs} supported creating writable snapshot of
+the whole file system
 by copying the root of the sub-volume tree in its COW friendly
 B-trees~\citep{cowbtree}.
-Btrfs clones a file by sharing all extents of the file.
-The extent allocation tree records extents with back pointers to the inodes.
-Therefore, Btrfs is able to move an extent at a later time.
+Btrfs cloned a file by sharing all extents of the file.
+The extent allocation tree recorded extents with back pointers to the inodes.
+Therefore, Btrfs was able to move an extent at a later time.
+
+All existing file systems either don't support directory clones
+or require pre-configuration for directory clones.
+Or, a file system with file clones can clone a directory by traversing the
+directory and cloning each file,
+which can be costly if the directory is huge.
 
 \paragraph{Versioning file systems}
 
 There are also versioning file systems that versions files and directories.
 
-EFS~\citep{efs} automatically versions files and directories.
-By allocating a new inode, it creates and finalizes a new file version when the
-file is opened and closed.
-Each versioned file has an inode log that keeps all versions of the file.
-All entries in directories have creation and deletion time.
+EFS~\citep{efs} automatically versioned files and directories.
+By allocating a new inode, EFS created and finalized a new file version when the
+file was opened and closed.
+Each versioned file had an inode log that keeps all versions of the file.
+All entries in directories had creation and deletion time.
 
-CVFS~\citep{cvfs} tries to store metadata versions more compactly.
-CVFS suggests two ways to save space in versioning file systems:
-1. journal-based metadata that keeps a current version and an undo log to
+CVFS~\citep{cvfs} tried to store metadata versions more compactly.
+CVFS suggested two ways to save space in versioning file systems:
+1. journal-based metadata that kept a current version and an undo log to
 recover previous versions;
-2. multiversion B-trees that keep all versions of metadata in a B-tree.
+2. multiversion B-trees that kept all versions of metadata in a B-tree.
 
-Versionfs~\citep{versionfs} builds a stackable versioning file system.
-Instead of building a new file system, Versionfs adds the functionality of
+Versionfs~\citep{versionfs} built a stackable versioning file system.
+Instead of building a new file system, Versionfs added the functionality of
 versioning on an existing file system by transferring certain operations to
 other operations.
-In this way, all versions of a file are maintained as different files in the
+In this way, all versions of a file were maintained as different files in the
 underlying file system.
+
+Versioning file systems study how to automatically provide file or directory
+clones for users,
+while this dissertation focuses on how to implement file or directory clones
+in a full-path-indexed file system.
+
