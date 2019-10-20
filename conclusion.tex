@@ -7,7 +7,7 @@ On one hand,
 traditional inode-based file systems have good performance for namespace
 operations because of the indirection between a directory and entries in the
 directory.
-However, this indirection stops these file systems from grouping metadat and data
+However, this indirection stops these file systems from grouping metadata and data
 under one directory close to each other on disk,
 especially when the file system ages.
 On the other hand, full-path-indexed file systems ensure locality by indexing
@@ -24,6 +24,14 @@ and accomplishes its task in a bounded number of I/Os through
 By invoking range-rename operations for file system renames,
 full-path-indexed \betrfs has bounded I/O costs for its renames.
 
+The techniques in the range-rename operation can be applied to other
+full-path-indexed file systems, as long as the underlying data structures are
+tree-based.
+For example, Wang et al.~\cite{fpibt} used a similar approach to build a
+full-path-indexed file system with B+-trees.
+Their results showed the generality of the range-rename techniques.
+Full-path indexing is no longer infeasible for general-purpose file systems.
+
 Then, this dissertation introduces another new operation on \bets, range-clone,
 that clones all keys with one prefix to have another prefix.
 By transforming lifted \bets into lifted \bedags, range-clone can utilize
@@ -34,10 +42,26 @@ framework of \bedags.
 Full-path-indexed \betrfs thus has write-optimized file or directory renames and
 clones by implementing them with range-clone operations.
 
+Similar to the range-rename operation, the range-clone operation on the critical
+path can be applied to other full-path-indexed file system with tree-based
+data structures.
+However, to write-optimize the range-clone operation with \goto messages,
+the full-path-index file system must be built on WODs.
+
 This dissertation shows that with the right optimizations, a full-path-indexed,
 write-optimized file system can
 have both efficient namespace operations and locality.
 There is no trade-off between them.
 Also, full-path indexing opens up new opportunities for namespace operations,
 such as directory clones.
+
+More generally, this dissertation introduces techniques that update or clone
+a contiguous range of keys.
+File systems are just one example of hierarchical data.
+The same techniques can be applied to other hierarchical data, such as XML.
+Moving a subtree, which is similar to file system renames,
+can be normal in such hierarchical data~\cite{orderindex}.
+Instead of using a secondary index, as people generally do~\cite{orderindex},
+one can encode the full-paths in the keys and use a similar approach as ours.
+
 
