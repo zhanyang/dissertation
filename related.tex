@@ -135,13 +135,18 @@ and implements efficient file system renames by doing tree surgery on \bets.
 
 \section{Tree surgery}
 
-Most tress used in storage systems only modify or rebalance node as the result
+Most trees used in storage systems only modify or rebalance node as the result
 of insertions and deletions.
 Operations, such as slicing out or relocating a subtree in tree surgery,
 are uncommon.
 
-Order Indexes~\citep{orderindex} introduces relocation updates which moves nodes
-in the tree, to support dynamic indexing.
+Finis et al.~\citep{orderindex} introduced ordered index for handling
+hierarchical data, such as XML, in relational database systems.
+Similar to a file system rename that moves a subtree in the directory hierarchy,
+one of their task was moving a subtree in the hierarchical data.
+However, in their use cases, hierarchy indexes were generally secondary
+indexes,
+while \betrfs uses the full-path to represent the directory hierarchy.
 
 Ceph~\citep{ceph} performs dynamic subtree partitioning~\citep{cephtree} on the
 directory tree to adaptively distribute metadata to different metadata servers.
