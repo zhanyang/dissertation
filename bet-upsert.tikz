@@ -78,7 +78,7 @@
 
     \draw[->, >=stealth] (-.222\textwidth, .112\textwidth) -- (-.245\textwidth, .065\textwidth);
     \draw[->, >=stealth] (-.148\textwidth, .112\textwidth) -- (-.125\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (.041\textwidth, .112\textwidth) -- (-.005, .065\textwidth);
+    \draw[->, >=stealth] (.041\textwidth, .112\textwidth) -- (-.005\textwidth, .065\textwidth);
     \draw[->, >=stealth] (.115\textwidth, .112\textwidth) -- (.115\textwidth, .065\textwidth);
     \draw[->, >=stealth] (.189\textwidth, .112\textwidth) -- (.235\textwidth, .065\textwidth);
     \draw[->, >=stealth] (-.072\textwidth, .237\textwidth) -- (-.195\textwidth, .19\textwidth);
