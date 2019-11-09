@@ -6,8 +6,8 @@
 
     \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.105\textwidth, 0) {};
     \node[anchor=south] at (.105\textwidth, .036\textwidth) {Node $F'$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.105\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (.105\textwidth, .015\textwidth) {R/a};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black] at (.105\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (.105\textwidth, .015\textwidth) {a};
 
     \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.21\textwidth, 0) {};
     \node[anchor=south] at (.21\textwidth, .036\textwidth) {Node $G$};
@@ -18,8 +18,8 @@
 
     \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.315\textwidth, 0) {};
     \node[anchor=south] at (.315\textwidth, .036\textwidth) {Node $H'$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.315\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (.315\textwidth, .015\textwidth) {/R/t};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black] at (.315\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (.315\textwidth, .015\textwidth) {t};
 
     \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.42\textwidth, 0) {};
     \node[anchor=south] at (.42\textwidth, .036\textwidth) {Node $H''$};
@@ -36,12 +36,12 @@
     \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (-.21\textwidth, 0) {};
     \node[anchor=south] at (-.21\textwidth, .036\textwidth) {Node $D'''$};
     \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.21\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (-.21\textwidth, 0.015\textwidth) {/G/a};
+    \node[anchor=south] at (-.21\textwidth, 0.015\textwidth) {G/a};
 
     \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (-.315\textwidth, 0) {};
     \node[anchor=south] at (-.315\textwidth, .036\textwidth) {Node $D'$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={blue!60}] at (-.315\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (-.315\textwidth, .015\textwidth) {/B/a};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black] at (-.315\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (-.315\textwidth, .015\textwidth) {a};
 
     \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (-.42\textwidth, 0) {};
     \node[anchor=south] at (-.42\textwidth, .036\textwidth) {Node $D''$};
