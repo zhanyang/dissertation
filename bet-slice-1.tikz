@@ -1,68 +1,68 @@
 \begin{tikzpicture}
-    \node[anchor=south, rectangle, rounded corners, minimum width=.09\textwidth, minimum height=.065\textwidth, draw=black] at (.0\textwidth, 0) {};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.0\textwidth, 0) {};
     \node[anchor=south] at (.0\textwidth, .036\textwidth) {Node $F''$};
     \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={orange!60}] at (.0\textwidth, .022\textwidth) {};
     \node[anchor=south] at (.0\textwidth, .015\textwidth) {/O/c};
 
-    \node[anchor=south, rectangle, rounded corners, minimum width=.09\textwidth, minimum height=.065\textwidth, draw=black] at (.095\textwidth, 0) {};
-    \node[anchor=south] at (.095\textwidth, .036\textwidth) {Node $F'$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.095\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (.095\textwidth, .015\textwidth) {/R/a};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.105\textwidth, 0) {};
+    \node[anchor=south] at (.105\textwidth, .036\textwidth) {Node $F'$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.105\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (.105\textwidth, .015\textwidth) {/R/a};
 
-    \node[anchor=south, rectangle, rounded corners, minimum width=.09\textwidth, minimum height=.065\textwidth, draw=black] at (.19\textwidth, 0) {};
-    \node[anchor=south] at (.19\textwidth, .036\textwidth) {Node $G$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.19\textwidth, .002\textwidth) {};
-    \node[anchor=south] at (.19\textwidth, -0.005\textwidth) {/R/o};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.19\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (.19\textwidth, .015\textwidth) {/R/n};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.21\textwidth, 0) {};
+    \node[anchor=south] at (.21\textwidth, .036\textwidth) {Node $G$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.21\textwidth, .002\textwidth) {};
+    \node[anchor=south] at (.21\textwidth, -0.005\textwidth) {/R/o};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.21\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (.21\textwidth, .015\textwidth) {/R/n};
 
-    \node[anchor=south, rectangle, rounded corners, minimum width=.09\textwidth, minimum height=.065\textwidth, draw=black] at (.285\textwidth, 0) {};
-    \node[anchor=south] at (.285\textwidth, .036\textwidth) {Node $H'$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.285\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (.285\textwidth, .015\textwidth) {/R/t};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.315\textwidth, 0) {};
+    \node[anchor=south] at (.315\textwidth, .036\textwidth) {Node $H'$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.315\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (.315\textwidth, .015\textwidth) {/R/t};
 
-    \node[anchor=south, rectangle, rounded corners, minimum width=.09\textwidth, minimum height=.065\textwidth, draw=black] at (.38\textwidth, 0) {};
-    \node[anchor=south] at (.38\textwidth, .036\textwidth) {Node $H''$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={yellow!60}] at (.38\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (.38\textwidth, .015\textwidth) {/Y/x};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (.42\textwidth, 0) {};
+    \node[anchor=south] at (.42\textwidth, .036\textwidth) {Node $H''$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={yellow!60}] at (.42\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (.42\textwidth, .015\textwidth) {/Y/x};
 
-    \node[anchor=south, rectangle, rounded corners, minimum width=.09\textwidth, minimum height=.065\textwidth, draw=black] at (-.095\textwidth, 0) {};
-    \node[anchor=south] at (-.095\textwidth, .036\textwidth) {Node $E$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={orange!60}] at (-.095\textwidth, .002\textwidth) {};
-    \node[anchor=south] at (-.095\textwidth, -0.005\textwidth) {/O/a};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.095\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (-.095\textwidth, .015\textwidth) {/G/c};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (-.105\textwidth, 0) {};
+    \node[anchor=south] at (-.105\textwidth, .036\textwidth) {Node $E$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={orange!60}] at (-.105\textwidth, .002\textwidth) {};
+    \node[anchor=south] at (-.105\textwidth, -0.005\textwidth) {/O/a};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.105\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (-.105\textwidth, .015\textwidth) {/G/c};
 
-    \node[anchor=south, rectangle, rounded corners, minimum width=.09\textwidth, minimum height=.065\textwidth, draw=black] at (-.19\textwidth, 0) {};
-    \node[anchor=south] at (-.19\textwidth, .036\textwidth) {Node $D$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.19\textwidth, .002\textwidth) {};
-    \node[anchor=south] at (-.19\textwidth, -0.005\textwidth) {/G/a};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={blue!60}] at (-.19\textwidth, .022\textwidth) {};
-    \node[anchor=south] at (-.19\textwidth, .015\textwidth) {/B/a};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.1\textwidth, minimum height=.065\textwidth, draw=black] at (-.21\textwidth, 0) {};
+    \node[anchor=south] at (-.21\textwidth, .036\textwidth) {Node $D$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.21\textwidth, .002\textwidth) {};
+    \node[anchor=south] at (-.21\textwidth, -0.005\textwidth) {/G/a};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={blue!60}] at (-.21\textwidth, .022\textwidth) {};
+    \node[anchor=south] at (-.21\textwidth, .015\textwidth) {/B/a};
 
-    \node[anchor=south, rectangle, rounded corners, minimum width=.13\textwidth, minimum height=.09\textwidth, draw=black] at (-.143\textwidth, .1\textwidth) {};
-    \node[anchor=south] at (-.143\textwidth, .161\textwidth) {Node $B$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.143\textwidth, .102\textwidth) {};
-    \node[anchor=south] at (-.143\textwidth, .095\textwidth) {/G/b};
-    \node[anchor=south, rectangle,minimum width=.128\textwidth, minimum height=.043\textwidth, draw=black] at (-.143\textwidth, .124\textwidth) {};
-    \node[anchor=south, rectangle, minimum width=.12\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.143\textwidth, .146\textwidth) {};
-    \node[anchor=south] at  (-.143\textwidth, .136\textwidth) {\delm(/G/c)};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.13\textwidth, minimum height=.09\textwidth, draw=black] at (-.158\textwidth, .1\textwidth) {};
+    \node[anchor=south] at (-.158\textwidth, .161\textwidth) {Node $B$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.158\textwidth, .102\textwidth) {};
+    \node[anchor=south] at (-.158\textwidth, .095\textwidth) {/G/b};
+    \node[anchor=south, rectangle,minimum width=.128\textwidth, minimum height=.043\textwidth, draw=black] at (-.158\textwidth, .124\textwidth) {};
+    \node[anchor=south, rectangle, minimum width=.12\textwidth, minimum height=.02\textwidth, draw=black, fill={green!60}] at (-.158\textwidth, .146\textwidth) {};
+    \node[anchor=south] at  (-.158\textwidth, .136\textwidth) {\delm(/G/c)};
 
-    \node[anchor=south, rectangle, rounded corners, minimum width=.34\textwidth, minimum height=.09\textwidth, draw=black] at (.19\textwidth, .1\textwidth) {};
-    \node[anchor=south] at (.19\textwidth, .161\textwidth) {Node $C$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.064\textwidth, .102\textwidth) {};
-    \node[anchor=south] at (.064\textwidth, .093\textwidth) {/R/$_{min}$};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.148\textwidth, .102\textwidth) {};
-    \node[anchor=south] at (.148\textwidth, .095\textwidth) {/R/m};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.232\textwidth, .102\textwidth) {};
-    \node[anchor=south] at (.232\textwidth, .095\textwidth) {/R/s};
-    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.316\textwidth, .102\textwidth) {};
-    \node[anchor=south] at (.316\textwidth, .093\textwidth) {/R/$_{max}$};
-    \node[anchor=south, rectangle, minimum width=.128\textwidth, minimum height=.043\textwidth, draw=black] at (.19\textwidth, .124\textwidth) {};
-    \node[anchor=south, rectangle, minimum width=.12\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.19\textwidth, .125\textwidth) {};
-    \node[anchor=south] at  (.19\textwidth, .115\textwidth) {\delm(/R/o)};
-    \node[anchor=south, rectangle, minimum width=.12\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.19\textwidth, .146\textwidth) {};
-    \node[anchor=south] at  (.19\textwidth, .136\textwidth) {\putm(/R/z)};
+    \node[anchor=south, rectangle, rounded corners, minimum width=.34\textwidth, minimum height=.09\textwidth, draw=black] at (.21\textwidth, .1\textwidth) {};
+    \node[anchor=south] at (.21\textwidth, .161\textwidth) {Node $C$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.084\textwidth, .102\textwidth) {};
+    \node[anchor=south] at (.084\textwidth, .093\textwidth) {/R/$_{min}$};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.168\textwidth, .102\textwidth) {};
+    \node[anchor=south] at (.168\textwidth, .095\textwidth) {/R/m};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.252\textwidth, .102\textwidth) {};
+    \node[anchor=south] at (.252\textwidth, .095\textwidth) {/R/s};
+    \node[anchor=south, rectangle, minimum width=.08\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.336\textwidth, .102\textwidth) {};
+    \node[anchor=south] at (.336\textwidth, .093\textwidth) {/R/$_{max}$};
+    \node[anchor=south, rectangle, minimum width=.128\textwidth, minimum height=.043\textwidth, draw=black] at (.21\textwidth, .124\textwidth) {};
+    \node[anchor=south, rectangle, minimum width=.12\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.21\textwidth, .125\textwidth) {};
+    \node[anchor=south] at  (.21\textwidth, .115\textwidth) {\delm(/R/o)};
+    \node[anchor=south, rectangle, minimum width=.12\textwidth, minimum height=.02\textwidth, draw=black, fill={red!60}] at (.21\textwidth, .146\textwidth) {};
+    \node[anchor=south] at  (.21\textwidth, .136\textwidth) {\putm(/R/z)};
 
     \node[anchor=south, rectangle, rounded corners, minimum width=.13\textwidth, minimum height=.09\textwidth, draw=black] at (-.024\textwidth, .225\textwidth) {};
     \node[anchor=south] at (-.024\textwidth, .286\textwidth) {Node $A$};
@@ -72,13 +72,13 @@
     \node[anchor=south, rectangle, minimum width=.12\textwidth, minimum height=.02\textwidth, draw=black, fill={blue!60}] at (-.024\textwidth, .271\textwidth) {};
     \node[anchor=south] at  (-.024\textwidth, .261\textwidth) {\putm(/B/b)};
 
-    \draw[->, >=stealth] (-.185\textwidth, .112\textwidth) -- (-.19\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (-.101\textwidth, .112\textwidth) -- (-.095\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (.022\textwidth, .112\textwidth) -- (.0\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (.106\textwidth, .112\textwidth) -- (.095\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (.19\textwidth, .112\textwidth) -- (.19\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (.274\textwidth, .112\textwidth) -- (.285\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (.358\textwidth, .112\textwidth) -- (.38\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (-.066\textwidth, .237\textwidth) -- (-.143\textwidth, .19\textwidth);
-    \draw[->, >=stealth] (.018\textwidth, .237\textwidth) -- (.19\textwidth, .19\textwidth);
+    \draw[->, >=stealth] (-.2\textwidth, .112\textwidth) -- (-.21\textwidth, .065\textwidth);
+    \draw[->, >=stealth] (-.116\textwidth, .112\textwidth) -- (-.105\textwidth, .065\textwidth);
+    \draw[->, >=stealth] (.042\textwidth, .112\textwidth) -- (.0\textwidth, .065\textwidth);
+    \draw[->, >=stealth] (.126\textwidth, .112\textwidth) -- (.105\textwidth, .065\textwidth);
+    \draw[->, >=stealth] (.21\textwidth, .112\textwidth) -- (.21\textwidth, .065\textwidth);
+    \draw[->, >=stealth] (.294\textwidth, .112\textwidth) -- (.315\textwidth, .065\textwidth);
+    \draw[->, >=stealth] (.378\textwidth, .112\textwidth) -- (.42\textwidth, .065\textwidth);
+    \draw[->, >=stealth] (-.066\textwidth, .237\textwidth) -- (-.158\textwidth, .19\textwidth);
+    \draw[->, >=stealth] (.018\textwidth, .237\textwidth) -- (.21\textwidth, .19\textwidth);
 \end{tikzpicture}
