@@ -43,9 +43,7 @@
     \draw[->, >=stealth] (-.084\textwidth, .112\textwidth) -- (-.105\textwidth, .065\textwidth);
     \draw[->, >=stealth] (.0\textwidth, .112\textwidth) -- (.0\textwidth, .065\textwidth);
     \draw[->, >=stealth] (.084\textwidth, .112\textwidth) -- (.105\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (-.084\textwidth, .237\textwidth) -- (-.105\textwidth, .19\textwidth);
     \draw[->, >=stealth] (0, .237\textwidth) -- (.0\textwidth, .19\textwidth);
-    \draw[->, >=stealth] (.084\textwidth, .237\textwidth) -- (.105\textwidth, .19\textwidth);
 
     \node[anchor=north,rectangle, minimum height=.02\textwidth, minimum width=.05\textwidth, fill={white}] at (0, .099\textwidth) {};
     \node[anchor=north] at (0, .106\textwidth) {lift(m/)};
