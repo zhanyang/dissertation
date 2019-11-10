@@ -67,6 +67,6 @@
     \draw[->, >=stealth] (.021\textwidth, .112\textwidth) -- (.0\textwidth, .065\textwidth);
     \draw[->, >=stealth] (.105\textwidth, .112\textwidth) -- (.105\textwidth, .065\textwidth);
     \draw[->, >=stealth] (.189\textwidth, .112\textwidth) -- (.21\textwidth, .065\textwidth);
-    \draw[->, >=stealth] (-.066\textwidth, .237\textwidth) -- (-.143\textwidth, .19\textwidth);
-    \draw[->, >=stealth] (.018\textwidth, .237\textwidth) -- (.095\textwidth, .19\textwidth);
+    \draw[->, >=stealth] (-.066\textwidth, .237\textwidth) -- (-.158\textwidth, .19\textwidth);
+    \draw[->, >=stealth] (.018\textwidth, .237\textwidth) -- (.105\textwidth, .19\textwidth);
 \end{tikzpicture}
