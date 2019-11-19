@@ -159,13 +159,10 @@ the data structure, gradually finishing the range-clone work.
 
 The range-clone operation can be implemented in the \bet by modifying the
 range-rename operation.
-In particular, after slicing out the source and destination subtrees with tree
-surgery,
-instead of swapping the two subtrees and injecting a range-delete message
-for source keys in a range-rename operation,
-a range-clone operation can share the source subtree in both source and
-destination,
-and garbage collect the destination subtree.
+In particular, the range-rename operation swaps the two isolated subtree after
+slicing.
+Instead, a range-clone implementation can share the source subtree in both
+source and destination, and garbage collect the destination subtree.
 
 Figure~\ref{fig:rc} shows an example of performing the work of
 range-clone(``/R/'', ``/B/'') on the lifted \bet in Figure~\ref{subfig:rc-1}.
@@ -181,6 +178,7 @@ subtree, rooted at Node $B'$, and sets the parent-to-child pointer between
 prefix ``/B/'', respectively)
 to Node $C'$,
 which is the root node of the source subtree.
+In the interest of clarity, irrelevant nodes are omitted from the figure.
 
 The subtree rooted at Node $C'$ is now shared by two parent-to-child pointers,
 and queries for
