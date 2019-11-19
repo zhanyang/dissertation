@@ -68,7 +68,28 @@ key in Node $E$,
 that key/value pair is invalidated by the message in Node $B$ and the
 query returns \texttt{NOT\_FOUND}.
 Likewise, a query for ``/R/z'' returns the value in the message
-\putm(``/R/z'',...) in node $C$.
+\putm(``/R/z'') in node $C$.
+
+\begin{figure}[t]
+    \centering
+    \input{bet-multi.tikz}
+    \caption[A \bet example in which two messages have the same key]{\label{fig:bet-multi}
+        There can be multiple messages with the same key in a \bet.
+        Messages that are closer to the root of the \bet are newer, and thus
+        override older messages.}
+\end{figure}
+
+There can be multiple messages with the same key in a \bet.
+For example, in Figure~\ref{fig:bet-multi}, the user first inserts a key/value
+pair with key ``/R/z'' and then deletes the key ``/R/z''.
+This operation generates two messages,
+\delm(``/R/z'') in Node $A$ and \putm(``/R/z'') in Node $C$.
+Because \delm(``/R/z'') comes after \putm(``/R/z''),
+the node that contains \delm(``/R/z'') is closer to the root of the \bet than
+the node that contains \putm(``/R/z'').
+Therefore, \putm(``/R/z'') will be applied to the leaf node before
+\delm(``/R/z'') and queries will apply \delm(``/R/z'') after applying
+\putm(``/R/z'') (so queries will not observe any key/value pair with key ``/R/z'').
 
 \begin{table}[t]
     \centering
