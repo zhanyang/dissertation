@@ -112,14 +112,13 @@ The I/O-cost of this range-rename implementation increases
 when the number of source and destination key/value pairs grows.
 Efficient file system renames in full-path-indexed \betrfs require an efficient
 range-rename implementation, that is, a range-rename implementation that
-completes in a bounded number of I/Os
-that doesn't grow logarithmically as the number of related keys grows.
+completes in $O(tree\ height)$ I/Os.
 
 \section{The range-rename operation}
 \label{sec:rr:op}
 
 This section describes the range-rename implementation on the
-\bet whose cost doesn't grow logarithmically as the number of related keys grows.
+\bet that completes in $O(tree\ height)$ I/Os.
 The efficient range-rename operation requires lexicographic key order so that
 keys with the same prefix are contiguous in the key space.
 With contiguous keys, the range-rename operation can create an isolated subtree,
@@ -467,7 +466,12 @@ Thus, the number of nodes that must be lifted during a range-rename is no more
 than the nodes that must be sliced during tree surgery, and proportional to
 the height of the tree ($O(log_{B}{N}/\varepsilon)$).
 
-In summary, the I/O cost of a range-rename is $O(log_{B}{N}/\varepsilon)$.
+In summary, the I/O cost of a range-rename operation is
+$O(log_{B}{N}/\varepsilon)$.
+Therefore, the cost of a range-rename operation is bounded by the \bet height,
+which is determined by the total size of key/value pairs in the \bet.
+No matter how many key/value pairs are involved in the range-rename operation,
+the cost of a range-rename operation doesn't change logarithmically.
 
 \section{Implementation}
 \label{sec:rr:impl}
