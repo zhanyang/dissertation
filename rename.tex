@@ -145,17 +145,17 @@ to implement the efficient range-rename operation on lifted \bets.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet.tikz}
+        \input{fig/bet.tikz}
         \caption{\label{subfig:slice-1} The \bet before tree surgery.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-slice-1.tikz}
+        \input{fig/bet-slice-1.tikz}
         \caption{\label{subfig:slice-2} Tree surgery splits leaf nodes.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-slice-2.tikz}
+        \input{fig/bet-slice-2.tikz}
         \caption{\label{subfig:slice-3} Tree surgery splits the LCA.}
     \end{subfigure}
     \caption[A tree surgery example]{\label{fig:slice}
@@ -239,18 +239,18 @@ node before slicing.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{lift-1.tikz}
+        \input{fig/lift-1.tikz}
         \caption{\label{subfig:lift-0} A \bet without key lifting.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{lift-2.tikz}
+        \input{fig/lift-2.tikz}
         \caption{\label{subfig:lift-1} The lifted \bet with the same keys.
             Lifted prefixes are marked as strike-through in keys.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{lift-3.tikz}
+        \input{fig/lift-3.tikz}
         \caption{\label{subfig:lift-2} When the subtree rooted at Node $B$ is
             bounded by two different pivots, all keys in the subtree change
             their prefixes.}
@@ -355,18 +355,18 @@ just with a slightly different data structure.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-lift.tikz}
+        \input{fig/bet-lift.tikz}
         \caption{\label{subfig:rr-1} The \bet before the range-rename operation.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-rr-1.tikz}
+        \input{fig/bet-rr-1.tikz}
         \caption{\label{subfig:rr-2} The range-rename operations performs tree surgery
             to slice out the source and destination subtrees.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-rr-2.tikz}
+        \input{fig/bet-rr-2.tikz}
         \caption{\label{subfig:rr-3} The range-rename operation swaps the subtrees and
             injects a range-delete message for source keys.}
     \end{subfigure}

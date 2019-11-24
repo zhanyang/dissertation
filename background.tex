@@ -40,7 +40,7 @@ as well as key/value pairs in leaf nodes.
 
 \begin{figure}[t]
     \centering
-    \input{bet.tikz}
+    \input{fig/bet.tikz}
     \caption[A \bet example]{\label{fig:bet}
         In a \bet, a leaf nodes stores key/value pairs, while a non-leaf node
         has pivots, parent-to-child pointers and a message buffer.
@@ -72,7 +72,7 @@ Likewise, a query for ``/R/z'' returns the value in the message
 
 \begin{figure}[t]
     \centering
-    \input{bet-multi.tikz}
+    \input{fig/bet-multi.tikz}
     \caption[A \bet example in which two messages have the same key]{\label{fig:bet-multi}
         There can be multiple messages with the same key in a \bet.
         Messages that are closer to the root of the \bet are newer, and thus
@@ -178,7 +178,7 @@ because it doesn't need to fetch the old value.
 
 \begin{figure}[t]
     \centering
-    \input{bet-upsert.tikz}
+    \input{fig/bet-upsert.tikz}
     \caption[An example of an upsert in a \bet]{\label{fig:upsert}
         An upsert message stores the description of modification on the old
         value associated with the key.}

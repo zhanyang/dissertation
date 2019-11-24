@@ -136,18 +136,18 @@ the data structure, gradually finishing the range-clone work.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-lift.tikz}
+        \input{fig/bet-lift.tikz}
         \caption{\label{subfig:rc-1} The \bet before the range-clone operation.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-rr-1.tikz}
+        \input{fig/bet-rr-1.tikz}
         \caption{\label{subfig:rc-2} The range-clone operation slices out the
             source and destination subtrees.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-rr-rc.tikz}
+        \input{fig/bet-rr-rc.tikz}
         \caption{\label{subfig:rc-3} The range-clone operations shares the source
             subtree at both source and destination and garbage-collects the
             destination subtree.}
@@ -244,13 +244,13 @@ node and performs the flush.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-ref-1.tikz}
+        \input{fig/bet-ref-1.tikz}
         \caption{\label{subfig:cow-1} Node $C$ is a shared by two
             parent-to-child pointers in Node $A$.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{bet-ref-2.tikz}
+        \input{fig/bet-ref-2.tikz}
         \caption{\label{subfig:cow-2} Before Node $A$ flushes ``/B/'' messages,
         it breaks the sharing by cloning Node $C$ to Node $I$.}
     \end{subfigure}
@@ -311,19 +311,19 @@ key range (\spre$_{min}$, \spre$_{max}$) in the subsequent search.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{goto-1.tikz}
+        \input{fig/goto-1.tikz}
         \caption{\label{subfig:goto-1} The \bet before the range-clone operation.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{goto-2.tikz}
+        \input{fig/goto-2.tikz}
         \caption{\label{subfig:goto-2}
             The range-clone operation reaches the source LCA, Node $C$,
             flushing messages along the way.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{goto-3.tikz}
+        \input{fig/goto-3.tikz}
         \caption{\label{subfig:goto-3} The range-clone operation injects a \goto message
             for destination (``/B/'') keys into the root node.}
     \end{subfigure}
@@ -450,19 +450,19 @@ the \goto message from the node's buffer to the child's buffer.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{goto-flush-1.tikz}
+        \input{fig/goto-flush-1.tikz}
         \caption{\label{subfig:flush-1} The lifted \bedag cannot not flushed the
             \goto message to a single child of Node $A$.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{goto-flush-2.tikz}
+        \input{fig/goto-flush-2.tikz}
         \caption{\label{subfig:flush-2} The lifted \bedag garbage collects Node
             $C$ and merges Node $B$ and $D$ into Node $B'$.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{goto-flush-3.tikz}
+        \input{fig/goto-flush-3.tikz}
         \caption{\label{subfig:flush-3} The lifted \bedag flushes the \goto message
             to Node $B'$.}
     \end{subfigure}
@@ -570,13 +570,13 @@ Also, \xf functions serves as filters, bounding the results queries may return.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{goto-3.tikz}
+        \input{fig/goto-3.tikz}
         \caption{\label{subfig:spvt-1} The \goto message cannot be flushed to
             Node $B$, which is at the same as Node $C$.}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{goto-4.tikz}
+        \input{fig/goto-4.tikz}
         \caption{\label{subfig:spvt-2} The \goto message becomes pivots and a
             parent-to-child pointer, and adds \xf functions to the parent-to-child pointers.}
     \end{subfigure}
@@ -633,13 +633,13 @@ keys in the child.
 \begin{figure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{xf-1.tikz}
+        \input{fig/xf-1.tikz}
         \caption{\label{subfig:xf-1} The parent-to-child pointer from Node $A$
             to Node $B$ has \xf(``/R/'').}
     \end{subfigure}
     \begin{subfigure}{\textwidth}
         \centering
-        \input{xf-2.tikz}
+        \input{fig/xf-2.tikz}
         \caption{\label{subfig:xf-2} To remove the \xf function, it discards
             exterior children and adds \xf functions to parent-to-child pointers
             of fringe children.}
